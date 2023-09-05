@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dbt-ibis"
+dependencies = ["dbt-core", "ibis-framework[duckdb]"]
+requires-python = ">=3.9"
+dynamic = ["version"]
+
+[project.scripts]
+dbt-ibis = "dbt_ibis:main"
+
+[project.optional-dependencies]
+dev = [
+    "hatch",
+    "ruff",
+    "black",
+    "ipykernel",
+    "ipython",
+    "ipdb",
+    "pytest",
+    "mypy",
+]
+
+[tool.hatch.version]
+path = "dbt_ibis.py"
