@@ -4,12 +4,18 @@ build-backend = "hatchling.build"
 
 [project]
 name = "dbt-ibis"
+authors = [{ name = "Stefan Binder" }]
 dependencies = ["dbt-core", "ibis-framework[duckdb]"]
+readme = "README.md"
 requires-python = ">=3.9"
 dynamic = ["version"]
+license-files = { paths = ["LICENSE"] }
 
 [project.scripts]
 dbt-ibis = "dbt_ibis:main"
+
+[project.urls]
+Source = "https://github.com/binste/dbt-ibis"
 
 [project.optional-dependencies]
 dev = [
@@ -25,3 +31,69 @@ dev = [
 
 [tool.hatch.version]
 path = "dbt_ibis.py"
+
+[tool.hatch.envs.default]
+features = ["dev"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+select = [
+    # flake8-bugbear
+    "B",
+    # flake8-comprehensions
+    "C4",
+    # pycodestyle-error
+    "E",
+    # pycodestyle-warning
+    "W",
+    # pyflakes
+    "F",
+    # flake8-tidy-imports
+    "TID",
+    "I",
+    "C90",
+    "UP",
+    "YTT",
+    "S",
+    "BLE",
+    "A",
+    "T10",
+    "ISC",
+    "ICN",
+    "INP",
+    "PIE",
+    "T20",
+    "PT",
+    "RET501",
+    "RET502",
+    "RET503",
+    "SLF",
+    "SIM",
+    "TCH",
+    "ARG",
+    "PTH",
+    "ERA",
+    "PD",
+    "PGH",
+    "RUF",
+]
+ignore = [
+    # Rule prefers implicitly concatenated strings over explicitly.
+    # We prefer explicitly concatenated strings.
+    "ISC003",
+]
+exclude = [".git", "build", "__pycache__"]
+
+[tool.ruff.per-file-ignores]
+# Allow assert statements in test files
+"tests/**/*.py" = ["S101"]
+
+[tool.mypy]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+strict_equality = true
+strict_concatenate = true
+check_untyped_defs = true
+disallow_untyped_defs = true

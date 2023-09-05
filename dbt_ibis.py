@@ -1,7 +1,4 @@
-import importlib
-import pickle
 import re
-import shutil
 import subprocess
 import sys
 from importlib.machinery import SourceFileLoader
@@ -55,7 +52,7 @@ def _compile_ibis_models(
         spec.loader.exec_module(model_module)
 
         # Get Ibis expression
-        model_func = getattr(model_module, "model")
+        model_func = model_module.model
         depends_on = getattr(model_func, "depends_on", [])
         references = []
         for r in depends_on:
@@ -121,7 +118,7 @@ def _to_dbt_sql(model):
 def main():
     _compile_ibis_models()
     process = subprocess.Popen(
-        ["dbt"] + sys.argv[1:], stdout=sys.stdout, stderr=sys.stderr
+        ["dbt"] + sys.argv[1:], stdout=sys.stdout, stderr=sys.stderr  # noqa: S603
     )
     process.wait()
 
