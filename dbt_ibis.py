@@ -5,7 +5,7 @@ from collections import defaultdict
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
-from typing import Final
+from typing import Callable, Final
 
 import ibis
 import ibis.expr.datatypes as dt
@@ -26,43 +26,20 @@ _IBIS_MODEL_FILE_EXTENSION: Final = "ibis"
 
 def _compile_ibis_models(
     dbt_model_folder: Path = Path("models"),
-):
-    model_file_paths = list(dbt_model_folder.glob(f"**/*.{_IBIS_MODEL_FILE_EXTENSION}"))
+) -> None:
+    ibis_model_files = list(dbt_model_folder.glob(f"**/*.{_IBIS_MODEL_FILE_EXTENSION}"))
 
     # Create empty placeholder file for every Ibis model so that we can run dbt parse
-    dbt_model_file_paths: list[Path] = []
-    for model_file in model_file_paths:
-        model_name = model_file.stem
-        model_folder = model_file.parent
-        dbt_sql_folder = model_folder / "__ibis_sql"
-        dbt_sql_folder.mkdir(parents=False, exist_ok=True)
-        dbt_model_file = dbt_sql_folder / f"{model_name}.sql"
-        if dbt_model_file.exists():
-            dbt_model_file.unlink()
-        dbt_model_file.touch(exist_ok=False)
-        dbt_model_file_paths.append(dbt_model_file)
+    ibis_dbt_model_files = _create_empty_placeholder_files(ibis_model_files)
 
-    dbt_manifest = _get_dbt_manifest()
-    nodes = list(dbt_manifest.nodes.values())
-    models = [n for n in nodes if n.resource_type.name == "Model"]
-    models_lookup = {m.name: m for m in models}
+    models_lookup, sources_lookup = _get_lookups()
 
-    sources = dbt_manifest.sources.values()
-    sources_lookup = defaultdict(dict)
-    for s in sources:
-        sources_lookup[s.source_name][s.name] = s
-
-    for model_file, dbt_model_file in zip(model_file_paths, dbt_model_file_paths):
+    for model_file, dbt_model_file in zip(ibis_model_files, ibis_dbt_model_files):
         model_name = model_file.stem
 
-        spec = spec_from_loader(
-            model_name, SourceFileLoader(model_name, str(model_file))
-        )
-        model_module = module_from_spec(spec)
-        spec.loader.exec_module(model_module)
+        model_func = _get_model_func(model_name, model_file)
 
         # Get Ibis expression
-        model_func = model_module.model
         depends_on = getattr(model_func, "depends_on", [])
         references = []
         for r in depends_on:
@@ -84,10 +61,48 @@ def _compile_ibis_models(
         dbt_model_file.write_text(dbt_sql)
 
 
+def _create_empty_placeholder_files(model_file_paths: list[Path]) -> list[Path]:
+    dbt_model_file_paths: list[Path] = []
+    for model_file in model_file_paths:
+        model_name = model_file.stem
+        model_folder = model_file.parent
+        dbt_sql_folder = model_folder / "__ibis_sql"
+        dbt_sql_folder.mkdir(parents=False, exist_ok=True)
+        dbt_model_file = dbt_sql_folder / f"{model_name}.sql"
+        if dbt_model_file.exists():
+            dbt_model_file.unlink()
+        dbt_model_file.touch(exist_ok=False)
+        dbt_model_file_paths.append(dbt_model_file)
+    return dbt_model_file_paths
+
+
 def _get_dbt_manifest() -> Manifest:
     res: dbtRunnerResult = dbtRunner().invoke(["parse"])
     manifest: Manifest = res.result
     return manifest
+
+
+def _get_model_func(
+    model_name: str, model_file: Path
+) -> Callable[..., ibis.expr.types.Table]:
+    spec = spec_from_loader(model_name, SourceFileLoader(model_name, str(model_file)))
+    model_module = module_from_spec(spec)
+    spec.loader.exec_module(model_module)
+    model_func = model_module.model
+    return model_func
+
+
+def _get_lookups() -> tuple[dict, dict]:
+    dbt_manifest = _get_dbt_manifest()
+    nodes = list(dbt_manifest.nodes.values())
+    models = [n for n in nodes if n.resource_type.name == "Model"]
+    models_lookup = {m.name: m for m in models}
+
+    sources = dbt_manifest.sources.values()
+    sources_lookup = defaultdict(dict)
+    for s in sources:
+        sources_lookup[s.source_name][s.name] = s
+    return models_lookup, dict(sources_lookup)
 
 
 def _parse_db_dtype_to_ibis_dtype(db_dtype: str) -> dt.DataType:
