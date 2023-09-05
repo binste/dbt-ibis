@@ -1,9 +1,11 @@
 import re
 import subprocess
 import sys
+from collections import defaultdict
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
+from typing import Final
 
 import ibis
 import ibis.expr.datatypes as dt
@@ -14,9 +16,12 @@ from dbt.contracts.graph.manifest import Manifest
 __version__ = "0.1.0dev"
 
 
-_TABLE_IDENTIFIER_PREFIX = "_ibis_dbt__"
-_TABLE_IDENTIFIER_SUFFIX = "__identifier_"
-_IBIS_MODEL_FILE_EXTENSION = "ibis"
+_REF_IDENTIFIER_PREFIX: Final = "__ibd_ref__"
+_REF_IDENTIFIER_SUFFIX: Final = "__rid__"
+_SOURCE_IDENTIFIER_PREFIX: Final = "__ibd_source__"
+_SOURCE_IDENTIFIER_SUFFIX: Final = "__sid__"
+_SOURCE_IDENTIFIER_SEPARATOR: Final = "__ibd_sep__"
+_IBIS_MODEL_FILE_EXTENSION: Final = "ibis"
 
 
 def _compile_ibis_models(
@@ -24,7 +29,7 @@ def _compile_ibis_models(
 ):
     model_file_paths = list(dbt_model_folder.glob(f"**/*.{_IBIS_MODEL_FILE_EXTENSION}"))
 
-    # Create empty placeholder files so that we can run dbt parse
+    # Create empty placeholder file for every Ibis model so that we can run dbt parse
     dbt_model_file_paths: list[Path] = []
     for model_file in model_file_paths:
         model_name = model_file.stem
@@ -42,6 +47,11 @@ def _compile_ibis_models(
     models = [n for n in nodes if n.resource_type.name == "Model"]
     models_lookup = {m.name: m for m in models}
 
+    sources = dbt_manifest.sources.values()
+    sources_lookup = defaultdict(dict)
+    for s in sources:
+        sources_lookup[s.source_name][s.name] = s
+
     for model_file, dbt_model_file in zip(model_file_paths, dbt_model_file_paths):
         model_name = model_file.stem
 
@@ -56,9 +66,15 @@ def _compile_ibis_models(
         depends_on = getattr(model_func, "depends_on", [])
         references = []
         for r in depends_on:
+            if isinstance(r, source):
+                columns = sources_lookup[r.source_name][r.table_name].columns
+            elif isinstance(r, ref):
+                columns = models_lookup[r.model_name].columns
+            else:
+                raise ValueError(f"Unknown reference type: {type(r)}")
             schema = {
                 c.name: _parse_db_dtype_to_ibis_dtype(c.data_type)
-                for c in models_lookup[r.name].columns.values()
+                for c in columns.values()
             }
             references.append(r.to_ibis(schema))
         model = model_func(*references)
@@ -82,15 +98,31 @@ def _parse_db_dtype_to_ibis_dtype(db_dtype: str) -> dt.DataType:
 
 
 class ref:
-    def __init__(self, name: str) -> None:
-        self.name = name
+    def __init__(self, model_name: str) -> None:
+        self.model_name = model_name
 
     def to_ibis(self, schema) -> ibis.expr.types.Table:
         if schema is None:
             raise NotImplementedError
         return ibis.table(
             schema,
-            name=f"{_TABLE_IDENTIFIER_PREFIX}{self.name}{_TABLE_IDENTIFIER_SUFFIX}",
+            name=f"{_REF_IDENTIFIER_PREFIX}{self.model_name}{_REF_IDENTIFIER_SUFFIX}",
+        )
+
+
+class source:
+    def __init__(self, source_name: str, table_name: str) -> None:
+        self.source_name = source_name
+        self.table_name = table_name
+
+    def to_ibis(self, schema) -> ibis.expr.types.Table:
+        if schema is None:
+            raise NotImplementedError
+        return ibis.table(
+            schema,
+            name=f"{_SOURCE_IDENTIFIER_PREFIX}{self.source_name}"
+            + f"{_SOURCE_IDENTIFIER_SEPARATOR}{self.table_name}"
+            + _SOURCE_IDENTIFIER_SUFFIX,
         )
 
 
@@ -107,12 +139,26 @@ def depends_on(*references):
 
 def _to_dbt_sql(model):
     sql = ibis.to_sql(model)
-    dbt_sql = re.sub(
-        _TABLE_IDENTIFIER_PREFIX + "(.+?)" + _TABLE_IDENTIFIER_SUFFIX,
+    capture_pattern = "(.+?)"
+
+    # Insert ref jinja function
+    sql = re.sub(
+        _REF_IDENTIFIER_PREFIX + capture_pattern + _REF_IDENTIFIER_SUFFIX,
         r"{{ ref('\1') }}",
         sql,
     )
-    return dbt_sql
+
+    # Insert source jinja function
+    sql = re.sub(
+        _SOURCE_IDENTIFIER_PREFIX
+        + capture_pattern
+        + _SOURCE_IDENTIFIER_SEPARATOR
+        + capture_pattern
+        + _SOURCE_IDENTIFIER_SUFFIX,
+        r"{{ source('\1', '\2') }}",
+        sql,
+    )
+    return sql
 
 
 def main():

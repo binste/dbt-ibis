@@ -1,5 +1,3 @@
-# LICENSE NOTICE: This file was added compared to the original version
-
 from dbt_ibis import depends_on, ref
 
 

@@ -27,6 +27,7 @@ dev = [
     "ipdb",
     "pytest",
     "mypy",
+    "dbt-duckdb",
 ]
 
 [tool.hatch.version]

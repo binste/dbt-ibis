@@ -1,5 +1,10 @@
 ## Note on changes
-Demo project comes from https://github.com/dbt-labs/jaffle_shop. All files which were modified have a comment in the beginning or are in a `__ibis_sql` folder.
+Demo project comes from https://github.com/dbt-labs/jaffle_shop. All files which were modified either have a comment in the beginning or are in the list below:
+
+* all files in the `__ibis_sql` folders
+* `sources_db.duckdb`
+* `generate_sources_db.py`
+*  all files with extension `.ibis`
 
 The rest of this README is taken from the original project.
 

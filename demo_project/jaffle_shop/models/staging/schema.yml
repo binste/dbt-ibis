@@ -29,3 +29,16 @@ models:
         tests:
           - accepted_values:
               values: ['credit_card', 'coupon', 'bank_transfer', 'gift_card']
+
+
+sources:
+  - name: sources_db
+    database: sources_db
+    schema: main
+    tables:
+      - name: stores
+        columns:
+          - name: store_id
+            data_type: varchar
+          - name: store_name
+            data_type: varchar

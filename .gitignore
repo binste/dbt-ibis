@@ -1,7 +1,7 @@
 *.ipynb
 .DS_Store
 .user.yml
-*.duckdb
+demo_project/jaffle_shop/db.duckdb
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
