@@ -1,5 +1,5 @@
 # dbt-ibis
-More infos to come
+Stay tuned, more infos to come.
 
 ## Development
 ```bash
@@ -7,9 +7,11 @@ pip install -e '.[dev]'
 ```
 
 ## Demo project
-Demo project comes from https://github.com/dbt-labs/jaffle_shop
+Demo project is based on https://github.com/dbt-labs/jaffle_shop
 
 ```bash
+cd demo_project/jaffle_shop
+
 dbt-ibis seed
 dbt-ibis run
 ```
