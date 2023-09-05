@@ -29,7 +29,7 @@ def _compile_ibis_models(
     for model_file in model_file_paths:
         model_name = model_file.stem
         model_folder = model_file.parent
-        dbt_sql_folder = model_folder / "_ibis_sql"
+        dbt_sql_folder = model_folder / "__ibis_sql"
         dbt_sql_folder.mkdir(parents=False, exist_ok=True)
         dbt_model_file = dbt_sql_folder / f"{model_name}.sql"
         if dbt_model_file.exists():

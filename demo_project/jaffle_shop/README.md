@@ -1,3 +1,8 @@
+## Note on changes
+Demo project comes from https://github.com/dbt-labs/jaffle_shop. All files which were modified have a comment in the beginning or are in a `__ibis_sql` folder.
+
+The rest of this README is taken from the original project.
+
 ## Testing dbt project: `jaffle_shop`
 
 `jaffle_shop` is a fictional ecommerce store. This dbt project transforms raw data from an app database into a customers and orders model ready for analytics.
