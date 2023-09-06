@@ -2,6 +2,7 @@ import re
 import subprocess
 import sys
 from collections import defaultdict
+from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
@@ -22,6 +23,46 @@ _SOURCE_IDENTIFIER_PREFIX: Final = "__ibd_source__"
 _SOURCE_IDENTIFIER_SUFFIX: Final = "__sid__"
 _SOURCE_IDENTIFIER_SEPARATOR: Final = "__ibd_sep__"
 _IBIS_MODEL_FILE_EXTENSION: Final = "ibis"
+
+
+@dataclass
+class ref:
+    model_name: str
+
+    def to_ibis(self, schema) -> ibis.expr.types.Table:
+        if schema is None:
+            raise NotImplementedError
+        return ibis.table(
+            schema,
+            name=f"{_REF_IDENTIFIER_PREFIX}{self.model_name}{_REF_IDENTIFIER_SUFFIX}",
+        )
+
+
+@dataclass
+class source:
+    source_name: str
+    table_name: str
+
+    def to_ibis(self, schema) -> ibis.expr.types.Table:
+        if schema is None:
+            raise NotImplementedError
+        return ibis.table(
+            schema,
+            name=f"{_SOURCE_IDENTIFIER_PREFIX}{self.source_name}"
+            + f"{_SOURCE_IDENTIFIER_SEPARATOR}{self.table_name}"
+            + _SOURCE_IDENTIFIER_SUFFIX,
+        )
+
+
+def depends_on(*references):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            return func(*args, **kwargs)
+
+        wrapper.depends_on = references
+        return wrapper
+
+    return decorator
 
 
 def _compile_ibis_models(
@@ -110,46 +151,6 @@ def _parse_db_dtype_to_ibis_dtype(db_dtype: str) -> dt.DataType:
     from ibis.backends.duckdb.datatypes import parse
 
     return parse(db_dtype)
-
-
-class ref:
-    def __init__(self, model_name: str) -> None:
-        self.model_name = model_name
-
-    def to_ibis(self, schema) -> ibis.expr.types.Table:
-        if schema is None:
-            raise NotImplementedError
-        return ibis.table(
-            schema,
-            name=f"{_REF_IDENTIFIER_PREFIX}{self.model_name}{_REF_IDENTIFIER_SUFFIX}",
-        )
-
-
-class source:
-    def __init__(self, source_name: str, table_name: str) -> None:
-        self.source_name = source_name
-        self.table_name = table_name
-
-    def to_ibis(self, schema) -> ibis.expr.types.Table:
-        if schema is None:
-            raise NotImplementedError
-        return ibis.table(
-            schema,
-            name=f"{_SOURCE_IDENTIFIER_PREFIX}{self.source_name}"
-            + f"{_SOURCE_IDENTIFIER_SEPARATOR}{self.table_name}"
-            + _SOURCE_IDENTIFIER_SUFFIX,
-        )
-
-
-def depends_on(*references):
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            return func(*args, **kwargs)
-
-        wrapper.depends_on = references
-        return wrapper
-
-    return decorator
 
 
 def _to_dbt_sql(model):
