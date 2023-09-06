@@ -1,6 +1,7 @@
 import re
 import subprocess
 import sys
+from abc import ABC, abstractproperty
 from collections import defaultdict
 from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
@@ -25,32 +26,42 @@ _SOURCE_IDENTIFIER_SEPARATOR: Final = "__ibd_sep__"
 _IBIS_MODEL_FILE_EXTENSION: Final = "ibis"
 
 
-@dataclass
-class ref:
-    model_name: str
+class _Reference(ABC):
+    @abstractproperty
+    def _ibis_table_name(self) -> str:
+        pass
 
     def to_ibis(self, schema) -> ibis.expr.types.Table:
         if schema is None:
             raise NotImplementedError
         return ibis.table(
             schema,
-            name=f"{_REF_IDENTIFIER_PREFIX}{self.model_name}{_REF_IDENTIFIER_SUFFIX}",
+            name=self._ibis_table_name,
         )
 
 
 @dataclass
-class source:
+class ref(_Reference):
+    model_name: str
+
+    @property
+    def _ibis_table_name(self) -> str:
+        return _REF_IDENTIFIER_PREFIX + self.model_name + _REF_IDENTIFIER_SUFFIX
+
+
+@dataclass
+class source(_Reference):
     source_name: str
     table_name: str
 
-    def to_ibis(self, schema) -> ibis.expr.types.Table:
-        if schema is None:
-            raise NotImplementedError
-        return ibis.table(
-            schema,
-            name=f"{_SOURCE_IDENTIFIER_PREFIX}{self.source_name}"
-            + f"{_SOURCE_IDENTIFIER_SEPARATOR}{self.table_name}"
-            + _SOURCE_IDENTIFIER_SUFFIX,
+    @property
+    def _ibis_table_name(self) -> str:
+        return (
+            _SOURCE_IDENTIFIER_PREFIX
+            + self.source_name
+            + _SOURCE_IDENTIFIER_SEPARATOR
+            + self.table_name
+            + _SOURCE_IDENTIFIER_SUFFIX
         )
 
 
@@ -73,7 +84,7 @@ def _compile_ibis_models(
     # Create empty placeholder file for every Ibis model so that we can run dbt parse
     ibis_dbt_model_files = _create_empty_placeholder_files(ibis_model_files)
 
-    models_lookup, sources_lookup = _get_lookups()
+    model_infos, source_infos = _get_model_and_source_infos()
 
     for model_file, dbt_model_file in zip(ibis_model_files, ibis_dbt_model_files):
         model_name = model_file.stem
@@ -85,9 +96,9 @@ def _compile_ibis_models(
         references = []
         for r in depends_on:
             if isinstance(r, source):
-                columns = sources_lookup[r.source_name][r.table_name].columns
+                columns = source_infos[r.source_name][r.table_name].columns
             elif isinstance(r, ref):
-                columns = models_lookup[r.model_name].columns
+                columns = model_infos[r.model_name].columns
             else:
                 raise ValueError(f"Unknown reference type: {type(r)}")
             schema = {
@@ -133,7 +144,7 @@ def _get_model_func(
     return model_func
 
 
-def _get_lookups() -> tuple[dict, dict]:
+def _get_model_and_source_infos() -> tuple[dict, dict]:
     dbt_manifest = _get_dbt_manifest()
     nodes = list(dbt_manifest.nodes.values())
     models = [n for n in nodes if n.resource_type.name == "Model"]
