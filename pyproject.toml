@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "dbt-ibis"
 authors = [{ name = "Stefan Binder" }]
-dependencies = ["dbt-core", "ibis-framework[duckdb]"]
+dependencies = ["dbt-core", "ibis-framework[duckdb]", "click"]
 readme = "README.md"
 requires-python = ">=3.9"
 dynamic = ["version"]

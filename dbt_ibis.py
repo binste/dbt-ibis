@@ -4,18 +4,22 @@ import subprocess
 import sys
 from abc import ABC, abstractproperty
 from collections import defaultdict
+from contextlib import contextmanager
 from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
 from typing import Callable, Final
 
+import click
 import ibis
 import ibis.expr.datatypes as dt
 import ibis.expr.types
-from dbt.cli.main import dbtRunner, dbtRunnerResult
+from dbt.cli.main import cli, p, requires
+from dbt.config import RuntimeConfig
 from dbt.contracts.graph.manifest import Manifest
 from dbt.contracts.graph.nodes import ColumnInfo, ModelNode, SourceDefinition
+from dbt.parser import manifest
 
 __version__ = "0.1.0dev"
 
@@ -96,10 +100,57 @@ class _IbisModel:
         return self.ibis_path.parent / "__ibis_sql" / f"{self.name}.sql"
 
 
-def _compile_ibis_models(
-    dbt_model_folder: Path = Path("models"),
-) -> None:
-    all_ibis_models = _get_ibis_models(dbt_model_folder=dbt_model_folder)
+@cli.command("parse_customized")
+@click.pass_context
+@p.profile
+@p.profiles_dir
+@p.project_dir
+@p.target
+@p.target_path
+@p.threads
+@p.vars
+@p.version_check
+@requires.postflight
+@requires.preflight
+@requires.profile
+@requires.project
+@requires.runtime_config
+@requires.manifest(write_perf_info=True)
+def _parse_customized(ctx, **kwargs):
+    # This is a slightly modified version of the dbt parse command
+    # which, in addition to the manifest, also returns the runtime_config
+    # Would be nice if we can instead directly use the dbt parse command
+    # as it might be difficult to keep this command in sync with the dbt parse command
+
+    return (ctx.obj["manifest"], ctx.obj["runtime_config"]), True
+
+
+@contextmanager
+def _disable_node_not_found_error():
+    original_func = manifest.invalid_target_fail_unless_test
+
+    def _do_nothing(*args, **kwargs):  # noqa: ARG001
+        pass
+
+    try:
+        manifest.invalid_target_fail_unless_test = _do_nothing
+        yield
+    finally:
+        manifest.invalid_target_fail_unless_test = original_func
+
+
+def _compile_ibis_models() -> None:
+    # dbt cannot yet see the Ibis models as they are not yet compiled
+    # Hence, we need to disable the error which is raised if dbt cannot find
+    # all referenced nodes while building the manifest.
+    # The manifest that you get back below will therefore also not contain
+    # the Ibis models which is fine for our purposes as we need information on the
+    # other models and the project in general.
+    with _disable_node_not_found_error():
+        manifest, runtime_config = _invoke_parse_customized()
+    all_ibis_models = _get_ibis_models(
+        project_root=runtime_config.project_root, model_paths=runtime_config.model_paths
+    )
 
     # Order Ibis models by their dependencies so that the once which depend on other
     # Ibis model are compiled after the ones they depend on. For example, if
@@ -107,9 +158,7 @@ def _compile_ibis_models(
     # in the list before model_a.
     all_ibis_models = _sort_ibis_models_by_dependencies(all_ibis_models)
 
-    # Create empty placeholder file for every Ibis model so that we can run dbt parse
-    _create_empty_placeholder_files(all_ibis_models)
-    model_infos, source_infos = _get_model_and_source_infos()
+    model_infos, source_infos = _extract_model_and_source_infos(manifest)
 
     # Schemas of the Ibis models themselves in case they are referenced
     # by other downstream Ibis models
@@ -134,11 +183,28 @@ def _compile_ibis_models(
 
         # Convert to SQL and write to file
         dbt_sql = _to_dbt_sql(ibis_expr)
+        ibis_model.sql_path.parent.mkdir(parents=False, exist_ok=True)
         ibis_model.sql_path.write_text(dbt_sql)
 
 
-def _get_ibis_models(dbt_model_folder: Path) -> list[_IbisModel]:
-    ibis_model_files = list(dbt_model_folder.glob(f"**/*.{_IBIS_MODEL_FILE_EXTENSION}"))
+def _invoke_parse_customized() -> tuple[Manifest, RuntimeConfig]:
+    # Need to read this from sys.argv later on
+    args = ["parse_customized"]
+    dbt_ctx = cli.make_context(cli.name, args)
+    result, success = cli.invoke(dbt_ctx)
+    if not success:
+        raise ValueError("Could not parse dbt project")
+    return result
+
+
+def _get_ibis_models(project_root: str, model_paths: list[str]) -> list[_IbisModel]:
+    ibis_model_files: list[Path] = []
+    for m_path in model_paths:
+        ibis_model_files.extend(
+            list(
+                (Path(project_root) / m_path).glob(f"**/*.{_IBIS_MODEL_FILE_EXTENSION}")
+            )
+        )
     ibis_models: list[_IbisModel] = []
     for model_file in ibis_model_files:
         model_func = _get_model_func(model_file)
@@ -149,26 +215,6 @@ def _get_ibis_models(dbt_model_folder: Path) -> list[_IbisModel]:
             )
         )
     return ibis_models
-
-
-def _create_empty_placeholder_files(ibis_models: list[_IbisModel]) -> None:
-    for model in ibis_models:
-        sql_path = model.sql_path
-        sql_path.parent.mkdir(parents=False, exist_ok=True)
-        # If the file already exists, delete it as this makes it easier for a user if
-        # that file contains an error which would prevent dbt from parsing it.
-        # For example if the SQL file references a model which no longer exists.
-        # This way, we can run dbt parse and then later on replace the errenous SQL file
-        # with a new one.
-        if sql_path.exists():
-            sql_path.unlink()
-        sql_path.touch(exist_ok=False)
-
-
-def _get_dbt_manifest() -> Manifest:
-    res: dbtRunnerResult = dbtRunner().invoke(["parse"])
-    manifest: Manifest = res.result
-    return manifest
 
 
 def _get_model_func(model_file: Path) -> Callable[..., ibis.expr.types.Table]:
@@ -205,8 +251,9 @@ def _sort_ibis_models_by_dependencies(
     return [ibis_model_lookup[m] for m in ibis_model_order]
 
 
-def _get_model_and_source_infos() -> tuple[_ModelsLookup, _SourcesLookup]:
-    dbt_manifest = _get_dbt_manifest()
+def _extract_model_and_source_infos(
+    dbt_manifest: Manifest,
+) -> tuple[_ModelsLookup, _SourcesLookup]:
     nodes = list(dbt_manifest.nodes.values())
     models = [n for n in nodes if n.resource_type.name == "Model"]
     models_lookup = {m.name: m for m in models}
@@ -297,6 +344,7 @@ def _to_dbt_sql(ibis_expr: ibis.expr.types.Table) -> str:
 
 def main():
     _compile_ibis_models()
+    # Execute the actual dbt command
     process = subprocess.Popen(
         ["dbt"] + sys.argv[1:], stdout=sys.stdout, stderr=sys.stderr  # noqa: S603
     )
