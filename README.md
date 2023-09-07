@@ -3,6 +3,12 @@ With dbt-ibis you can write your [dbt](https://www.getdbt.com/) models using [Ib
 
 This package is in very early development. Things might go wrong. [Feedback](https://github.com/binste/dbt-ibis/issues) and contributions are welcome!
 
+Supported adapters:
+* DuckDB
+* Soon to come:
+  * Snowflake
+  * ... (hopefully all which are supported by both dbt and Ibis)
+
 ## Basic example
 ```bash
 pip install dbt-ibis
@@ -68,7 +74,6 @@ You might want to configure your editor to treat `.ibis` files as normal Python 
 
 ## Limitations
 * There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functions which would require this.
-* It currently only works with duckdb. I'll soon add support for Snowflake and, if possible, all databases which are supported by both dbt and Ibis.
 * For non-Ibis models and for sources, you need to specify the data types of the columns. See "Basic example" above.
 
 ## Integration with DBT
