@@ -6,6 +6,7 @@ from abc import ABC, abstractproperty
 from collections import defaultdict
 from contextlib import contextmanager
 from dataclasses import dataclass
+from functools import wraps
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
@@ -76,6 +77,7 @@ class source(_Reference):
 
 def depends_on(*references):
     def decorator(func):
+        @wraps(func)
         def wrapper(*args, **kwargs):
             return func(*args, **kwargs)
 
