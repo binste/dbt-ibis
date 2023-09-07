@@ -22,7 +22,7 @@ from dbt.contracts.graph.manifest import Manifest
 from dbt.contracts.graph.nodes import ColumnInfo, ModelNode, SourceDefinition
 from dbt.parser import manifest
 
-__version__ = "0.1.0"
+__version__ = "0.2.0dev"
 
 
 _REF_IDENTIFIER_PREFIX: Final = "__ibd_ref__"
