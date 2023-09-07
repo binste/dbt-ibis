@@ -32,7 +32,23 @@ def model(stores):
     return stores.filter(stores["country"] == "USA")
 ```
 
-Whenever your Ibis model references either a source or a SQL model, you'll need to define the column data types as described in [Model Contracts - getdbt.com](https://docs.getdbt.com/docs/collaborate/govern/model-contracts). If you reference another Ibis model, this is not necessary. For more examples, including column data type definitions, see the [demo project](./demo_project/jaffle_shop/).
+Whenever your Ibis model references either a source or a SQL model, you'll need to define the column data types as described in [Model Contracts - getdbt.com](https://docs.getdbt.com/docs/collaborate/govern/model-contracts) (`data_type` refers to the data types as they are called by your database system). If you reference another Ibis model, this is not necessary. In the examples above, you would need to provide it for the `stores` source table:
+
+```yml
+sources:
+  - name: sources_db
+    ...
+    tables:
+      - name: stores
+        columns:
+          - name: store_id
+            data_type: varchar
+          - name: store_name
+            data_type: varchar
+          - name: country
+            data_type: varchar
+```
+For more examples, including column data type definitions, see the [demo project](./demo_project/jaffle_shop/).
 
 You can use all the dbt commands you're used to, you simply need to replace `dbt` with `dbt-ibis`. For example:
 ```bash
