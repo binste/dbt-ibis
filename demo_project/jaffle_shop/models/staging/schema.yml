@@ -42,3 +42,5 @@ sources:
             data_type: varchar
           - name: store_name
             data_type: varchar
+          - name: country
+            data_type: varchar

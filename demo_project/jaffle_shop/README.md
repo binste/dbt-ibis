@@ -1,7 +1,6 @@
 ## Note on changes
 Demo project comes from https://github.com/dbt-labs/jaffle_shop. All files which were modified either have a comment in the beginning or are in the list below:
 
-* all files in the `__ibis_sql` folders
 * `sources_db.duckdb`
 * `generate_sources_db.py`
 *  all files with extension `.ibis`
@@ -47,34 +46,34 @@ $ cd jaffle_shop
 
 5. Ensure your profile is setup correctly from the command line:
 ```bash
-$ dbt debug
+$ dbt-ibis debug
 ```
 
 6. Load the CSVs with the demo data set. This materializes the CSVs as tables in your target schema. Note that a typical dbt project **does not require this step** since dbt assumes your raw data is already in your warehouse.
 ```bash
-$ dbt seed
+$ dbt-ibis seed
 ```
 
 7. Run the models:
 ```bash
-$ dbt run
+$ dbt-ibis run
 ```
 
 > **NOTE:** If this steps fails, it might mean that you need to make small changes to the SQL in the models folder to adjust for the flavor of SQL of your target database. Definitely consider this if you are using a community-contributed adapter.
 
 8. Test the output of the models:
 ```bash
-$ dbt test
+$ dbt-ibis test
 ```
 
 9. Generate documentation for the project:
 ```bash
-$ dbt docs generate
+$ dbt-ibis docs generate
 ```
 
 10. View the documentation for the project:
 ```bash
-$ dbt docs serve
+$ dbt-ibis docs serve
 ```
 
 ### What is a jaffle?

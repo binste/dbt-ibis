@@ -10,8 +10,12 @@ def main():
         db_path.unlink()
     # store_id is intentionally a varchar so we can cast it in the staging model
     stores = pd.DataFrame(
-        [["1", "San Francisco"], ["2", "New York"], ["3", "Berlin"]],
-        columns=["store_id", "store_name"],
+        [
+            ["1", "San Francisco", "USA"],
+            ["2", "New York", "USA"],
+            ["3", "Berlin", "Germany"],
+        ],
+        columns=["store_id", "store_name", "country"],
     )
     con = duckdb.connect(str(db_path))
     con.register("stores", stores)
