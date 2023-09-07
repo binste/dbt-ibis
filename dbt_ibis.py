@@ -100,7 +100,13 @@ class _IbisModel:
         return self.ibis_path.parent / "__ibis_sql" / f"{self.name}.sql"
 
 
-@cli.command("parse_customized")
+@cli.command(
+    "parse_customized",
+    context_settings={
+        "ignore_unknown_options": True,
+        "allow_extra_args": True,
+    },
+)
 @click.pass_context
 @p.profile
 @p.profiles_dir
@@ -116,11 +122,14 @@ class _IbisModel:
 @requires.project
 @requires.runtime_config
 @requires.manifest(write_perf_info=True)
-def _parse_customized(ctx, **kwargs):
+def _parse_customized(ctx, **kwargs):  # noqa: ARG001
     # This is a slightly modified version of the dbt parse command
     # which, in addition to the manifest, also returns the runtime_config
     # Would be nice if we can instead directly use the dbt parse command
     # as it might be difficult to keep this command in sync with the dbt parse command
+    # We also ignore unknown options and allow extra arguments so that we can just
+    # pass all arguments which are for the actual dbt command to dbt parse
+    # without having to filter out the relevant ones
 
     return (ctx.obj["manifest"], ctx.obj["runtime_config"]), True
 
@@ -188,8 +197,16 @@ def _compile_ibis_models() -> None:
 
 
 def _invoke_parse_customized() -> tuple[Manifest, RuntimeConfig]:
-    # Need to read this from sys.argv later on
-    args = ["parse_customized"]
+    # First argument of sys.argv is path to this file. We then look for
+    # the name of the actual dbt subcommand that the user wants to run and ignore
+    # any global flags that come before it. All subsequent arguments are passed to
+    # _parse_customized so that a user can e.g. set --project-dir etc.
+    # For example, "dbt-ibis --warn-error run --select stg_orders --project-dir folder"
+    # becomes "parse_customized run --select stg_orders --project-dir folder"
+    # in variable args. parse_customized will then ignore "--select stg_orders"
+    all_args = sys.argv[1:]
+    subcommand_idx = next(i for i, arg in enumerate(all_args) if arg in cli.commands)
+    args = [_parse_customized.name] + all_args[subcommand_idx + 1 :]
     dbt_ctx = cli.make_context(cli.name, args)
     result, success = cli.invoke(dbt_ctx)
     if not success:
