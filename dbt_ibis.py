@@ -6,13 +6,14 @@ import subprocess
 import sys
 from abc import ABC, abstractproperty
 from collections import defaultdict
+from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from functools import wraps
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
-from typing import Callable, Final
+from typing import Any, Callable, Final, Literal, cast
 
 import click
 import ibis
@@ -43,7 +44,9 @@ class _Reference(ABC):
     def _ibis_table_name(self) -> str:
         pass
 
-    def to_ibis(self, schema) -> ibis.expr.types.Table:
+    def to_ibis(
+        self, schema: ibis.Schema | dict[str, dt.DataType]
+    ) -> ibis.expr.types.Table:
         if schema is None:
             raise NotImplementedError
         return ibis.table(
@@ -77,13 +80,19 @@ class source(_Reference):
         )
 
 
-def depends_on(*references):
-    def decorator(func):
+# Type hints could be imporved here. Could use a typing.Protocol with a typed __call__
+# method to indicate that the function that is wrapped by depends_on needs to be
+# callable, accept a variadic number of _Reference arguments and needs to
+# return an ibis Table
+def depends_on(*references: _Reference) -> Callable:
+    def decorator(
+        func: Callable[..., ibis.expr.types.Table]
+    ) -> Callable[..., ibis.expr.types.Table]:
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: _Reference, **kwargs: _Reference) -> ibis.expr.types.Table:
             return func(*args, **kwargs)
 
-        wrapper.depends_on = references
+        wrapper.depends_on = references  # type: ignore[attr-defined]
         return wrapper
 
     return decorator
@@ -126,7 +135,9 @@ class _IbisModel:
 @requires.project
 @requires.runtime_config
 @requires.manifest(write_perf_info=True)
-def _parse_customized(ctx, **kwargs):  # noqa: ARG001
+def _parse_customized(
+    ctx: click.Context, **kwargs: Any  # noqa: ARG001
+) -> tuple[tuple[Manifest, RuntimeConfig], Literal[True]]:
     # This is a slightly modified version of the dbt parse command
     # which, in addition to the manifest, also returns the runtime_config
     # Would be nice if we can instead directly use the dbt parse command
@@ -139,10 +150,10 @@ def _parse_customized(ctx, **kwargs):  # noqa: ARG001
 
 
 @contextmanager
-def _disable_node_not_found_error():
+def _disable_node_not_found_error() -> Iterator[None]:
     original_func = manifest.invalid_target_fail_unless_test
 
-    def _do_nothing(*args, **kwargs):  # noqa: ARG001
+    def _do_nothing(*args: Any, **kwargs: Any) -> None:  # noqa: ARG001
         pass
 
     try:
@@ -210,7 +221,10 @@ def _invoke_parse_customized() -> tuple[Manifest, RuntimeConfig]:
     # in variable args. parse_customized will then ignore "--select stg_orders"
     all_args = sys.argv[1:]
     subcommand_idx = next(i for i, arg in enumerate(all_args) if arg in cli.commands)
-    args = [_parse_customized.name] + all_args[subcommand_idx + 1 :]
+    parse_command = _parse_customized.name
+    # For the benefit of mypy
+    assert isinstance(parse_command, str)  # noqa: S101
+    args = [parse_command] + all_args[subcommand_idx + 1 :]
     dbt_ctx = cli.make_context(cli.name, args)
     result, success = cli.invoke(dbt_ctx)
     if not success:
@@ -244,7 +258,11 @@ def _get_model_func(model_file: Path) -> Callable[..., ibis.expr.types.Table]:
     spec = spec_from_loader(
         model_file.stem, SourceFileLoader(model_file.stem, str(model_file))
     )
+    if spec is None:
+        raise ValueError(f"Could not load model file: {model_file}")
     model_module = module_from_spec(spec)
+    if spec.loader is None:
+        raise ValueError(f"Could not load model file: {model_file}")
     spec.loader.exec_module(model_module)
     model_func = model_module.model
     return model_func
@@ -276,11 +294,13 @@ def _extract_model_and_source_infos(
     dbt_manifest: Manifest,
 ) -> tuple[_ModelsLookup, _SourcesLookup]:
     nodes = list(dbt_manifest.nodes.values())
-    models = [n for n in nodes if n.resource_type.name == "Model"]
+    models = cast(
+        list[ModelNode], [n for n in nodes if n.resource_type.name == "Model"]
+    )
     models_lookup = {m.name: m for m in models}
 
     sources = dbt_manifest.sources.values()
-    sources_lookup = defaultdict(dict)
+    sources_lookup: defaultdict[str, dict[str, SourceDefinition]] = defaultdict(dict)
     for s in sources:
         sources_lookup[s.source_name][s.name] = s
     return models_lookup, dict(sources_lookup)
@@ -289,13 +309,13 @@ def _extract_model_and_source_infos(
 def _get_schema_for_source(
     source: source,
     source_infos: _SourcesLookup,
-):
+) -> ibis.Schema:
     columns = source_infos[source.source_name][source.table_name].columns
     return _columns_to_ibis_schema(columns)
 
 
 def _get_schema_for_ref(
-    ref: ref, model_infos: _SourcesLookup, ibis_model_schemas: dict[str, ibis.Schema]
+    ref: ref, model_infos: _ModelsLookup, ibis_model_schemas: dict[str, ibis.Schema]
 ) -> ibis.Schema:
     schema: ibis.Schema | None = None
     # Take column data types and hence schema from parsed model infos if available
@@ -326,10 +346,12 @@ def _get_schema_for_ref(
 
 
 def _columns_to_ibis_schema(columns: dict[str, ColumnInfo]) -> ibis.Schema:
-    schema = ibis.schema(
-        {c.name: _parse_db_dtype_to_ibis_dtype(c.data_type) for c in columns.values()}
-    )
-    return schema
+    schema_dict: dict[str, dt.DataType] = {}
+    for c in columns.values():
+        if c.data_type is None:
+            raise ValueError(f"Could not determine data type for column '{c.name}'")
+        schema_dict[c.name] = _parse_db_dtype_to_ibis_dtype(c.data_type)
+    return ibis.schema(schema_dict)
 
 
 def _parse_db_dtype_to_ibis_dtype(db_dtype: str) -> dt.DataType:
@@ -340,7 +362,10 @@ def _parse_db_dtype_to_ibis_dtype(db_dtype: str) -> dt.DataType:
 
 
 def _to_dbt_sql(ibis_expr: ibis.expr.types.Table) -> str:
-    sql = ibis.to_sql(ibis_expr)
+    # Return type of .to_sql is SqlString which is a normal string with some
+    # custom repr methods -> Convert it to a normal string here to make it easier
+    # for mypy.
+    sql = str(ibis.to_sql(ibis_expr))
     capture_pattern = "(.+?)"
 
     # Insert ref jinja function
@@ -363,7 +388,7 @@ def _to_dbt_sql(ibis_expr: ibis.expr.types.Table) -> str:
     return sql
 
 
-def _main():
+def _main() -> None:
     compile_ibis_to_sql_models()
     # Execute the actual dbt command
     process = subprocess.Popen(
