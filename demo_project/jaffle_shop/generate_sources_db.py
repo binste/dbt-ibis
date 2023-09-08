@@ -1,3 +1,4 @@
+# noqa: INP001
 from pathlib import Path
 
 import duckdb
