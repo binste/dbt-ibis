@@ -1,3 +1,5 @@
+__all__ = ["ref", "source", "depends_on", "compile_ibis_to_sql_models"]
+
 import graphlib
 import re
 import subprocess
@@ -150,7 +152,7 @@ def _disable_node_not_found_error():
         manifest.invalid_target_fail_unless_test = original_func
 
 
-def _compile_ibis_models() -> None:
+def compile_ibis_to_sql_models() -> None:
     # dbt cannot yet see the Ibis models as they are not yet compiled
     # Hence, we need to disable the error which is raised if dbt cannot find
     # all referenced nodes while building the manifest.
@@ -361,8 +363,8 @@ def _to_dbt_sql(ibis_expr: ibis.expr.types.Table) -> str:
     return sql
 
 
-def main():
-    _compile_ibis_models()
+def _main():
+    compile_ibis_to_sql_models()
     # Execute the actual dbt command
     process = subprocess.Popen(
         ["dbt"] + sys.argv[1:], stdout=sys.stdout, stderr=sys.stderr  # noqa: S603
@@ -371,4 +373,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    _main()
