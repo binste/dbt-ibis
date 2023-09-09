@@ -10,6 +10,14 @@ readme = "README.md"
 requires-python = ">=3.9"
 dynamic = ["version"]
 license-files = { paths = ["LICENSE"] }
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Typing :: Typed",
+]
 
 [project.scripts]
 dbt-ibis = "dbt_ibis:main"
