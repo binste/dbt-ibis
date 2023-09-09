@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        # If you change this list, also add the new job name to the required
+        # status checks on the protection rule for the main branch.
+        # The job might only show up after it was merged into main.
         python-version: ["3.9", "3.10", "3.11"]
     steps:
       - uses: actions/checkout@v3
