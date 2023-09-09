@@ -14,7 +14,7 @@ from functools import wraps
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
-from typing import Any, Callable, Final, Literal
+from typing import Any, Callable, Final, Literal, Optional, Union
 
 import click
 import ibis
@@ -44,7 +44,7 @@ class _Reference(ABC):
         pass
 
     def to_ibis(
-        self, schema: ibis.Schema | dict[str, dt.DataType]
+        self, schema: Union[ibis.Schema, dict[str, dt.DataType]]
     ) -> ibis.expr.types.Table:
         if schema is None:
             raise NotImplementedError
@@ -243,7 +243,7 @@ def _get_parse_arguments() -> list[str]:
 
 
 def _get_ibis_models(
-    project_root: str | Path, model_paths: list[str]
+    project_root: Union[str, Path], model_paths: list[str]
 ) -> list[_IbisModel]:
     if isinstance(project_root, str):
         project_root = Path(project_root)
@@ -328,7 +328,7 @@ def _get_schema_for_source(
 def _get_schema_for_ref(
     ref: ref, model_infos: _ModelsLookup, ibis_model_schemas: dict[str, ibis.Schema]
 ) -> ibis.Schema:
-    schema: ibis.Schema | None = None
+    schema: Optional[ibis.Schema] = None
     # Take column data types and hence schema from parsed model infos if available
     # as this is the best source for the schema as it will appear in
     # the database if the user enforces the data type contracts.
