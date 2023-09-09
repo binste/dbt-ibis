@@ -33,7 +33,7 @@ dev = [
 ]
 
 [tool.hatch.version]
-path = "dbt_ibis.py"
+path = "dbt_ibis/__init__.py"
 
 [tool.hatch.envs.default]
 features = ["dev"]
@@ -42,7 +42,7 @@ features = ["dev"]
 linters = [
     "black --diff --color --check .",
     "ruff check .",
-    "mypy dbt_ibis.py tests",
+    "mypy dbt_ibis tests",
 ]
 tests = ["python -m pytest tests"]
 
