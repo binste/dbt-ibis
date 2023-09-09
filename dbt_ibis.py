@@ -32,6 +32,7 @@ _SOURCE_IDENTIFIER_PREFIX: Final = "__ibd_source__"
 _SOURCE_IDENTIFIER_SUFFIX: Final = "__sid__"
 _SOURCE_IDENTIFIER_SEPARATOR: Final = "__ibd_sep__"
 _IBIS_MODEL_FILE_EXTENSION: Final = "ibis"
+_IBIS_SQL_FOLDER_NAME: Final = "__ibis_sql"
 
 _ModelsLookup = dict[str, ModelNode]
 _SourcesLookup = dict[str, dict[str, SourceDefinition]]
@@ -114,7 +115,7 @@ class _IbisModel:
 
     @property
     def sql_path(self) -> Path:
-        return self.ibis_path.parent / "__ibis_sql" / f"{self.name}.sql"
+        return self.ibis_path.parent / _IBIS_SQL_FOLDER_NAME / f"{self.name}.sql"
 
 
 @cli.command(
@@ -395,7 +396,7 @@ def _to_dbt_sql(ibis_expr: ibis.expr.types.Table) -> str:
     return sql
 
 
-def _main() -> None:
+def main() -> None:
     compile_ibis_to_sql_models()
     # Execute the actual dbt command
     process = subprocess.Popen(
@@ -405,4 +406,4 @@ def _main() -> None:
 
 
 if __name__ == "__main__":
-    _main()
+    main()

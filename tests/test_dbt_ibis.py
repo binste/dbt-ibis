@@ -1,9 +1,12 @@
+import subprocess
 import sys
 from pathlib import Path
 
+import duckdb
 import ibis
 import ibis.expr.datatypes as dt
 import ibis.expr.types.relations as ir
+import pandas as pd
 import pytest
 from dbt.contracts.graph.manifest import Manifest
 from dbt.contracts.graph.nodes import (
@@ -15,6 +18,7 @@ from dbt.contracts.graph.nodes import (
 from dbt.parser import manifest
 
 from dbt_ibis import (
+    _IBIS_SQL_FOLDER_NAME,
     _columns_to_ibis_schema,
     _disable_node_not_found_error,
     _extract_model_and_source_infos,
@@ -139,7 +143,7 @@ def test_ibis_model():
     )
 
     assert model.name == "some_model"
-    assert model.sql_path == Path("path/to/__ibis_sql/some_model.sql")
+    assert model.sql_path == Path(f"path/to/{_IBIS_SQL_FOLDER_NAME}/some_model.sql")
 
 
 def test_get_ibis_models():
@@ -385,9 +389,131 @@ def test_get_parse_arguments(mocker):
     ]
 
 
-def test_compile_ibis_to_sql_models():
-    raise NotImplementedError
+def test_end_to_end(monkeypatch):
+    # Remove all precompiled Ibis models which might exist from
+    # a previous test run which can happen if the tests are run locally, i.e.
+    # not in the GitHub pipeline.
+    def get_compiled_sql_files(project_dir: Path) -> list[Path]:
+        return list(project_dir.glob(f"models/**/{_IBIS_SQL_FOLDER_NAME}/*.sql"))
 
+    project_dir = Path.cwd() / "demo_project" / "jaffle_shop"
+    # Change working directory so that all dbt-ibis commands below are executed
+    # in the project directory
+    monkeypatch.chdir(project_dir)
 
-def test_main():
-    raise NotImplementedError
+    for file in get_compiled_sql_files(project_dir):
+        file.unlink()
+
+    database_file = project_dir / "db.duckdb"
+    if database_file.exists():
+        database_file.unlink()
+
+    def execute_command(cmd: list[str]) -> None:
+        process = subprocess.Popen(
+            cmd,  # noqa: S603
+            stdout=sys.stdout,
+            stderr=sys.stderr,
+        )
+        process.wait()
+
+    execute_command(["dbt-ibis", "seed"])
+    # Check that all Ibis models were compiled and seed
+    # was executed
+    compiled_sql_files = get_compiled_sql_files(project_dir)
+    assert len(compiled_sql_files) == 3
+
+    # Test content of some of the compiled SQL files
+    stg_stores = next(p for p in compiled_sql_files if p.stem == "stg_stores")
+    assert (
+        stg_stores.read_text()
+        == """\
+SELECT
+  CAST(t0.store_id AS BIGINT) AS store_id,
+  t0.store_name,
+  t0.country
+FROM {{ source('sources_db', 'stores') }} AS t0"""
+    )
+
+    usa_stores = stg_stores = next(
+        p for p in compiled_sql_files if p.stem == "usa_stores"
+    )
+    assert (
+        usa_stores.read_text()
+        == """\
+SELECT
+  t0.store_id,
+  t0.store_name,
+  t0.country
+FROM {{ ref('stg_stores') }} AS t0
+WHERE
+  t0.country = 'USA'"""
+    )
+
+    # Check that seeds command was executed and the tables were created
+    # but not already any models
+    def get_db_con():
+        return duckdb.connect(str(database_file), read_only=True)
+
+    def get_tables() -> list[str]:
+        db_con = duckdb.connect(str(database_file), read_only=True)
+        table_names = [
+            r[0]
+            for r in db_con.execute(
+                """select table_name
+                from information_schema.tables
+                order by table_name"""
+            ).fetchall()
+        ]
+        db_con.close()
+        return table_names
+
+    seed_tables = ["raw_orders", "raw_customers", "raw_payments"]
+    assert get_tables() == sorted(seed_tables)
+
+    # Only run for a few models at first to make sure that --select
+    # is passed through to dbt run
+    execute_command(["dbt-ibis", "run", "--select", "stg_orders"])
+    assert get_tables() == sorted([*seed_tables, "stg_orders"])
+
+    execute_command(
+        [
+            "dbt-ibis",
+            "run",
+        ]
+    )
+    assert get_tables() == sorted(
+        [
+            *seed_tables,
+            "stg_orders",
+            "stg_customers",
+            "stg_payments",
+            "stg_stores",
+            "customers_with_multiple_orders",
+            "customers",
+            "orders",
+            "usa_stores",
+        ]
+    )
+
+    execute_command(
+        [
+            "dbt-ibis",
+            "test",
+        ]
+    )
+
+    # Check for one Ibis model that the data is what we expect
+    assert any(
+        p.stem == "usa_stores" for p in compiled_sql_files
+    ), "usa_stores is no longer an Ibis model. Adapt test below to use one."
+    db_con = get_db_con()
+    usa_stores_df = db_con.execute(
+        "select * from usa_stores order by store_id"
+    ).fetchdf()
+
+    assert usa_stores_df.equals(
+        pd.DataFrame(
+            [[1, "San Francisco", "USA"], [2, "New York", "USA"]],
+            columns=["store_id", "store_name", "country"],
+        )
+    )

@@ -29,6 +29,7 @@ dev = [
     "pytest-mock",
     "mypy",
     "dbt-duckdb",
+    "pandas",
 ]
 
 [tool.hatch.version]
