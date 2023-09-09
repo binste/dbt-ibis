@@ -242,13 +242,16 @@ def _get_parse_arguments() -> list[str]:
     return args
 
 
-def _get_ibis_models(project_root: str, model_paths: list[str]) -> list[_IbisModel]:
+def _get_ibis_models(
+    project_root: str | Path, model_paths: list[str]
+) -> list[_IbisModel]:
+    if isinstance(project_root, str):
+        project_root = Path(project_root)
+
     ibis_model_files: list[Path] = []
     for m_path in model_paths:
         ibis_model_files.extend(
-            list(
-                (Path(project_root) / m_path).glob(f"**/*.{_IBIS_MODEL_FILE_EXTENSION}")
-            )
+            list((project_root / m_path).glob(f"**/*.{_IBIS_MODEL_FILE_EXTENSION}"))
         )
     ibis_models: list[_IbisModel] = []
     for model_file in ibis_model_files:

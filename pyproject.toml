@@ -125,7 +125,7 @@ check_untyped_defs = true
 disallow_untyped_defs = true
 
 [[tool.mypy.overrides]]
-module = ["ibis.*", "dbt.*"]
+module = ["ibis.*", "dbt.*", "pandas.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

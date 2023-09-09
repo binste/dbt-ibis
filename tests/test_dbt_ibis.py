@@ -15,6 +15,7 @@ from dbt.contracts.graph.nodes import (
     ModelNode,
     SourceDefinition,
 )
+from dbt.node_types import NodeType
 from dbt.parser import manifest
 
 from dbt_ibis import (
@@ -44,14 +45,14 @@ def stg_orders_model_node():
         # These values do not matter for our purposes
         database="",
         schema="",
-        resource_type="Model",
+        resource_type=NodeType.Model,
         package_name="",
         path="",
         original_file_path="",
         unique_id="",
-        fqn="",
+        fqn=[""],
         alias="",
-        checksum="",
+        checksum="",  # type: ignore[arg-type]
     )
 
 
@@ -67,12 +68,12 @@ def orders_source_definition():
         # These attributes are required but do not matter for our purposes
         database="",
         schema="",
-        resource_type="Source",
+        resource_type=NodeType.Source,
         package_name="",
         path="",
         original_file_path="",
         unique_id="",
-        fqn="",
+        fqn=[""],
         source_description="",
         loader="",
         identifier="",
@@ -129,7 +130,7 @@ def test_depends_on():
         + " dbt_ibis.ref or dbt_ibis.source",
     ):
 
-        @depends_on("stg_orders", ref("stg_customers"))
+        @depends_on("stg_orders", ref("stg_customers"))  # type: ignore[arg-type]
         def another_func():
             pass
 
@@ -139,7 +140,7 @@ def test_ibis_model():
     model = _IbisModel(
         ibis_path=Path("path/to/some_model.ibis"),
         depends_on=references,
-        model_func=lambda: None,
+        model_func=lambda: None,  # type: ignore  # noqa: PGH003
     )
 
     assert model.name == "some_model"
@@ -172,7 +173,7 @@ def test_get_model_func():
 
     assert callable(model_func)
     assert model_func.__name__ == "model"
-    assert model_func.depends_on == (ref("stg_orders"),)
+    assert model_func.depends_on == (ref("stg_orders"),)  # type: ignore[attr-defined]
 
 
 def test_sort_ibis_models_by_dependencies():
@@ -180,7 +181,7 @@ def test_sort_ibis_models_by_dependencies():
         _IbisModel(
             ibis_path=Path("path/to/another_model.ibis"),
             depends_on=[ref("some_model")],
-            model_func=lambda: None,
+            model_func=lambda: None,  # type: ignore  # noqa: PGH003
         ),
         _IbisModel(
             ibis_path=Path("path/to/some_model.ibis"),
@@ -189,7 +190,7 @@ def test_sort_ibis_models_by_dependencies():
             # when building a dependency graph and this function
             # does not suddenly treat source and ref the same.
             depends_on=[source("source1", "another_model")],
-            model_func=lambda: None,
+            model_func=lambda: None,  # type: ignore  # noqa: PGH003
         ),
     ]
 
@@ -205,18 +206,18 @@ def test_extract_model_and_source_infos(
         nodes={
             "stg_orders": stg_orders_model_node,
             "some_test": GenericTestNode(
-                test_metadata="",
+                test_metadata="",  # type: ignore[arg-type]
                 database="",
                 schema="",
                 name="",
-                resource_type="",
+                resource_type=NodeType.Test,
                 package_name="",
                 path="",
                 original_file_path="",
                 unique_id="",
-                fqn="",
+                fqn=[""],
                 alias="",
-                checksum="",
+                checksum="",  # type: ignore[arg-type]
             ),
         },
         sources={"orders": orders_source_definition},
@@ -340,7 +341,7 @@ def test_disable_node_not_found_error():
 
     with _disable_node_not_found_error():
         assert manifest.invalid_target_fail_unless_test.__name__ == "_do_nothing"
-        manifest.invalid_target_fail_unless_test()
+        manifest.invalid_target_fail_unless_test()  # type: ignore[call-arg]
 
     assert (
         manifest.invalid_target_fail_unless_test.__name__
