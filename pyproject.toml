@@ -26,6 +26,7 @@ dev = [
     "ipython",
     "ipdb",
     "pytest",
+    "pytest-mock",
     "mypy",
     "dbt-duckdb",
 ]

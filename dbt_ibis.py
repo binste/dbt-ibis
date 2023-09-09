@@ -1,4 +1,5 @@
 __all__ = ["ref", "source", "depends_on", "compile_ibis_to_sql_models"]
+__version__ = "0.2.0dev"
 
 import graphlib
 import re
@@ -13,7 +14,7 @@ from functools import wraps
 from importlib.machinery import SourceFileLoader
 from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
-from typing import Any, Callable, Final, Literal, cast
+from typing import Any, Callable, Final, Literal
 
 import click
 import ibis
@@ -24,9 +25,6 @@ from dbt.config import RuntimeConfig
 from dbt.contracts.graph.manifest import Manifest
 from dbt.contracts.graph.nodes import ColumnInfo, ModelNode, SourceDefinition
 from dbt.parser import manifest
-
-__version__ = "0.2.0dev"
-
 
 _REF_IDENTIFIER_PREFIX: Final = "__ibd_ref__"
 _REF_IDENTIFIER_SUFFIX: Final = "__rid__"
@@ -80,11 +78,17 @@ class source(_Reference):
         )
 
 
-# Type hints could be imporved here. Could use a typing.Protocol with a typed __call__
+# Type hints could be improved here. Could use a typing.Protocol with a typed __call__
 # method to indicate that the function that is wrapped by depends_on needs to be
 # callable, accept a variadic number of _Reference arguments and needs to
 # return an ibis Table
 def depends_on(*references: _Reference) -> Callable:
+    if not all(isinstance(r, _Reference) for r in references):
+        raise ValueError(
+            "All arguments to depends_on need to be either an instance of"
+            + " dbt_ibis.ref or dbt_ibis.source"
+        )
+
     def decorator(
         func: Callable[..., ibis.expr.types.Table]
     ) -> Callable[..., ibis.expr.types.Table]:
@@ -212,6 +216,15 @@ def compile_ibis_to_sql_models() -> None:
 
 
 def _invoke_parse_customized() -> tuple[Manifest, RuntimeConfig]:
+    args = _get_parse_arguments()
+    dbt_ctx = cli.make_context(cli.name, args)
+    result, success = cli.invoke(dbt_ctx)
+    if not success:
+        raise ValueError("Could not parse dbt project")
+    return result
+
+
+def _get_parse_arguments() -> list[str]:
     # First argument of sys.argv is path to this file. We then look for
     # the name of the actual dbt subcommand that the user wants to run and ignore
     # any global flags that come before it. All subsequent arguments are passed to
@@ -225,11 +238,7 @@ def _invoke_parse_customized() -> tuple[Manifest, RuntimeConfig]:
     # For the benefit of mypy
     assert isinstance(parse_command, str)  # noqa: S101
     args = [parse_command] + all_args[subcommand_idx + 1 :]
-    dbt_ctx = cli.make_context(cli.name, args)
-    result, success = cli.invoke(dbt_ctx)
-    if not success:
-        raise ValueError("Could not parse dbt project")
-    return result
+    return args
 
 
 def _get_ibis_models(project_root: str, model_paths: list[str]) -> list[_IbisModel]:
@@ -294,9 +303,7 @@ def _extract_model_and_source_infos(
     dbt_manifest: Manifest,
 ) -> tuple[_ModelsLookup, _SourcesLookup]:
     nodes = list(dbt_manifest.nodes.values())
-    models = cast(
-        list[ModelNode], [n for n in nodes if n.resource_type.name == "Model"]
-    )
+    models = [n for n in nodes if isinstance(n, ModelNode)]
     models_lookup = {m.name: m for m in models}
 
     sources = dbt_manifest.sources.values()
