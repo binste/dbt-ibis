@@ -1,0 +1,6 @@
+from dbt_ibis import depends_on, source
+
+
+@depends_on(source("source1", "orders"))
+def model(orders):
+    pass

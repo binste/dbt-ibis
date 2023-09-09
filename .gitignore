@@ -2,6 +2,7 @@
 .DS_Store
 .user.yml
 demo_project/jaffle_shop/db.duckdb
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

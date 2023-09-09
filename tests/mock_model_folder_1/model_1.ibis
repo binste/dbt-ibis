@@ -1,0 +1,6 @@
+from dbt_ibis import depends_on, ref
+
+
+@depends_on(ref("stg_orders"))
+def model(orders):
+    pass
