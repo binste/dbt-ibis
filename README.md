@@ -38,7 +38,7 @@ def model(stores):
     return stores.filter(stores["country"] == "USA")
 ```
 
-Whenever your Ibis model references either a source or a SQL model, you'll need to define the column data types as described in [Model Contracts - getdbt.com](https://docs.getdbt.com/docs/collaborate/govern/model-contracts) (`data_type` refers to the data types as they are called by your database system). If you reference another Ibis model, this is not necessary. In the examples above, you would need to provide it for the `stores` source table:
+Whenever your Ibis model references either a source, a seed, or a SQL model, you'll need to define the column data types as described in [Model Contracts - getdbt.com](https://docs.getdbt.com/docs/collaborate/govern/model-contracts) (`data_type` refers to the data types as they are called by your database system) (for sources and SQL models) or in [Seed configurations - getdbt.com](https://docs.getdbt.com/reference/seed-configs) (for seeds). If you reference another Ibis model, this is not necessary. In the examples above, you would need to provide it for the `stores` source table:
 
 ```yml
 sources:
