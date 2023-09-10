@@ -1,3 +1,5 @@
+# LICENSE NOTICE: This file was changed compared to the original version
+
 name: 'jaffle_shop'
 
 config-version: 2
@@ -22,3 +24,13 @@ require-dbt-version: [">=1.0.0", "<2.0.0"]
 models:
   jaffle_shop:
       materialized: table
+
+
+seeds:
+  jaffle_shop:
+    raw_payments:
+      +column_types:
+        id: integer
+        order_id: integer
+        payment_method: varchar
+        amount: decimal(30, 10)
