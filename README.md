@@ -84,7 +84,7 @@ You might want to configure your editor to treat `.ibis` files as normal Python 
 
 ## Limitations
 * There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functions which would require this.
-* For non-Ibis models and for sources, you need to specify the data types of the columns. See "Basic example" above.
+* For non-Ibis models, seeds, and for sources, you need to specify the data types of the columns. See "Basic example" above.
 
 ## Integration with DBT
 There are [discussions](https://github.com/dbt-labs/dbt-core/pull/5274#issuecomment-1132772028) on [adding a plugin system to dbt](https://github.com/dbt-labs/dbt-core/issues/6184) which could be used to provide first-class support for other modeling languages such as Ibis (see [this PoC](https://github.com/dbt-labs/dbt-core/pull/6296) by dbt and the [discussion on Ibis as a dataframe API](https://github.com/dbt-labs/dbt-core/discussions/5738)) or PRQL (see [dbt-prql](https://github.com/PRQL/dbt-prql)).
@@ -96,4 +96,9 @@ As this feature didn't make it [onto the roadmap of dbt for 2023](https://github
 ```bash
 pip install -e '.[dev]'
 ```
-Tests, linting, etc. will follow.
+
+You can run linters and tests with
+```bash
+hatch run linters
+hatch run tests
+```
