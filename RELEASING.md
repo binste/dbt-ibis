@@ -17,6 +17,7 @@
 5. On main, build source & wheel distributions:
 
         git checkout main
+        git pull
         hatch clean  # clean old builds & distributions
         hatch build  # create a source distribution and universal wheel
 
@@ -27,7 +28,7 @@
 7. On main, tag the release:
 
         git tag -a v0.2.0 -m "Version 0.2.0 release"
-        git push v0.2.0
+        git push origin v0.2.0
 
 8. Add release in https://github.com/binste/dbt-ibis/releases and select the version tag
 
