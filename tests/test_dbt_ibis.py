@@ -100,6 +100,33 @@ def orders_source_definition():
     )
 
 
+def get_compiled_sql_files(project_dir: Path) -> list[Path]:
+    return list(project_dir.glob(f"models/**/{_IBIS_SQL_FOLDER_NAME}/*.sql"))
+
+
+@pytest.fixture()
+def project_dir_and_database_file(monkeypatch) -> tuple[Path, Path]:
+    # Remove files which might exist from
+    # a previous test run which can happen if the tests are run locally, i.e.
+    # not in the GitHub pipeline.
+    project_dir = Path.cwd() / "demo_project" / "jaffle_shop"
+    # Change working directory so that all dbt-ibis commands below are executed
+    # in the project directory
+    monkeypatch.chdir(project_dir)
+
+    for file in get_compiled_sql_files(project_dir):
+        file.unlink()
+
+    target_folder = project_dir / "target"
+    if target_folder.exists():
+        shutil.rmtree(target_folder)
+
+    database_file = project_dir / "db.duckdb"
+    if database_file.exists():
+        database_file.unlink()
+    return project_dir, database_file
+
+
 def test_ref():
     model_name = "stg_orders"
     stg_orders = ref(model_name)
@@ -421,6 +448,7 @@ def test_get_parse_arguments(mocker):
     args = _get_parse_arguments()
 
     assert args == [
+        "--quiet",
         "parse_customized",
         "--project-dir",
         "some_folder",
@@ -440,45 +468,21 @@ def test_get_parse_arguments(mocker):
     args = _get_parse_arguments()
 
     assert args == [
+        "--quiet",
         "parse_customized",
     ]
 
 
-def test_end_to_end(monkeypatch):
-    # Remove files which might exist from
-    # a previous test run which can happen if the tests are run locally, i.e.
-    # not in the GitHub pipeline.
-    def get_compiled_sql_files(project_dir: Path) -> list[Path]:
-        return list(project_dir.glob(f"models/**/{_IBIS_SQL_FOLDER_NAME}/*.sql"))
+def execute_command(cmd: list[str]) -> None:
+    process = subprocess.run(
+        cmd,  # noqa: S603
+        stdout=sys.stdout,
+        stderr=sys.stderr,
+    )
+    process.check_returncode()
 
-    project_dir = Path.cwd() / "demo_project" / "jaffle_shop"
-    # Change working directory so that all dbt-ibis commands below are executed
-    # in the project directory
-    monkeypatch.chdir(project_dir)
 
-    for file in get_compiled_sql_files(project_dir):
-        file.unlink()
-
-    database_file = project_dir / "db.duckdb"
-    if database_file.exists():
-        database_file.unlink()
-
-    target_folder = project_dir / "target"
-    if target_folder.exists():
-        shutil.rmtree(target_folder)
-
-    # Start with the actual testing
-    def execute_command(cmd: list[str]) -> None:
-        process = subprocess.run(
-            cmd,  # noqa: S603
-            stdout=sys.stdout,
-            stderr=sys.stderr,
-        )
-        process.check_returncode()
-
-    execute_command(["dbt-ibis", "seed"])
-    # Check that all Ibis models were compiled and seed
-    # was executed
+def validate_compiled_sql_files(project_dir: Path) -> list[Path]:
     compiled_sql_files = get_compiled_sql_files(project_dir)
     assert len(compiled_sql_files) == 3
 
@@ -508,6 +512,26 @@ FROM {{ ref('stg_stores') }} AS t0
 WHERE
   t0.country = 'USA'"""
     )
+    return compiled_sql_files
+
+
+def test_precompile_command(project_dir_and_database_file: tuple[Path, Path]):
+    project_dir, database_file = project_dir_and_database_file
+    execute_command(["dbt-ibis", "precompile"])
+
+    assert (
+        not database_file.exists()
+    ), "Database was created although precompile command should not create it."
+    validate_compiled_sql_files(project_dir)
+
+
+def test_end_to_end(project_dir_and_database_file: tuple[Path, Path]):
+    project_dir, database_file = project_dir_and_database_file
+
+    execute_command(["dbt-ibis", "seed"])
+    # Check that all Ibis models were compiled and seed
+    # was executed
+    compiled_sql_files = validate_compiled_sql_files(project_dir)
 
     # Check that seeds command was executed and the tables were created
     # but not already any models
