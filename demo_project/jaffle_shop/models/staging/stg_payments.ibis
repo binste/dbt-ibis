@@ -1,0 +1,16 @@
+from ibis import deferred as d_
+from dbt_ibis import depends_on, ref
+
+
+@depends_on(ref("raw_payments"))
+def model(raw_payments):
+    raw_payments = (
+        raw_payments.relabel({"id": "payment_id"})
+        .mutate(
+            # `amount` is currently stored in cents, so we convert it to dollars
+            amount=d_["amount"]
+            / 100,
+        )
+        .select(["payment_id", "order_id", "payment_method", "amount"])
+    )
+    return raw_payments

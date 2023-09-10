@@ -13,6 +13,7 @@ from dbt.contracts.graph.nodes import (
     ColumnInfo,
     GenericTestNode,
     ModelNode,
+    SeedNode,
     SourceDefinition,
 )
 from dbt.node_types import NodeType
@@ -22,7 +23,7 @@ from dbt_ibis import (
     _IBIS_SQL_FOLDER_NAME,
     _columns_to_ibis_schema,
     _disable_node_not_found_error,
-    _extract_model_and_source_infos,
+    _extract_ref_and_source_infos,
     _get_ibis_models,
     _get_model_func,
     _get_parse_arguments,
@@ -46,6 +47,24 @@ def stg_orders_model_node():
         database="",
         schema="",
         resource_type=NodeType.Model,
+        package_name="",
+        path="",
+        original_file_path="",
+        unique_id="",
+        fqn=[""],
+        alias="",
+        checksum="",  # type: ignore[arg-type]
+    )
+
+
+@pytest.fixture()
+def raw_payments_seed_node():
+    return SeedNode(
+        name="raw_payments",
+        # These values do not matter for our purposes
+        resource_type=NodeType.Seed,
+        database="",
+        schema="",
         package_name="",
         path="",
         original_file_path="",
@@ -84,7 +103,7 @@ def test_ref():
     model_name = "stg_orders"
     stg_orders = ref(model_name)
 
-    assert stg_orders.model_name == model_name
+    assert stg_orders.name == model_name
 
     schema = ibis.schema({"col1": "int"})
     ibis_table = stg_orders.to_ibis(schema=schema)
@@ -200,7 +219,7 @@ def test_sort_ibis_models_by_dependencies():
 
 
 def test_extract_model_and_source_infos(
-    orders_source_definition, stg_orders_model_node
+    orders_source_definition, stg_orders_model_node, raw_payments_seed_node
 ):
     dbt_manifest = Manifest(
         nodes={
@@ -219,13 +238,17 @@ def test_extract_model_and_source_infos(
                 alias="",
                 checksum="",  # type: ignore[arg-type]
             ),
+            "raw_payments": raw_payments_seed_node,
         },
         sources={"orders": orders_source_definition},
     )
 
-    models_lookup, sources_lookup = _extract_model_and_source_infos(dbt_manifest)
+    ref_lookup, sources_lookup = _extract_ref_and_source_infos(dbt_manifest)
 
-    assert models_lookup == {"stg_orders": stg_orders_model_node}
+    assert ref_lookup == {
+        "stg_orders": stg_orders_model_node,
+        "raw_payments": raw_payments_seed_node,
+    }
     assert sources_lookup == {"source1": {"orders": orders_source_definition}}
 
 
@@ -236,7 +259,7 @@ def test_get_schema_for_source(orders_source_definition):
     assert schema == ibis.schema({"col1": dt.Int64(), "col2": dt.String()})
 
 
-def test_get_schema_for_ref(stg_orders_model_node):
+def test_get_schema_for_ref(stg_orders_model_node, raw_payments_seed_node):
     stg_orders = ref("stg_orders")
     models_lookup = {"stg_orders": stg_orders_model_node}
     # As the ModelNode does not have columns defined, it should raise an error
@@ -256,7 +279,7 @@ def test_get_schema_for_ref(stg_orders_model_node):
     )
 
     # Now make sure that columns from model_lookup have priority over
-    # apssed in Ibis model schemas
+    # passed in Ibis model schemas
     models_lookup["stg_orders"].columns = {
         "col1": ColumnInfo(name="col1", data_type="bigint"),
         "col2": ColumnInfo(name="col2", data_type="varchar"),
@@ -266,6 +289,36 @@ def test_get_schema_for_ref(stg_orders_model_node):
         stg_orders, models_lookup, ibis_model_schemas=ibis_model_schemas
     )
     assert schema == ibis.schema({"col1": dt.Int64(), "col2": dt.String()})
+
+    # Test if it works for a seed
+    with pytest.raises(
+        ValueError, match="Could not determine schema for model 'raw_payments'"
+    ):
+        _get_schema_for_ref(
+            ref("raw_payments"),
+            ref_infos={"raw_payments": raw_payments_seed_node},
+            ibis_model_schemas={},
+        )
+
+    raw_payments_seed_node.config.column_types = {
+        "id": "integer",
+        "order_id": "integer",
+        "payment_method": "varchar",
+        "amount": "decimal(30, 10)",
+    }
+    schema = _get_schema_for_ref(
+        ref("raw_payments"),
+        ref_infos={"raw_payments": raw_payments_seed_node},
+        ibis_model_schemas={},
+    )
+    assert schema == ibis.schema(
+        {
+            "id": dt.Int32(),
+            "order_id": dt.Int32(),
+            "payment_method": dt.String(),
+            "amount": dt.Decimal(30, 10),
+        }
+    )
 
 
 def test_columns_to_ibis_schema():
