@@ -261,8 +261,8 @@ def compile_ibis_to_sql_models() -> None:
 
         # Order Ibis models by their dependencies so that the once which depend on other
         # Ibis model are compiled after the ones they depend on. For example, if
-        # model_a depends on model_b, then model_b will be compiled first and will appear
-        # in the list before model_a.
+        # model_a depends on model_b, then model_b will be compiled first and will
+        # appear in the list before model_a.
         all_ibis_models = _sort_ibis_models_by_dependencies(all_ibis_models)
 
         ref_infos, source_infos = _extract_ref_and_source_infos(manifest)
