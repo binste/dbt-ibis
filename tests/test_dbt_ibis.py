@@ -1,3 +1,4 @@
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -444,7 +445,7 @@ def test_get_parse_arguments(mocker):
 
 
 def test_end_to_end(monkeypatch):
-    # Remove all precompiled Ibis models which might exist from
+    # Remove files which might exist from
     # a previous test run which can happen if the tests are run locally, i.e.
     # not in the GitHub pipeline.
     def get_compiled_sql_files(project_dir: Path) -> list[Path]:
@@ -462,6 +463,11 @@ def test_end_to_end(monkeypatch):
     if database_file.exists():
         database_file.unlink()
 
+    target_folder = project_dir / "target"
+    if target_folder.exists():
+        shutil.rmtree(target_folder)
+
+    # Start with the actual testing
     def execute_command(cmd: list[str]) -> None:
         process = subprocess.run(
             cmd,  # noqa: S603
