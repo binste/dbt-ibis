@@ -463,12 +463,12 @@ def test_end_to_end(monkeypatch):
         database_file.unlink()
 
     def execute_command(cmd: list[str]) -> None:
-        process = subprocess.Popen(
+        process = subprocess.run(
             cmd,  # noqa: S603
             stdout=sys.stdout,
             stderr=sys.stderr,
         )
-        process.wait()
+        process.check_returncode()
 
     execute_command(["dbt-ibis", "seed"])
     # Check that all Ibis models were compiled and seed

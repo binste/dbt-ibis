@@ -416,10 +416,10 @@ def _to_dbt_sql(ibis_expr: ibis.expr.types.Table) -> str:
 def main() -> None:
     compile_ibis_to_sql_models()
     # Execute the actual dbt command
-    process = subprocess.Popen(
+    process = subprocess.run(
         ["dbt"] + sys.argv[1:], stdout=sys.stdout, stderr=sys.stderr  # noqa: S603
     )
-    process.wait()
+    sys.exit(process.returncode)
 
 
 if __name__ == "__main__":
