@@ -23,7 +23,7 @@ import ibis.expr.types
 from dbt.cli.main import cli, p, requires
 from dbt.config import RuntimeConfig
 from dbt.contracts.graph.manifest import Manifest
-from dbt.contracts.graph.nodes import ColumnInfo, ModelNode, SourceDefinition
+from dbt.contracts.graph.nodes import ColumnInfo, ModelNode, SeedNode, SourceDefinition
 from dbt.parser import manifest
 
 _REF_IDENTIFIER_PREFIX: Final = "__ibd_ref__"
@@ -34,7 +34,7 @@ _SOURCE_IDENTIFIER_SEPARATOR: Final = "__ibd_sep__"
 _IBIS_MODEL_FILE_EXTENSION: Final = "ibis"
 _IBIS_SQL_FOLDER_NAME: Final = "__ibis_sql"
 
-_ModelsLookup = dict[str, ModelNode]
+_RefLookup = dict[str, Union[ModelNode, SeedNode]]
 _SourcesLookup = dict[str, dict[str, SourceDefinition]]
 
 
@@ -56,11 +56,11 @@ class _Reference(ABC):
 
 @dataclass
 class ref(_Reference):
-    model_name: str
+    name: str
 
     @property
     def _ibis_table_name(self) -> str:
-        return _REF_IDENTIFIER_PREFIX + self.model_name + _REF_IDENTIFIER_SUFFIX
+        return _REF_IDENTIFIER_PREFIX + self.name + _REF_IDENTIFIER_SUFFIX
 
 
 @dataclass
@@ -250,7 +250,7 @@ def compile_ibis_to_sql_models() -> None:
     # in the list before model_a.
     all_ibis_models = _sort_ibis_models_by_dependencies(all_ibis_models)
 
-    model_infos, source_infos = _extract_model_and_source_infos(manifest)
+    ref_infos, source_infos = _extract_ref_and_source_infos(manifest)
 
     # Schemas of the Ibis models themselves in case they are referenced
     # by other downstream Ibis models
@@ -263,7 +263,7 @@ def compile_ibis_to_sql_models() -> None:
                 schema = _get_schema_for_source(r, source_infos)
             elif isinstance(r, ref):
                 schema = _get_schema_for_ref(
-                    r, model_infos, ibis_model_schemas=ibis_model_schemas
+                    r, ref_infos, ibis_model_schemas=ibis_model_schemas
                 )
             else:
                 raise ValueError(f"Unknown reference type: {type(r)}")
@@ -349,7 +349,11 @@ def _get_model_func(model_file: Path) -> Callable[..., ibis.expr.types.Table]:
     if spec.loader is None:
         raise ValueError(f"Could not load model file: {model_file}")
     spec.loader.exec_module(model_module)
-    model_func = model_module.model
+    model_func = getattr(model_module, "model", None)
+    if model_func is None:
+        raise ValueError(
+            f"Could not find function called 'model' in {str(model_file)}."
+        )
     return model_func
 
 
@@ -363,9 +367,9 @@ def _sort_ibis_models_by_dependencies(
     # refs which are not Ibis models
     graph = {
         ibis_model_name: [
-            d.model_name
+            d.name
             for d in ibis_model.depends_on
-            if isinstance(d, ref) and d.model_name in ibis_model_lookup
+            if isinstance(d, ref) and d.name in ibis_model_lookup
         ]
         for ibis_model_name, ibis_model in ibis_model_lookup.items()
     }
@@ -375,18 +379,18 @@ def _sort_ibis_models_by_dependencies(
     return [ibis_model_lookup[m] for m in ibis_model_order]
 
 
-def _extract_model_and_source_infos(
+def _extract_ref_and_source_infos(
     dbt_manifest: Manifest,
-) -> tuple[_ModelsLookup, _SourcesLookup]:
+) -> tuple[_RefLookup, _SourcesLookup]:
     nodes = list(dbt_manifest.nodes.values())
-    models = [n for n in nodes if isinstance(n, ModelNode)]
-    models_lookup = {m.name: m for m in models}
+    models_and_seeds = [n for n in nodes if isinstance(n, (ModelNode, SeedNode))]
+    ref_lookup = {m.name: m for m in models_and_seeds}
 
     sources = dbt_manifest.sources.values()
     sources_lookup: defaultdict[str, dict[str, SourceDefinition]] = defaultdict(dict)
     for s in sources:
         sources_lookup[s.source_name][s.name] = s
-    return models_lookup, dict(sources_lookup)
+    return ref_lookup, dict(sources_lookup)
 
 
 def _get_schema_for_source(
@@ -398,7 +402,7 @@ def _get_schema_for_source(
 
 
 def _get_schema_for_ref(
-    ref: ref, model_infos: _ModelsLookup, ibis_model_schemas: dict[str, ibis.Schema]
+    ref: ref, ref_infos: _RefLookup, ibis_model_schemas: dict[str, ibis.Schema]
 ) -> ibis.Schema:
     schema: Optional[ibis.Schema] = None
     # Take column data types and hence schema from parsed model infos if available
@@ -406,8 +410,18 @@ def _get_schema_for_ref(
     # the database if the user enforces the data type contracts.
     # However, this means that also all columns need to be defined in the yml files
     # which are used in the Ibis expression
-    if ref.model_name in model_infos:
-        columns = model_infos[ref.model_name].columns
+    if ref.name in ref_infos:
+        columns: dict[str, ColumnInfo]
+        info = ref_infos[ref.name]
+        if isinstance(info, SeedNode):
+            # For seeds, the information is not stored in the
+            # columns attribute but in the config.column_types attribute
+            columns = {
+                name: ColumnInfo(name=name, data_type=data_type)
+                for name, data_type in info.config.column_types.items()
+            }
+        else:
+            columns = info.columns
         has_columns_with_data_types = len(columns) > 0 and all(
             c.data_type is not None for c in columns.values()
         )
@@ -416,14 +430,14 @@ def _get_schema_for_ref(
 
     # Else, see if it is an Ibis model in which case we would have the schema
     # in ibis_model_schemas
-    if schema is None and ref.model_name in ibis_model_schemas:
-        schema = ibis_model_schemas[ref.model_name]
+    if schema is None and ref.name in ibis_model_schemas:
+        schema = ibis_model_schemas[ref.name]
 
     if schema is None:
         raise ValueError(
-            f"Could not determine schema for model '{ref.model_name}'."
+            f"Could not determine schema for model '{ref.name}'."
             + " You either need to define it as a model contract or the model needs to"
-            + " be an Ibis model as well"
+            + " be an Ibis model as well."
         )
     return schema
 

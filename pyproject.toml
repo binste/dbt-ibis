@@ -116,6 +116,8 @@ ignore = [
     # Rule prefers implicitly concatenated strings over explicitly.
     # We prefer explicitly concatenated strings.
     "ISC003",
+    # Explicit conversion flags for strings
+    "RUF010",
 ]
 exclude = [".git", "build", "__pycache__", "demo_project"]
 
