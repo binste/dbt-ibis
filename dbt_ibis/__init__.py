@@ -234,7 +234,11 @@ def _get_parse_arguments() -> list[str]:
     # becomes "parse_customized run --select stg_orders --project-dir folder"
     # in variable args. parse_customized will then ignore "--select stg_orders"
     all_args = sys.argv[1:]
-    subcommand_idx = next(i for i, arg in enumerate(all_args) if arg in cli.commands)
+    subcommand_idx = next(
+        i
+        for i, arg in enumerate(all_args)
+        if arg in [*list(cli.commands.keys()), "precompile"]
+    )
     parse_command = _parse_customized.name
     # For the benefit of mypy
     assert isinstance(parse_command, str)  # noqa: S101
@@ -401,11 +405,14 @@ def _to_dbt_sql(ibis_expr: ibis.expr.types.Table) -> str:
 
 def main() -> None:
     compile_ibis_to_sql_models()
-    # Execute the actual dbt command
-    process = subprocess.run(
-        ["dbt"] + sys.argv[1:], stdout=sys.stdout, stderr=sys.stderr  # noqa: S603
-    )
-    sys.exit(process.returncode)
+    # Rudimentary approach to adding a "precompile" command to dbt-ibis.
+    # If there are any global flags before precompile, this would fail
+    if sys.argv[1] != "precompile":
+        # Execute the actual dbt command
+        process = subprocess.run(
+            ["dbt"] + sys.argv[1:], stdout=sys.stdout, stderr=sys.stderr  # noqa: S603
+        )
+        sys.exit(process.returncode)
 
 
 if __name__ == "__main__":
