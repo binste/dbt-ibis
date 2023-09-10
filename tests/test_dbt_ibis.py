@@ -390,6 +390,7 @@ def test_get_parse_arguments(mocker):
     args = _get_parse_arguments()
 
     assert args == [
+        "--quiet",
         "parse_customized",
         "--project-dir",
         "some_folder",
@@ -409,6 +410,7 @@ def test_get_parse_arguments(mocker):
     args = _get_parse_arguments()
 
     assert args == [
+        "--quiet",
         "parse_customized",
     ]
 

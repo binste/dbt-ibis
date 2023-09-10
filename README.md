@@ -63,7 +63,16 @@ dbt-ibis run --select stg_stores+
 
 You'll notice that for every `.ibis` file, `dbt-ibis` will generate a corresponding `.sql` file in a `__ibis_sql` subfolder. This is because `dbt-ibis` simply compiles all Ibis expressions to SQL and then let's DBT do its thing. You should not edit those files as they are overwritten every time you execute a `dbt-ibis` command. However, it might be interesting to look at them if you want to debug an expression.
 
-You can also execute `dbt-ibis precompile` if you only want to compile the `.ibis` to `.sql` files.
+You can also execute `dbt-ibis precompile` if you only want to compile the `.ibis` to `.sql` files:
+
+```bash
+# This
+dbt-ibis run
+
+# Is the samee as
+dbt-ibis precompile
+dbt run
+```
 
 ## Editor configuration
 You might want to configure your editor to treat `.ibis` files as normal Python files. In VS Code, you can do this by putting the following into your `settings.json` file:
