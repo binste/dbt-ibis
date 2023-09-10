@@ -96,4 +96,9 @@ As this feature didn't make it [onto the roadmap of dbt for 2023](https://github
 ```bash
 pip install -e '.[dev]'
 ```
-Tests, linting, etc. will follow.
+
+You can run linters and tests with
+```bash
+hatch run linters
+hatch run tests
+```
