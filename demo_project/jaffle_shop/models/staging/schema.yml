@@ -30,6 +30,12 @@ models:
           - accepted_values:
               values: ['credit_card', 'coupon', 'bank_transfer', 'gift_card']
 
+  - name: stg_stores
+    columns:
+      - name: store_id
+        tests:
+          - unique
+          - not_null
 
 sources:
   - name: sources_db
