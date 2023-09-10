@@ -2,6 +2,7 @@ __all__ = ["ref", "source", "depends_on", "compile_ibis_to_sql_models"]
 __version__ = "0.3.0dev"
 
 import graphlib
+import logging
 import re
 import subprocess
 import sys
@@ -36,6 +37,14 @@ _IBIS_SQL_FOLDER_NAME: Final = "__ibis_sql"
 
 _RefLookup = dict[str, Union[ModelNode, SeedNode]]
 _SourcesLookup = dict[str, dict[str, SourceDefinition]]
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    # Imitate dbt's log format but add dbt-ibis before the log message
+    format="%(asctime)s  dbt-ibis: %(message)s",
+    datefmt="%H:%M:%S",
+)
 
 
 class _Reference(ABC):
@@ -237,46 +246,53 @@ def _disable_node_not_found_error() -> Iterator[None]:
 
 
 def compile_ibis_to_sql_models() -> None:
+    logger.info("Parse dbt project")
     with _disable_node_not_found_error():
         manifest, runtime_config = _invoke_parse_customized()
     all_ibis_models = _get_ibis_models(
         project_root=runtime_config.project_root,
         model_paths=runtime_config.model_paths,
     )
+    if len(all_ibis_models) == 0:
+        logger.info("No Ibis models found.")
+        return
+    else:
+        logger.info(f"Compiling {len(all_ibis_models)} Ibis models to SQL")
 
-    # Order Ibis models by their dependencies so that the once which depend on other
-    # Ibis model are compiled after the ones they depend on. For example, if
-    # model_a depends on model_b, then model_b will be compiled first and will appear
-    # in the list before model_a.
-    all_ibis_models = _sort_ibis_models_by_dependencies(all_ibis_models)
+        # Order Ibis models by their dependencies so that the once which depend on other
+        # Ibis model are compiled after the ones they depend on. For example, if
+        # model_a depends on model_b, then model_b will be compiled first and will
+        # appear in the list before model_a.
+        all_ibis_models = _sort_ibis_models_by_dependencies(all_ibis_models)
 
-    ref_infos, source_infos = _extract_ref_and_source_infos(manifest)
+        ref_infos, source_infos = _extract_ref_and_source_infos(manifest)
 
-    # Schemas of the Ibis models themselves in case they are referenced
-    # by other downstream Ibis models
-    ibis_model_schemas: dict[str, ibis.Schema] = {}
-    # Convert Ibis models to SQL and write to file
-    for ibis_model in all_ibis_models:
-        references: list[ibis.expr.types.Table] = []
-        for r in ibis_model.depends_on:
-            if isinstance(r, source):
-                schema = _get_schema_for_source(r, source_infos)
-            elif isinstance(r, ref):
-                schema = _get_schema_for_ref(
-                    r, ref_infos, ibis_model_schemas=ibis_model_schemas
-                )
-            else:
-                raise ValueError(f"Unknown reference type: {type(r)}")
-            ibis_table = r.to_ibis(schema)
+        # Schemas of the Ibis models themselves in case they are referenced
+        # by other downstream Ibis models
+        ibis_model_schemas: dict[str, ibis.Schema] = {}
+        # Convert Ibis models to SQL and write to file
+        for ibis_model in all_ibis_models:
+            references: list[ibis.expr.types.Table] = []
+            for r in ibis_model.depends_on:
+                if isinstance(r, source):
+                    schema = _get_schema_for_source(r, source_infos)
+                elif isinstance(r, ref):
+                    schema = _get_schema_for_ref(
+                        r, ref_infos, ibis_model_schemas=ibis_model_schemas
+                    )
+                else:
+                    raise ValueError(f"Unknown reference type: {type(r)}")
+                ibis_table = r.to_ibis(schema)
 
-            references.append(ibis_table)
-        ibis_expr = ibis_model.model_func(*references)
-        ibis_model_schemas[ibis_model.name] = ibis_expr.schema()
+                references.append(ibis_table)
+            ibis_expr = ibis_model.model_func(*references)
+            ibis_model_schemas[ibis_model.name] = ibis_expr.schema()
 
-        # Convert to SQL and write to file
-        dbt_sql = _to_dbt_sql(ibis_expr)
-        ibis_model.sql_path.parent.mkdir(parents=False, exist_ok=True)
-        ibis_model.sql_path.write_text(dbt_sql)
+            # Convert to SQL and write to file
+            dbt_sql = _to_dbt_sql(ibis_expr)
+            ibis_model.sql_path.parent.mkdir(parents=False, exist_ok=True)
+            ibis_model.sql_path.write_text(dbt_sql)
+        logger.info("Finished compiling Ibis models to SQL")
 
 
 def _invoke_parse_customized() -> tuple[Manifest, RuntimeConfig]:
