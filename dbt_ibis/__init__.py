@@ -305,7 +305,12 @@ def _get_parse_arguments() -> list[str]:
     parse_command = _parse_customized.name
     # For the benefit of mypy
     assert isinstance(parse_command, str)  # noqa: S101
-    args = [parse_command] + all_args[subcommand_idx + 1 :]
+    # Use --quiet to suppress non-error logs in stdout. These logs would be
+    # confusing to a user as they don't expect two dbt commands to be executed.
+    # Furthermore, the logs might contain warnings which the user can ignore
+    # as they come from the fact that Ibis models might not yet be present as .sql
+    # files when running the parse command.
+    args = ["--quiet", parse_command] + all_args[subcommand_idx + 1 :]
     return args
 
 
