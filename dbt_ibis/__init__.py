@@ -118,7 +118,7 @@ class _IbisModel:
         return self.ibis_path.parent / _IBIS_SQL_FOLDER_NAME / f"{self.name}.sql"
 
 
-def _back_up_and_restore_target_files(func):
+def _back_up_and_restore_target_files(func: Callable) -> Callable:
     """Backs up and then restores again all files which are in the target
     folder. Ignores the folders "compiled" and "run".
 
@@ -134,7 +134,7 @@ def _back_up_and_restore_target_files(func):
     """
 
     @wraps(func)
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs):  # type: ignore[no-untyped-def]
         ctx = args[0]
         if not isinstance(ctx, click.Context):
             raise ValueError(
