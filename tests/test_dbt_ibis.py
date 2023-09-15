@@ -484,7 +484,7 @@ def execute_command(cmd: list[str]) -> None:
 
 def validate_compiled_sql_files(project_dir: Path) -> list[Path]:
     compiled_sql_files = get_compiled_sql_files(project_dir)
-    assert len(compiled_sql_files) == 4
+    assert len(compiled_sql_files) == 5
 
     # Test content of some of the compiled SQL files
     stg_stores = next(p for p in compiled_sql_files if p.stem == "stg_stores")
