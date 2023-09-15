@@ -1,0 +1,21 @@
+version: 2
+
+snapshots:
+  - name: orders_snapshot
+    columns:
+      - name: id
+        data_type: integer
+      - name: user_id
+        data_type: integer
+      - name: order_date
+        data_type: date
+      - name: status
+        data_type: varchar
+      - name: dbt_scd_id
+        data_type: varchar
+      - name: dbt_updated_at
+        data_type: timestamp
+      - name: dbt_valid_from
+        data_type: timestamp
+      - name: dbt_valid_to
+        data_type: timestamp

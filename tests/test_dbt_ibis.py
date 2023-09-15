@@ -484,7 +484,7 @@ def execute_command(cmd: list[str]) -> None:
 
 def validate_compiled_sql_files(project_dir: Path) -> list[Path]:
     compiled_sql_files = get_compiled_sql_files(project_dir)
-    assert len(compiled_sql_files) == 4
+    assert len(compiled_sql_files) == 5
 
     # Test content of some of the compiled SQL files
     stg_stores = next(p for p in compiled_sql_files if p.stem == "stg_stores")
@@ -554,10 +554,15 @@ def test_end_to_end(project_dir_and_database_file: tuple[Path, Path]):
     seed_tables = ["raw_orders", "raw_customers", "raw_payments"]
     assert get_tables() == sorted(seed_tables)
 
+    execute_command(["dbt-ibis", "snapshot"])
+
+    snapshot_tables = ["orders_snapshot"]
+    assert get_tables() == sorted([*seed_tables, *snapshot_tables])
+
     # Only run for a few models at first to make sure that --select
     # is passed through to dbt run
     execute_command(["dbt-ibis", "run", "--select", "stg_orders"])
-    assert get_tables() == sorted([*seed_tables, "stg_orders"])
+    assert get_tables() == sorted([*seed_tables, *snapshot_tables, "stg_orders"])
 
     execute_command(
         [
@@ -568,6 +573,7 @@ def test_end_to_end(project_dir_and_database_file: tuple[Path, Path]):
     assert get_tables() == sorted(
         [
             *seed_tables,
+            *snapshot_tables,
             "stg_orders",
             "stg_customers",
             "stg_payments",

@@ -1,0 +1,11 @@
+from dbt_ibis import depends_on, ref
+import ibis.expr.types
+
+
+# You can use a type hint to help your editor, e.g. VS Code, to provide
+# you with autocompletion suggestions.
+@depends_on(ref("orders_snapshot"))
+def model(orders_snapshot: ibis.expr.types.Table):
+    return orders_snapshot.relabel({"id": "order_id", "user_id": "customer_id"}).select(
+        "order_id", "customer_id", "order_date", "status"
+    )
