@@ -54,8 +54,9 @@ $ dbt-ibis debug
 $ dbt-ibis seed
 ```
 
-7. Run the models:
+7. Run the snapshots and models:
 ```bash
+$ dbt-ibis snapshot
 $ dbt-ibis run
 ```
 

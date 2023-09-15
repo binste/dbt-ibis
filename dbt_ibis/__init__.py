@@ -24,7 +24,13 @@ import ibis.expr.types
 from dbt.cli.main import cli, p, requires
 from dbt.config import RuntimeConfig
 from dbt.contracts.graph.manifest import Manifest
-from dbt.contracts.graph.nodes import ColumnInfo, ModelNode, SeedNode, SourceDefinition
+from dbt.contracts.graph.nodes import (
+    ColumnInfo,
+    ModelNode,
+    SeedNode,
+    SnapshotNode,
+    SourceDefinition,
+)
 from dbt.parser import manifest
 
 _REF_IDENTIFIER_PREFIX: Final = "__ibd_ref__"
@@ -35,7 +41,7 @@ _SOURCE_IDENTIFIER_SEPARATOR: Final = "__ibd_sep__"
 _IBIS_MODEL_FILE_EXTENSION: Final = "ibis"
 _IBIS_SQL_FOLDER_NAME: Final = "__ibis_sql"
 
-_RefLookup = dict[str, Union[ModelNode, SeedNode]]
+_RefLookup = dict[str, Union[ModelNode, SeedNode, SnapshotNode]]
 _SourcesLookup = dict[str, dict[str, SourceDefinition]]
 
 logger = logging.getLogger(__name__)
@@ -399,7 +405,9 @@ def _extract_ref_and_source_infos(
     dbt_manifest: Manifest,
 ) -> tuple[_RefLookup, _SourcesLookup]:
     nodes = list(dbt_manifest.nodes.values())
-    models_and_seeds = [n for n in nodes if isinstance(n, (ModelNode, SeedNode))]
+    models_and_seeds = [
+        n for n in nodes if isinstance(n, (ModelNode, SeedNode, SnapshotNode))
+    ]
     ref_lookup = {m.name: m for m in models_and_seeds}
 
     sources = dbt_manifest.sources.values()

@@ -38,7 +38,7 @@ def model(stores):
     return stores.filter(stores["country"] == "USA")
 ```
 
-Whenever your Ibis model references either a source, a seed, or a SQL model, you'll need to define the column data types as described in [Model Contracts - getdbt.com](https://docs.getdbt.com/docs/collaborate/govern/model-contracts) (`data_type` refers to the data types as they are called by your database system) (for sources and SQL models) or in [Seed configurations - getdbt.com](https://docs.getdbt.com/reference/seed-configs) (for seeds). If you reference another Ibis model, this is not necessary. In the examples above, you would need to provide it for the `stores` source table:
+Whenever your Ibis model references either a source, a seed, a snapshot, or a SQL model, you'll need to define the column data types as described in [Model Contracts - getdbt.com](https://docs.getdbt.com/docs/collaborate/govern/model-contracts) (`data_type` refers to the data types as they are called by your database system) (for sources, snapshots, and SQL models) or in [Seed configurations - getdbt.com](https://docs.getdbt.com/reference/seed-configs) (for seeds). If you reference another Ibis model, this is not necessary. In the examples above, you would need to provide it for the `stores` source table:
 
 ```yml
 sources:
@@ -84,7 +84,7 @@ You might want to configure your editor to treat `.ibis` files as normal Python 
 
 ## Limitations
 * There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functions which would require this.
-* For non-Ibis models, seeds, and for sources, you need to specify the data types of the columns. See "Basic example" above.
+* For non-Ibis models, seeds, snapshots, and for sources, you need to specify the data types of the columns. See "Basic example" above.
 
 ## Integration with DBT
 There are [discussions](https://github.com/dbt-labs/dbt-core/pull/5274#issuecomment-1132772028) on [adding a plugin system to dbt](https://github.com/dbt-labs/dbt-core/issues/6184) which could be used to provide first-class support for other modeling languages such as Ibis (see [this PoC](https://github.com/dbt-labs/dbt-core/pull/6296) by dbt and the [discussion on Ibis as a dataframe API](https://github.com/dbt-labs/dbt-core/discussions/5738)) or PRQL (see [dbt-prql](https://github.com/PRQL/dbt-prql)).
