@@ -365,24 +365,6 @@ def test_columns_to_ibis_schema():
         _columns_to_ibis_schema(columns)
 
 
-@pytest.mark.parametrize(
-    ("db_dtype", "db_dialect", "ibis_dtype"),
-    [
-        ("bigint", "duckdb", dt.Int64()),
-        ("BIGINT", "duckdb", dt.Int64()),
-        ("varchar", "duckdb", dt.String()),
-    ],
-)
-def test_parse_db_dtype_to_ibis_dtype(
-    db_dtype: str, db_dialect: str, ibis_dtype: dt.DataType  # noqa: ARG001
-):
-    # We don't need to test all possible dialects and datatypes here. This already
-    # happens in the Ibis test suite.
-
-    # Function does not yet support different dialects. Waiting for Ibis 7
-    assert _parse_db_dtype_to_ibis_dtype(db_dtype) == ibis_dtype
-
-
 def test_to_dbt_sql():
     orders = source("source1", "orders")
     orders_table = orders.to_ibis(
