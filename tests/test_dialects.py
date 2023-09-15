@@ -47,5 +47,5 @@ def test_ibis_expr_to_sql():
     # expected.
     # We can only test it for duckdb as the other backends are not installed
     # in development mode.
-    sql = ibis_expr_to_sql(expression, ibis_dialect="duckdb")
+    sql = ibis_expr_to_sql(expression, ibis_dialect=IbisDialect("duckdb"))
     assert isinstance(sql, str)
