@@ -484,7 +484,7 @@ def execute_command(cmd: list[str]) -> None:
 
 def validate_compiled_sql_files(project_dir: Path) -> list[Path]:
     compiled_sql_files = get_compiled_sql_files(project_dir)
-    assert len(compiled_sql_files) == 5
+    assert len(compiled_sql_files) == 6
 
     # Test content of some of the compiled SQL files
     stg_stores = next(p for p in compiled_sql_files if p.stem == "stg_stores")
@@ -579,6 +579,7 @@ def test_end_to_end(project_dir_and_database_file: tuple[Path, Path]):
             "stg_payments",
             "stg_stores",
             "customers_with_multiple_orders",
+            "customers_sql_equivalent",
             "customers",
             "orders",
             "usa_stores",

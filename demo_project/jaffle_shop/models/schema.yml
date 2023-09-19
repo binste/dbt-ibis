@@ -8,6 +8,35 @@ models:
 
     columns:
       - name: customer_id
+        description: This is a unique identifier for a customer
+        tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: Customer's first name. PII.
+
+      - name: last_name
+        description: Customer's last name. PII.
+
+      - name: first_order
+        description: Date (UTC) of a customer's first order
+
+      - name: most_recent_order
+        description: Date (UTC) of a customer's most recent order
+
+      - name: number_of_orders
+        description: Count of the number of orders a customer has placed
+
+      - name: customer_lifetime_value
+        description: Total value (AUD) of a customer's orders
+
+  - name: customers_sql_equivalent
+    description: >
+      This is the same table as `customers` but written in SQL as it originally
+      appeared in the jaffle_shop demo project from dbt labs.
+    columns:
+      - name: customer_id
         data_type: integer
         description: This is a unique identifier for a customer
         tests:
