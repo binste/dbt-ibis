@@ -89,7 +89,7 @@ You might want to configure your editor to treat `.ibis` files as normal Python 
 ```
 
 ## Limitations
-* There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functions which would require this.
+* There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functionality which would require this.
 * For non-Ibis models, seeds, snapshots, and for sources, you need to specify the data types of the columns. See "Basic example" above.
 
 ## Integration with DBT
