@@ -6,6 +6,8 @@ import ibis.expr.types
 from dbt.contracts.graph.manifest import Manifest
 from ibis.formats import TypeMapper
 
+# Use NewType to make sure that we don't accidentally mix these up, i.e.
+# pass a DBTAdapterType to a function that expects an IbisDialect or vice versa.
 IbisDialect = NewType("IbisDialect", str)
 DBTAdapterType = NewType("DBTAdapterType", str)
 
