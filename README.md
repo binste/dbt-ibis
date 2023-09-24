@@ -1,8 +1,6 @@
 # dbt-ibis
 With dbt-ibis you can write your [dbt](https://www.getdbt.com/) models using [Ibis](https://ibis-project.org/).
 
-This package is in very early development. Things might go wrong. [Feedback](https://github.com/binste/dbt-ibis/issues) and contributions are welcome!
-
 Supported dbt adapters:
 * DuckDB
 * Snowflake
