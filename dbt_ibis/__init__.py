@@ -1,5 +1,5 @@
 __all__ = ["ref", "source", "depends_on", "compile_ibis_to_sql_models"]
-__version__ = "0.4.0dev"
+__version__ = "0.4.0"
 
 import graphlib
 import logging
@@ -32,6 +32,8 @@ from dbt.contracts.graph.nodes import (
     SourceDefinition,
 )
 from dbt.parser import manifest
+
+from dbt_ibis import _dialects
 
 _REF_IDENTIFIER_PREFIX: Final = "__ibd_ref__"
 _REF_IDENTIFIER_SUFFIX: Final = "__rid__"
@@ -255,6 +257,9 @@ def compile_ibis_to_sql_models() -> None:
     logger.info("Parse dbt project")
     with _disable_node_not_found_error():
         manifest, runtime_config = _invoke_parse_customized()
+
+    ibis_dialect = _dialects.get_ibis_dialect(manifest)
+
     all_ibis_models = _get_ibis_models(
         project_root=runtime_config.project_root,
         model_paths=runtime_config.model_paths,
@@ -281,10 +286,15 @@ def compile_ibis_to_sql_models() -> None:
             references: list[ibis.expr.types.Table] = []
             for r in ibis_model.depends_on:
                 if isinstance(r, source):
-                    schema = _get_schema_for_source(r, source_infos)
+                    schema = _get_schema_for_source(
+                        r, source_infos, ibis_dialect=ibis_dialect
+                    )
                 elif isinstance(r, ref):
                     schema = _get_schema_for_ref(
-                        r, ref_infos, ibis_model_schemas=ibis_model_schemas
+                        r,
+                        ref_infos,
+                        ibis_model_schemas=ibis_model_schemas,
+                        ibis_dialect=ibis_dialect,
                     )
                 else:
                     raise ValueError(f"Unknown reference type: {type(r)}")
@@ -295,7 +305,7 @@ def compile_ibis_to_sql_models() -> None:
             ibis_model_schemas[ibis_model.name] = ibis_expr.schema()
 
             # Convert to SQL and write to file
-            dbt_sql = _to_dbt_sql(ibis_expr)
+            dbt_sql = _to_dbt_sql(ibis_expr, ibis_dialect=ibis_dialect)
             ibis_model.sql_path.parent.mkdir(parents=False, exist_ok=True)
             ibis_model.sql_path.write_text(dbt_sql)
         logger.info("Finished compiling Ibis models to SQL")
@@ -418,15 +428,17 @@ def _extract_ref_and_source_infos(
 
 
 def _get_schema_for_source(
-    source: source,
-    source_infos: _SourcesLookup,
+    source: source, source_infos: _SourcesLookup, ibis_dialect: _dialects.IbisDialect
 ) -> ibis.Schema:
     columns = source_infos[source.source_name][source.table_name].columns
-    return _columns_to_ibis_schema(columns)
+    return _columns_to_ibis_schema(columns, ibis_dialect=ibis_dialect)
 
 
 def _get_schema_for_ref(
-    ref: ref, ref_infos: _RefLookup, ibis_model_schemas: dict[str, ibis.Schema]
+    ref: ref,
+    ref_infos: _RefLookup,
+    ibis_model_schemas: dict[str, ibis.Schema],
+    ibis_dialect: _dialects.IbisDialect,
 ) -> ibis.Schema:
     schema: Optional[ibis.Schema] = None
     # Take column data types and hence schema from parsed model infos if available
@@ -450,7 +462,7 @@ def _get_schema_for_ref(
             c.data_type is not None for c in columns.values()
         )
         if has_columns_with_data_types:
-            schema = _columns_to_ibis_schema(columns)
+            schema = _columns_to_ibis_schema(columns, ibis_dialect=ibis_dialect)
 
     # Else, see if it is an Ibis model in which case we would have the schema
     # in ibis_model_schemas
@@ -466,43 +478,49 @@ def _get_schema_for_ref(
     return schema
 
 
-def _columns_to_ibis_schema(columns: dict[str, ColumnInfo]) -> ibis.Schema:
+def _columns_to_ibis_schema(
+    columns: dict[str, ColumnInfo], ibis_dialect: _dialects.IbisDialect
+) -> ibis.Schema:
     schema_dict: dict[str, dt.DataType] = {}
     for c in columns.values():
         if c.data_type is None:
             raise ValueError(f"Could not determine data type for column '{c.name}'")
-        schema_dict[c.name] = _parse_db_dtype_to_ibis_dtype(c.data_type)
+        schema_dict[c.name] = _dialects.parse_db_dtype_to_ibis_dtype(
+            c.data_type, ibis_dialect=ibis_dialect
+        )
     return ibis.schema(schema_dict)
 
 
-def _parse_db_dtype_to_ibis_dtype(db_dtype: str) -> dt.DataType:
-    # Needs to be made dialect specific
-    from ibis.backends.duckdb.datatypes import parse
-
-    return parse(db_dtype)
-
-
-def _to_dbt_sql(ibis_expr: ibis.expr.types.Table) -> str:
-    # Return type of .to_sql is SqlString which is a normal string with some
-    # custom repr methods -> Convert it to a normal string here to make it easier
-    # for mypy.
-    sql = str(ibis.to_sql(ibis_expr))
+def _to_dbt_sql(
+    ibis_expr: ibis.expr.types.Table, ibis_dialect: _dialects.IbisDialect
+) -> str:
+    sql = _dialects.ibis_expr_to_sql(ibis_expr, ibis_dialect=ibis_dialect)
     capture_pattern = "(.+?)"
+
+    # Remove quotation marks around the source name and table name as
+    # quoting identifiers should be handled by DBT in case it is needed.
+    quotation_marks_pattern = r'"?'
 
     # Insert ref jinja function
     sql = re.sub(
-        _REF_IDENTIFIER_PREFIX + capture_pattern + _REF_IDENTIFIER_SUFFIX,
+        quotation_marks_pattern
+        + _REF_IDENTIFIER_PREFIX
+        + capture_pattern
+        + _REF_IDENTIFIER_SUFFIX
+        + quotation_marks_pattern,
         r"{{ ref('\1') }}",
         sql,
     )
 
     # Insert source jinja function
     sql = re.sub(
-        _SOURCE_IDENTIFIER_PREFIX
+        quotation_marks_pattern
+        + _SOURCE_IDENTIFIER_PREFIX
         + capture_pattern
         + _SOURCE_IDENTIFIER_SEPARATOR
         + capture_pattern
-        + _SOURCE_IDENTIFIER_SUFFIX,
+        + _SOURCE_IDENTIFIER_SUFFIX
+        + quotation_marks_pattern,
         r"{{ source('\1', '\2') }}",
         sql,
     )

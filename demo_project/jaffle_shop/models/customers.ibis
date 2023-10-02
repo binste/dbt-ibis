@@ -1,0 +1,37 @@
+from ibis import deferred as d_
+
+from dbt_ibis import depends_on, ref
+
+
+@depends_on(ref("stg_customers"), ref("stg_orders"), ref("stg_payments"))
+def model(customers, orders, payments):
+    customer_orders = orders.group_by("customer_id").aggregate(
+        first_order=orders["order_date"].min(),
+        most_recent_order=orders["order_date"].max(),
+        number_of_orders=orders.count(),
+    )
+    customer_payments = (
+        payments.join(orders, payments["order_id"] == orders["order_id"], how="left")
+        .group_by(d_["customer_id"])
+        .aggregate(total_amount=d_["amount"].sum())
+    )
+    final = (
+        (
+            customers.join(
+                customer_orders,
+                "customer_id",
+                how="left",
+            ).join(customer_payments, "customer_id", how="left", rname="{name}_right2")
+        )
+        .rename(customer_lifetime_value="total_amount")
+        .select(
+            "customer_id",
+            "first_name",
+            "last_name",
+            "first_order",
+            "most_recent_order",
+            "number_of_orders",
+            "customer_lifetime_value",
+        )
+    )
+    return final

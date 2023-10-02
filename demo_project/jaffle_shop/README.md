@@ -5,6 +5,8 @@ Demo project comes from https://github.com/dbt-labs/jaffle_shop. All files which
 * `generate_sources_db.py`
 *  all files with extension `.ibis`
 
+To run this project, you'll need to install the [`duckdb` Ibis backend](https://ibis-project.org/backends/duckdb).
+
 The rest of this README is taken from the original project.
 
 ## Testing dbt project: `jaffle_shop`

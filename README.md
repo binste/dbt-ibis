@@ -1,19 +1,23 @@
 # dbt-ibis
 With dbt-ibis you can write your [dbt](https://www.getdbt.com/) models using [Ibis](https://ibis-project.org/).
 
-This package is in very early development. Things might go wrong. [Feedback](https://github.com/binste/dbt-ibis/issues) and contributions are welcome!
-
-Supported adapters:
+Supported dbt adapters:
 * DuckDB
-* Soon to come:
-  * Snowflake
-  * ... (hopefully all which are supported by both dbt and Ibis)
+* Snowflake
+* Postgres
+* Redshift
+* Trino
+* MySQL
+* SQLite
+* Oracle
 
-## Basic example
+You can install `dbt-ibis` via pip:
 ```bash
 pip install dbt-ibis
 ```
+In addition, you'll need to install the relevant [`ibis` backend](https://ibis-project.org/install) for your database.
 
+## Basic example
 You can write your Ibis model in files with the extension `.ibis`. Each `.ibis` file needs to correspond to one model which is defined as a `model` function returning an Ibis table expression:
 
 `stg_stores.ibis`:
@@ -83,7 +87,7 @@ You might want to configure your editor to treat `.ibis` files as normal Python 
 ```
 
 ## Limitations
-* There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functions which would require this.
+* There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functionality which would require this.
 * For non-Ibis models, seeds, snapshots, and for sources, you need to specify the data types of the columns. See "Basic example" above.
 
 ## Integration with DBT

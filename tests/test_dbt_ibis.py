@@ -2,6 +2,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Final
 
 import duckdb
 import ibis
@@ -31,13 +32,15 @@ from dbt_ibis import (
     _get_schema_for_ref,
     _get_schema_for_source,
     _IbisModel,
-    _parse_db_dtype_to_ibis_dtype,
     _sort_ibis_models_by_dependencies,
     _to_dbt_sql,
     depends_on,
     ref,
     source,
 )
+from dbt_ibis._dialects import IbisDialect
+
+TEST_IBIS_DIALECT: Final = IbisDialect("duckdb")
 
 
 @pytest.fixture()
@@ -283,7 +286,9 @@ def test_extract_model_and_source_infos(
 def test_get_schema_for_source(orders_source_definition):
     orders = source("source1", "orders")
     sources_lookup = {"source1": {"orders": orders_source_definition}}
-    schema = _get_schema_for_source(orders, sources_lookup)
+    schema = _get_schema_for_source(
+        orders, sources_lookup, ibis_dialect=TEST_IBIS_DIALECT
+    )
     assert schema == ibis.schema({"col1": dt.Int64(), "col2": dt.String()})
 
 
@@ -295,13 +300,21 @@ def test_get_schema_for_ref(stg_orders_model_node, raw_payments_seed_node):
     with pytest.raises(
         ValueError, match="Could not determine schema for model 'stg_orders'"
     ):
-        _get_schema_for_ref(stg_orders, models_lookup, ibis_model_schemas={})
+        _get_schema_for_ref(
+            stg_orders,
+            models_lookup,
+            ibis_model_schemas={},
+            ibis_dialect=TEST_IBIS_DIALECT,
+        )
 
     schema_from_ibis_model = ibis.schema({"col1": dt.String()})
     ibis_model_schemas = {"stg_orders": schema_from_ibis_model}
     assert (
         _get_schema_for_ref(
-            stg_orders, models_lookup, ibis_model_schemas=ibis_model_schemas
+            stg_orders,
+            models_lookup,
+            ibis_model_schemas=ibis_model_schemas,
+            ibis_dialect=TEST_IBIS_DIALECT,
         )
         == schema_from_ibis_model
     )
@@ -314,7 +327,10 @@ def test_get_schema_for_ref(stg_orders_model_node, raw_payments_seed_node):
     }
 
     schema = _get_schema_for_ref(
-        stg_orders, models_lookup, ibis_model_schemas=ibis_model_schemas
+        stg_orders,
+        models_lookup,
+        ibis_model_schemas=ibis_model_schemas,
+        ibis_dialect=TEST_IBIS_DIALECT,
     )
     assert schema == ibis.schema({"col1": dt.Int64(), "col2": dt.String()})
 
@@ -326,6 +342,7 @@ def test_get_schema_for_ref(stg_orders_model_node, raw_payments_seed_node):
             ref("raw_payments"),
             ref_infos={"raw_payments": raw_payments_seed_node},
             ibis_model_schemas={},
+            ibis_dialect=TEST_IBIS_DIALECT,
         )
 
     raw_payments_seed_node.config.column_types = {
@@ -338,6 +355,7 @@ def test_get_schema_for_ref(stg_orders_model_node, raw_payments_seed_node):
         ref("raw_payments"),
         ref_infos={"raw_payments": raw_payments_seed_node},
         ibis_model_schemas={},
+        ibis_dialect=TEST_IBIS_DIALECT,
     )
     assert schema == ibis.schema(
         {
@@ -355,32 +373,14 @@ def test_columns_to_ibis_schema():
         "col2": ColumnInfo(name="col2", data_type="varchar"),
     }
 
-    schema = _columns_to_ibis_schema(columns)
+    schema = _columns_to_ibis_schema(columns, ibis_dialect=TEST_IBIS_DIALECT)
     assert schema == ibis.schema({"col1": dt.Int64(), "col2": dt.String()})
 
     columns["col3"] = ColumnInfo(name="col3")
     with pytest.raises(
         ValueError, match="Could not determine data type for column 'col3'"
     ):
-        _columns_to_ibis_schema(columns)
-
-
-@pytest.mark.parametrize(
-    ("db_dtype", "db_dialect", "ibis_dtype"),
-    [
-        ("bigint", "duckdb", dt.Int64()),
-        ("BIGINT", "duckdb", dt.Int64()),
-        ("varchar", "duckdb", dt.String()),
-    ],
-)
-def test_parse_db_dtype_to_ibis_dtype(
-    db_dtype: str, db_dialect: str, ibis_dtype: dt.DataType  # noqa: ARG001
-):
-    # We don't need to test all possible dialects and datatypes here. This already
-    # happens in the Ibis test suite.
-
-    # Function does not yet support different dialects. Waiting for Ibis 7
-    assert _parse_db_dtype_to_ibis_dtype(db_dtype) == ibis_dtype
+        _columns_to_ibis_schema(columns, ibis_dialect=TEST_IBIS_DIALECT)
 
 
 def test_to_dbt_sql():
@@ -399,7 +399,7 @@ def test_to_dbt_sql():
         orders_table["customer_id"] == stg_customers_table["customer_id"],
         how="left",
     )
-    dbt_sql = _to_dbt_sql(model_expr)
+    dbt_sql = _to_dbt_sql(model_expr, ibis_dialect=TEST_IBIS_DIALECT)
 
     assert (
         dbt_sql
@@ -484,7 +484,7 @@ def execute_command(cmd: list[str]) -> None:
 
 def validate_compiled_sql_files(project_dir: Path) -> list[Path]:
     compiled_sql_files = get_compiled_sql_files(project_dir)
-    assert len(compiled_sql_files) == 5
+    assert len(compiled_sql_files) == 6
 
     # Test content of some of the compiled SQL files
     stg_stores = next(p for p in compiled_sql_files if p.stem == "stg_stores")
@@ -579,6 +579,7 @@ def test_end_to_end(project_dir_and_database_file: tuple[Path, Path]):
             "stg_payments",
             "stg_stores",
             "customers_with_multiple_orders",
+            "customers_sql_equivalent",
             "customers",
             "orders",
             "usa_stores",
