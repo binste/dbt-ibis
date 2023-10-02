@@ -497,20 +497,30 @@ def _to_dbt_sql(
     sql = _dialects.ibis_expr_to_sql(ibis_expr, ibis_dialect=ibis_dialect)
     capture_pattern = "(.+?)"
 
+    # Remove quotation marks around the source name and table name as
+    # quoting identifiers should be handled by DBT in case it is needed.
+    quotation_marks_pattern = r'"?'
+
     # Insert ref jinja function
     sql = re.sub(
-        _REF_IDENTIFIER_PREFIX + capture_pattern + _REF_IDENTIFIER_SUFFIX,
+        quotation_marks_pattern
+        + _REF_IDENTIFIER_PREFIX
+        + capture_pattern
+        + _REF_IDENTIFIER_SUFFIX
+        + quotation_marks_pattern,
         r"{{ ref('\1') }}",
         sql,
     )
 
     # Insert source jinja function
     sql = re.sub(
-        _SOURCE_IDENTIFIER_PREFIX
+        quotation_marks_pattern
+        + _SOURCE_IDENTIFIER_PREFIX
         + capture_pattern
         + _SOURCE_IDENTIFIER_SEPARATOR
         + capture_pattern
-        + _SOURCE_IDENTIFIER_SUFFIX,
+        + _SOURCE_IDENTIFIER_SUFFIX
+        + quotation_marks_pattern,
         r"{{ source('\1', '\2') }}",
         sql,
     )
