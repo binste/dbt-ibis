@@ -253,10 +253,10 @@ def _disable_node_not_found_error() -> Iterator[None]:
         manifest.invalid_target_fail_unless_test = original_func
 
 
-def compile_ibis_to_sql_models() -> None:
+def compile_ibis_to_sql_models(dbt_parse_arguments: list[str] | None = None) -> None:
     logger.info("Parse dbt project")
     with _disable_node_not_found_error():
-        manifest, runtime_config = _invoke_parse_customized()
+        manifest, runtime_config = _invoke_parse_customized(dbt_parse_arguments)
 
     ibis_dialect = _dialects.get_ibis_dialect(manifest)
 
@@ -311,8 +311,20 @@ def compile_ibis_to_sql_models() -> None:
         logger.info("Finished compiling Ibis models to SQL")
 
 
-def _invoke_parse_customized() -> tuple[Manifest, RuntimeConfig]:
-    args = _get_parse_arguments()
+def _invoke_parse_customized(
+    dbt_parse_arguments: list[str] | None,
+) -> tuple[Manifest, RuntimeConfig]:
+    dbt_parse_arguments = dbt_parse_arguments or []
+    parse_command = _parse_customized.name
+    # For the benefit of mypy
+    assert isinstance(parse_command, str)  # noqa: S101
+    # Use --quiet to suppress non-error logs in stdout. These logs would be
+    # confusing to a user as they don't expect two dbt commands to be executed.
+    # Furthermore, the logs might contain warnings which the user can ignore
+    # as they come from the fact that Ibis models might not yet be present as .sql
+    # files when running the parse command.
+    args = ["--quiet", parse_command, *dbt_parse_arguments]
+
     dbt_ctx = cli.make_context(cli.name, args)
     result, success = cli.invoke(dbt_ctx)
     if not success:
@@ -326,7 +338,7 @@ def _get_parse_arguments() -> list[str]:
     # any global flags that come before it. All subsequent arguments are passed to
     # _parse_customized so that a user can e.g. set --project-dir etc.
     # For example, "dbt-ibis --warn-error run --select stg_orders --project-dir folder"
-    # becomes "parse_customized run --select stg_orders --project-dir folder"
+    # becomes "--select stg_orders --project-dir folder"
     # in variable args. parse_customized will then ignore "--select stg_orders"
     all_args = sys.argv[1:]
     subcommand_idx = next(
@@ -334,15 +346,7 @@ def _get_parse_arguments() -> list[str]:
         for i, arg in enumerate(all_args)
         if arg in [*list(cli.commands.keys()), "precompile"]
     )
-    parse_command = _parse_customized.name
-    # For the benefit of mypy
-    assert isinstance(parse_command, str)  # noqa: S101
-    # Use --quiet to suppress non-error logs in stdout. These logs would be
-    # confusing to a user as they don't expect two dbt commands to be executed.
-    # Furthermore, the logs might contain warnings which the user can ignore
-    # as they come from the fact that Ibis models might not yet be present as .sql
-    # files when running the parse command.
-    args = ["--quiet", parse_command] + all_args[subcommand_idx + 1 :]
+    args = all_args[subcommand_idx + 1 :]
     return args
 
 
@@ -540,7 +544,8 @@ def _to_dbt_sql(
 
 
 def main() -> None:
-    compile_ibis_to_sql_models()
+    dbt_parse_arguments = _get_parse_arguments()
+    compile_ibis_to_sql_models(dbt_parse_arguments)
     # Rudimentary approach to adding a "precompile" command to dbt-ibis.
     # If there are any global flags before precompile, this would fail
     if sys.argv[1] != "precompile":
