@@ -253,7 +253,7 @@ def _disable_node_not_found_error() -> Iterator[None]:
         manifest.invalid_target_fail_unless_test = original_func
 
 
-def compile_ibis_to_sql_models(dbt_parse_arguments: list[str] | None = None) -> None:
+def compile_ibis_to_sql_models(dbt_parse_arguments: Optional[list[str]] = None) -> None:
     logger.info("Parse dbt project")
     with _disable_node_not_found_error():
         manifest, runtime_config = _invoke_parse_customized(dbt_parse_arguments)
@@ -312,7 +312,7 @@ def compile_ibis_to_sql_models(dbt_parse_arguments: list[str] | None = None) -> 
 
 
 def _invoke_parse_customized(
-    dbt_parse_arguments: list[str] | None,
+    dbt_parse_arguments: Optional[list[str]],
 ) -> tuple[Manifest, RuntimeConfig]:
     dbt_parse_arguments = dbt_parse_arguments or []
     parse_command = _parse_customized.name
