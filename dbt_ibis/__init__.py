@@ -1,5 +1,5 @@
 __all__ = ["ref", "source", "depends_on", "compile_ibis_to_sql_models"]
-__version__ = "0.5.0dev"
+__version__ = "0.4.1"
 
 import graphlib
 import logging
@@ -46,13 +46,24 @@ _IBIS_SQL_FOLDER_NAME: Final = "__ibis_sql"
 _RefLookup = dict[str, Union[ModelNode, SeedNode, SnapshotNode]]
 _SourcesLookup = dict[str, dict[str, SourceDefinition]]
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(
-    level=logging.INFO,
+
+def _configure_logging(logger: logging.Logger) -> None:
+    log_level = logging.INFO
+    logger.setLevel(log_level)
+
+    ch = logging.StreamHandler()
+    ch.setLevel(log_level)
+
     # Imitate dbt's log format but add dbt-ibis before the log message
-    format="%(asctime)s  dbt-ibis: %(message)s",
-    datefmt="%H:%M:%S",
-)
+    formatter = logging.Formatter(
+        "%(asctime)s  dbt-ibis: %(message)s", datefmt="%H:%M:%S"
+    )
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+
+
+logger = logging.getLogger(__name__)
+_configure_logging(logger)
 
 
 class _Reference(ABC):
