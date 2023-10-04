@@ -34,6 +34,7 @@ from dbt_ibis import (
     _IbisModel,
     _sort_ibis_models_by_dependencies,
     _to_dbt_sql,
+    compile_ibis_to_sql_models,
     depends_on,
     ref,
     source,
@@ -448,8 +449,6 @@ def test_get_parse_arguments(mocker):
     args = _get_parse_arguments()
 
     assert args == [
-        "--quiet",
-        "parse_customized",
         "--project-dir",
         "some_folder",
         "--select",
@@ -467,10 +466,7 @@ def test_get_parse_arguments(mocker):
 
     args = _get_parse_arguments()
 
-    assert args == [
-        "--quiet",
-        "parse_customized",
-    ]
+    assert args == []
 
 
 def execute_command(cmd: list[str]) -> None:
@@ -518,6 +514,16 @@ WHERE
 def test_precompile_command(project_dir_and_database_file: tuple[Path, Path]):
     project_dir, database_file = project_dir_and_database_file
     execute_command(["dbt-ibis", "precompile"])
+
+    assert (
+        not database_file.exists()
+    ), "Database was created although precompile command should not create it."
+    validate_compiled_sql_files(project_dir)
+
+
+def test_compile_ibis_to_sql_models(project_dir_and_database_file: tuple[Path, Path]):
+    project_dir, database_file = project_dir_and_database_file
+    compile_ibis_to_sql_models()
 
     assert (
         not database_file.exists()
