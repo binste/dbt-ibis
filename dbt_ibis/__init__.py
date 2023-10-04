@@ -441,11 +441,12 @@ def _get_schema_for_ref(
     ibis_dialect: _dialects.IbisDialect,
 ) -> ibis.Schema:
     schema: Optional[ibis.Schema] = None
+    columns_with_missing_data_types: list[ColumnInfo] = []
     # Take column data types and hence schema from parsed model infos if available
     # as this is the best source for the schema as it will appear in
     # the database if the user enforces the data type contracts.
     # However, this means that also all columns need to be defined in the yml files
-    # which are used in the Ibis expression
+    # which are used in the Ibis expression.
     if ref.name in ref_infos:
         columns: dict[str, ColumnInfo]
         info = ref_infos[ref.name]
@@ -458,11 +459,15 @@ def _get_schema_for_ref(
             }
         else:
             columns = info.columns
-        has_columns_with_data_types = len(columns) > 0 and all(
-            c.data_type is not None for c in columns.values()
-        )
-        if has_columns_with_data_types:
-            schema = _columns_to_ibis_schema(columns, ibis_dialect=ibis_dialect)
+
+        if len(columns) > 0:
+            columns_with_missing_data_types = [
+                c for c in columns.values() if c.data_type is None
+            ]
+            if not columns_with_missing_data_types:
+                schema = _columns_to_ibis_schema(columns, ibis_dialect=ibis_dialect)
+            # Do not yet raise an error if there are missing data types as we might
+            # be able to get the schema from the Ibis model itself
 
     # Else, see if it is an Ibis model in which case we would have the schema
     # in ibis_model_schemas
@@ -470,11 +475,18 @@ def _get_schema_for_ref(
         schema = ibis_model_schemas[ref.name]
 
     if schema is None:
-        raise ValueError(
-            f"Could not determine schema for model '{ref.name}'."
-            + " You either need to define it as a model contract or the model needs to"
-            + " be an Ibis model as well."
-        )
+        if columns_with_missing_data_types:
+            raise ValueError(
+                f"The following columns of '{ref.name}' do not have"
+                + " a data type configured: "
+                + ", ".join("'" + c.name + "'" for c in columns_with_missing_data_types)
+            )
+        else:
+            raise ValueError(
+                f"Could not determine schema for model '{ref.name}'."
+                + " You either need to define it as a model contract or"
+                + " the model needs to be an Ibis model as well."
+            )
     return schema
 
 
