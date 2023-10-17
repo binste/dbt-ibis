@@ -34,8 +34,3 @@ seeds:
         order_id: integer
         payment_method: varchar
         amount: decimal(30, 10)
-
-
-vars:
-  dbt_ibis_letter_case_in_db: upper
-  dbt_ibis_letter_case_in_model: upper
