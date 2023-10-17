@@ -86,6 +86,73 @@ You might want to configure your editor to treat `.ibis` files as normal Python 
     },
 ```
 
+## Column name casing
+`dbt-ibis` uses the default Ibis behavior when it comes to quoting column names and writing them as upper or lowercase which can depend on your database. However, this might not always be the most convenient for you to write dbt models and so this section outlines how you can configure `dbt-ibis` and why you would want to do this.
+
+In some databases, such as Snowflake, case-insensitive identifiers are stored as uppercase letters. In addition, Ibis does quote the column names in its query. For the columns, for which `dbt-ibis` loads the data types from the `.yml` files (see above), it assumes that the column name appears exactly in the database as it is specified in the `.yml` file. Taking the following example:
+
+```yml
+models:
+  - name: customers
+    columns:
+      - name: customer_id
+        data_type: integer
+      - name: customer_name
+        data_type: varchar
+```
+and a corresponding model:
+
+```python
+from dbt_ibis import ref, depends_on
+
+@depends_on(ref("customers"))
+def model(customers):
+    return customers.select("customer_id")
+```
+This will be rendered as the following query if you're using Snowflake:
+
+```sql
+...
+```
+
+If the column is stored as case-insensitive, this query will fail as the column `"customer_id"` does not exist. To fix this, you'll have to write the column names in the `.yml` file in uppercase:
+
+```yml
+models:
+  - name: customers
+    columns:
+      - name: CUSTOMER_ID
+        data_type: integer
+      - name: CUSTOMER_NAME
+        data_type: varchar
+```
+
+and also change it in the model
+
+```python
+@depends_on(ref("customers"))
+def model(customers):
+    return customers.select("CUSTOMER_ID")
+```
+
+If you want to keep using lowercase column names in your model, it would look something like this:
+
+```python
+@depends_on(ref("customers"))
+def model(customers):
+    customers = customers.rename("snake_case")
+    return customers.select("customer_id").rename("ALL_CAPS")
+```
+
+This is rather cumbersome to do for every model and many of us are used to work with lowercase column names as a convention. To simplify the process, you can tell `dbt-ibis` to do these conversions for you. Going back to our original example of using all lowercase names in the `.yml` file as well as in the model, you can make that work by setting the following variables in your `dbt_project.yml` file:
+
+```yml
+vars:
+  dbt_ibis_letter_case_in_db: upper
+  dbt_ibis_letter_case_in_model: lower
+```
+This tells `dbt-ibis` that in the database, uppercase letters should be used and can be expected, and that in your dbt model you want to use lowercase letters. Both variables accept `upper` and `lower` as values.
+
 ## Limitations
 * There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functionality which would require this.
 * For non-Ibis models, seeds, snapshots, and for sources, you need to specify the data types of the columns. See "Basic example" above.
