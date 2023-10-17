@@ -343,10 +343,12 @@ def _invoke_parse_customized(
     return result
 
 
-def _get_parse_arguments() -> list[str]:
+def _parse_cli_arguments() -> tuple[str, list[str]]:
     # First argument of sys.argv is path to this file. We then look for
     # the name of the actual dbt subcommand that the user wants to run and ignore
-    # any global flags that come before it. All subsequent arguments are passed to
+    # any global flags that come before it.
+    # We return the subcommand as well as separately in a list, all subsequent
+    # arguments which can then be passed to
     # _parse_customized so that a user can e.g. set --project-dir etc.
     # For example, "dbt-ibis --warn-error run --select stg_orders --project-dir folder"
     # becomes "--select stg_orders --project-dir folder"
@@ -358,7 +360,8 @@ def _get_parse_arguments() -> list[str]:
         if arg in [*list(cli.commands.keys()), "precompile"]
     )
     args = all_args[subcommand_idx + 1 :]
-    return args
+    subcommand = all_args[subcommand_idx]
+    return subcommand, args
 
 
 def _get_ibis_models(
@@ -555,11 +558,12 @@ def _to_dbt_sql(
 
 
 def main() -> None:
-    dbt_parse_arguments = _get_parse_arguments()
-    compile_ibis_to_sql_models(dbt_parse_arguments)
-    # Rudimentary approach to adding a "precompile" command to dbt-ibis.
-    # If there are any global flags before precompile, this would fail
-    if sys.argv[1] != "precompile":
+    dbt_subcommand, dbt_parse_arguments = _parse_cli_arguments()
+    if dbt_subcommand != "deps":
+        # If it's deps, we cannot yet parse the dbt project as it will raise
+        # an error due to missing dependencies. We also don't need to so that's fine
+        compile_ibis_to_sql_models(dbt_parse_arguments)
+    if dbt_subcommand != "precompile":
         # Execute the actual dbt command
         process = subprocess.run(
             ["dbt"] + sys.argv[1:], stdout=sys.stdout, stderr=sys.stderr  # noqa: S603
