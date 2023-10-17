@@ -28,10 +28,10 @@ from dbt_ibis import (
     _extract_ref_and_source_infos,
     _get_ibis_models,
     _get_model_func,
-    _get_parse_arguments,
     _get_schema_for_ref,
     _get_schema_for_source,
     _IbisModel,
+    _parse_cli_arguments,
     _sort_ibis_models_by_dependencies,
     _to_dbt_sql,
     compile_ibis_to_sql_models,
@@ -431,12 +431,12 @@ def test_disable_node_not_found_error():
     )
 
 
-def test_get_parse_arguments(mocker):
+def test_parse_cli_arguments(mocker):
     mocker.patch.object(
         sys,
         "argv",
         [
-            "dbt",
+            "dbt-ibis",
             "--global-flag",
             "run",
             "--project-dir",
@@ -446,8 +446,9 @@ def test_get_parse_arguments(mocker):
         ],
     )
 
-    args = _get_parse_arguments()
+    subcommand, args = _parse_cli_arguments()
 
+    assert subcommand == "run"
     assert args == [
         "--project-dir",
         "some_folder",
@@ -459,13 +460,30 @@ def test_get_parse_arguments(mocker):
         sys,
         "argv",
         [
+            "dbt-ibis",
+            "ls",
+        ],
+    )
+
+    subcommand, args = _parse_cli_arguments()
+
+    assert subcommand == "ls"
+    assert args == []
+
+    # Same but with dbt instead of dbt-ibis in case someone used an alias
+    # in their shell
+    mocker.patch.object(
+        sys,
+        "argv",
+        [
             "dbt",
             "ls",
         ],
     )
 
-    args = _get_parse_arguments()
+    subcommand, args = _parse_cli_arguments()
 
+    assert subcommand == "ls"
     assert args == []
 
 
