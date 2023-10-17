@@ -121,6 +121,10 @@ def project_dir_and_database_file(monkeypatch) -> tuple[Path, Path]:
     for file in get_compiled_sql_files(project_dir):
         file.unlink()
 
+    dbt_packages_folder = project_dir / "dbt_packages"
+    if dbt_packages_folder.exists():
+        shutil.rmtree(dbt_packages_folder)
+
     target_folder = project_dir / "target"
     if target_folder.exists():
         shutil.rmtree(target_folder)
@@ -128,6 +132,8 @@ def project_dir_and_database_file(monkeypatch) -> tuple[Path, Path]:
     database_file = project_dir / "db.duckdb"
     if database_file.exists():
         database_file.unlink()
+
+    execute_command(["dbt-ibis", "deps"])
     return project_dir, database_file
 
 
