@@ -482,20 +482,21 @@ def _get_letter_case_conversion_rules(
     in_db_var_name = f"dbt_ibis_letter_case_in_db_{project_name}_{target_name}"
     in_model_var_name = "dbt_ibis_letter_case_in_model"
 
-    in_db = dbt_project_vars.get(in_db_var_name, None)
-    in_model = dbt_project_vars.get(in_model_var_name, None)
-    _validate_letter_case_var(in_db_var_name, in_db)
-    _validate_letter_case_var(in_model_var_name, in_model)
+    in_db_raw = dbt_project_vars.get(in_db_var_name, None)
+    in_model_raw = dbt_project_vars.get(in_model_var_name, None)
+    in_db = _validate_letter_case_var(in_db_var_name, in_db_raw)
+    in_model = _validate_letter_case_var(in_model_var_name, in_model_raw)
     return in_db, in_model
 
 
-def _validate_letter_case_var(variable_name: str, value: str | None) -> None:
+def _validate_letter_case_var(variable_name: str, value: Any) -> _LetterCase | None:
     if value is not None and value not in ["lower", "upper"]:
         raise ValueError(
             f"The {variable_name} variable needs to be set to"
             + f" either 'lower' or 'upper' but currently has a value of '{value}'."
             + " If you want the default behaviour of Ibis, you can omit this variable."
         )
+    return value
 
 
 def _get_schema_for_source(

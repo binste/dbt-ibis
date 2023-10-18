@@ -112,7 +112,9 @@ def model(customers):
 This will be rendered as the following query if you're using Snowflake:
 
 ```sql
-...
+SELECT
+  t0."customer_id"
+FROM {{ ref('customers') }} as t0
 ```
 
 If the column identifier is stored as case-insensitive, this query will fail as the lowercase column `"customer_id"` does not exist. To fix this, you'll have to write the column names in the `.yml` file in uppercase:
@@ -161,6 +163,8 @@ vars:
   dbt_ibis_letter_case_in_db_jaffle_shop_dev: lower
   dbt_ibis_letter_case_in_model: lower
 ```
+
+If all of this sounds confusing, I'd recommend to play around with the different configurations and run `dbt-ibis precompile` to inspect the generated SQL. If you have any questions, feel free to open an Issue in this repository.
 
 See [this GitHub issue](https://github.com/ibis-project/ibis/issues/6772) for some further explanations and examples on case handling in Ibis and Snowflake.
 
