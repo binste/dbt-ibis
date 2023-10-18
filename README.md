@@ -86,6 +86,88 @@ You might want to configure your editor to treat `.ibis` files as normal Python 
     },
 ```
 
+## Column name casing
+`dbt-ibis` relies on the default Ibis behavior when it comes to quoting column names and writing them as upper or lowercase which can depend on your database. However, for databases such as Snowflake which store case-insensitive identifiers in all uppercase letters, this might not always be the most convenient for you to write dbt models. This section shows with an example what different case conventions can mean and how you can configure `dbt-ibis` to deal with it. For databases where identifiers are always case-insensitive, e.g. DuckDB, you can skip this part.
+
+For the columns, for which `dbt-ibis` loads the data types from the `.yml` files (see above), it assumes that the column name appears exactly in the database as they are specified in the `.yml` file. Taking the following example:
+
+```yml
+models:
+  - name: customers
+    columns:
+      - name: customer_id
+        data_type: integer
+      - name: customer_name
+        data_type: varchar
+```
+and a dbt model which references this table:
+
+```python
+from dbt_ibis import ref, depends_on
+
+@depends_on(ref("customers"))
+def model(customers):
+    return customers.select("customer_id")
+```
+This will be rendered as the following query if you're using Snowflake:
+
+```sql
+SELECT
+  t0."customer_id"
+FROM {{ ref('customers') }} as t0
+```
+
+If the column identifier is stored as case-insensitive, this query will fail as the lowercase column `"customer_id"` does not exist. To fix this, you'll have to write the column names in the `.yml` file in uppercase:
+
+```yml
+models:
+  - name: customers
+    columns:
+      - name: CUSTOMER_ID
+        data_type: integer
+      - name: CUSTOMER_NAME
+        data_type: varchar
+```
+
+and also change it in the model
+
+```python
+@depends_on(ref("customers"))
+def model(customers):
+    return customers.select("CUSTOMER_ID")
+```
+
+If you want to keep using lowercase column names in your model but case-insensitive (i.e. uppercase) identifiers in the database, it would look something like this:
+
+```python
+@depends_on(ref("customers"))
+def model(customers):
+    customers = customers.rename("snake_case")
+    customers = customers.select("customer_id")
+    customers = customers.rename("ALL_CAPS")
+    return customers
+```
+
+This is rather cumbersome to do for every model and many of us are used to work with lowercase column names as a convention. To simplify the process, you can tell `dbt-ibis` to do these conversions for you. Going back to our original example of using all lowercase names in the `.yml` file as well as in the model, you can make that work by setting the following variables in your `dbt_project.yml` file:
+
+```yml
+vars:
+  dbt_ibis_letter_case_in_db_jaffle_shop_prod: upper
+  dbt_ibis_letter_case_in_model: lower
+```
+This tells `dbt-ibis` that in the database, uppercase letters should be used and can be expected, and that in your dbt model you want to use lowercase letters. Both variables accept `upper` and `lower` as values. In addition, the first variable is specific to a profile (`jaffle_shop`) and target (`prod`) following the format `dbt_ibis_letter_case_in_db_{profile}_{target}`. This allows you to set different conventions for different databases. If your `prod` target points to a Snowflake database and `dev` to a local duckdb file, you could do:
+
+```yml
+vars:
+  dbt_ibis_letter_case_in_db_jaffle_shop_prod: upper
+  dbt_ibis_letter_case_in_db_jaffle_shop_dev: lower
+  dbt_ibis_letter_case_in_model: lower
+```
+
+If all of this sounds confusing, I'd recommend to play around with the different configurations and run `dbt-ibis precompile` to inspect the generated SQL. If you have any questions, feel free to open an Issue in this repository.
+
+See [this GitHub issue](https://github.com/ibis-project/ibis/issues/6772) for some further explanations and examples on case handling in Ibis and Snowflake.
+
 ## Limitations
 * There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functionality which would require this.
 * For non-Ibis models, seeds, snapshots, and for sources, you need to specify the data types of the columns. See "Basic example" above.
