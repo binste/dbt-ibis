@@ -339,7 +339,7 @@ def compile_ibis_to_sql_models(dbt_parse_arguments: Optional[list[str]] = None) 
 
 
 def _set_letter_case_on_ibis_expression(
-    ibis_expr: ibis.expr.types.Table, letter_case: _LetterCase | None
+    ibis_expr: ibis.expr.types.Table, letter_case: Optional[_LetterCase]
 ) -> ibis.expr.types.Table:
     if letter_case == "upper":
         ibis_expr = ibis_expr.rename("ALL_CAPS")
@@ -473,7 +473,7 @@ def _extract_ref_and_source_infos(
 
 def _get_letter_case_conversion_rules(
     runtime_config: RuntimeConfig,
-) -> tuple[_LetterCase | None, _LetterCase | None]:
+) -> tuple[Optional[_LetterCase], Optional[_LetterCase]]:
     # Variables as defined in e.g. dbt_project.yml
     dbt_project_vars = runtime_config.vars.vars
     project_name = runtime_config.project_name
@@ -489,7 +489,7 @@ def _get_letter_case_conversion_rules(
     return in_db, in_model
 
 
-def _validate_letter_case_var(variable_name: str, value: Any) -> _LetterCase | None:
+def _validate_letter_case_var(variable_name: str, value: Any) -> Optional[_LetterCase]:
     if value is not None and value not in ["lower", "upper"]:
         raise ValueError(
             f"The {variable_name} variable needs to be set to"
@@ -503,7 +503,7 @@ def _get_schema_for_source(
     source: source,
     source_infos: _SourcesLookup,
     ibis_dialect: _dialects.IbisDialect,
-    letter_case_in_db: _LetterCase | None = None,
+    letter_case_in_db: Optional[_LetterCase] = None,
 ) -> ibis.Schema:
     columns = source_infos[source.source_name][source.table_name].columns
     return _columns_to_ibis_schema(
@@ -518,7 +518,7 @@ def _get_schema_for_ref(
     ref_infos: _RefLookup,
     ibis_model_schemas: dict[str, ibis.Schema],
     ibis_dialect: _dialects.IbisDialect,
-    letter_case_in_db: _LetterCase | None = None,
+    letter_case_in_db: Optional[_LetterCase] = None,
 ) -> ibis.Schema:
     schema: Optional[ibis.Schema] = None
     columns_with_missing_data_types: list[ColumnInfo] = []
@@ -577,7 +577,7 @@ def _get_schema_for_ref(
 def _columns_to_ibis_schema(
     columns: dict[str, ColumnInfo],
     ibis_dialect: _dialects.IbisDialect,
-    letter_case_in_db: _LetterCase | None = None,
+    letter_case_in_db: Optional[_LetterCase] = None,
 ) -> ibis.Schema:
     schema_dict: dict[str, dt.DataType] = {}
     for c in columns.values():
