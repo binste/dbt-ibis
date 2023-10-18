@@ -87,9 +87,9 @@ You might want to configure your editor to treat `.ibis` files as normal Python 
 ```
 
 ## Column name casing
-`dbt-ibis` uses the default Ibis behavior when it comes to quoting column names and writing them as upper or lowercase which can depend on your database. However, this might not always be the most convenient for you to write dbt models and so this section outlines how you can configure `dbt-ibis` and why you would want to do this.
+`dbt-ibis` relies on the default Ibis behavior when it comes to quoting column names and writing them as upper or lowercase which can depend on your database. However, for databases such as Snowflake which store case-insensitive identifiers in all uppercase letters, this might not always be the most convenient for you to write dbt models. This section shows with an example what different case conventions can mean and how you can configure `dbt-ibis` to deal with it. For databases where identifiers are always case-insensitive, e.g. DuckDB, you can skip this part.
 
-In some databases, such as Snowflake, case-insensitive identifiers are stored as uppercase letters. In addition, Ibis does quote the column names in its query. For the columns, for which `dbt-ibis` loads the data types from the `.yml` files (see above), it assumes that the column name appears exactly in the database as it is specified in the `.yml` file. Taking the following example:
+For the columns, for which `dbt-ibis` loads the data types from the `.yml` files (see above), it assumes that the column name appears exactly in the database as they are specified in the `.yml` file. Taking the following example:
 
 ```yml
 models:
@@ -100,7 +100,7 @@ models:
       - name: customer_name
         data_type: varchar
 ```
-and a corresponding model:
+and a dbt model which references this table:
 
 ```python
 from dbt_ibis import ref, depends_on
@@ -115,7 +115,7 @@ This will be rendered as the following query if you're using Snowflake:
 ...
 ```
 
-If the column is stored as case-insensitive, this query will fail as the column `"customer_id"` does not exist. To fix this, you'll have to write the column names in the `.yml` file in uppercase:
+If the column identifier is stored as case-insensitive, this query will fail as the lowercase column `"customer_id"` does not exist. To fix this, you'll have to write the column names in the `.yml` file in uppercase:
 
 ```yml
 models:
@@ -135,23 +135,34 @@ def model(customers):
     return customers.select("CUSTOMER_ID")
 ```
 
-If you want to keep using lowercase column names in your model, it would look something like this:
+If you want to keep using lowercase column names in your model but case-insensitive (i.e. uppercase) identifiers in the database, it would look something like this:
 
 ```python
 @depends_on(ref("customers"))
 def model(customers):
     customers = customers.rename("snake_case")
-    return customers.select("customer_id").rename("ALL_CAPS")
+    customers = customers.select("customer_id")
+    customers = customers.rename("ALL_CAPS")
+    return customers
 ```
 
 This is rather cumbersome to do for every model and many of us are used to work with lowercase column names as a convention. To simplify the process, you can tell `dbt-ibis` to do these conversions for you. Going back to our original example of using all lowercase names in the `.yml` file as well as in the model, you can make that work by setting the following variables in your `dbt_project.yml` file:
 
 ```yml
 vars:
-  dbt_ibis_letter_case_in_db: upper
+  dbt_ibis_letter_case_in_db_jaffle_shop_prod: upper
   dbt_ibis_letter_case_in_model: lower
 ```
-This tells `dbt-ibis` that in the database, uppercase letters should be used and can be expected, and that in your dbt model you want to use lowercase letters. Both variables accept `upper` and `lower` as values.
+This tells `dbt-ibis` that in the database, uppercase letters should be used and can be expected, and that in your dbt model you want to use lowercase letters. Both variables accept `upper` and `lower` as values. In addition, the first variable is specific to a profile (`jaffle_shop`) and target (`prod`) following the format `dbt_ibis_letter_case_in_db_{profile}_{target}`. This allows you to set different conventions for different databases. If your `prod` target points to a Snowflake database and `dev` to a local duckdb file, you could do:
+
+```yml
+vars:
+  dbt_ibis_letter_case_in_db_jaffle_shop_prod: upper
+  dbt_ibis_letter_case_in_db_jaffle_shop_dev: lower
+  dbt_ibis_letter_case_in_model: lower
+```
+
+See [this GitHub issue](https://github.com/ibis-project/ibis/issues/6772) for some further explanations and examples on case handling in Ibis and Snowflake.
 
 ## Limitations
 * There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functionality which would require this.

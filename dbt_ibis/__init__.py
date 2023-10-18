@@ -471,12 +471,18 @@ def _extract_ref_and_source_infos(
 def _get_letter_case_conversion_rules(
     runtime_config: RuntimeConfig,
 ) -> tuple[_LetterCase | None, _LetterCase | None]:
-    # As defined in e.g. dbt_project.yml
+    # Variables as defined in e.g. dbt_project.yml
     dbt_project_vars = runtime_config.vars.vars
-    in_db = dbt_project_vars.get("dbt_ibis_letter_case_in_db", None)
-    in_model = dbt_project_vars.get("dbt_ibis_letter_case_in_model", None)
-    _validate_letter_case_var("dbt_ibis_letter_case_in_db", in_db)
-    _validate_letter_case_var("dbt_ibis_letter_case_in_model", in_model)
+    project_name = runtime_config.project_name
+    target_name = runtime_config.target_name
+
+    in_db_var_name = f"dbt_ibis_letter_case_in_db_{project_name}_{target_name}"
+    in_model_var_name = "dbt_ibis_letter_case_in_model"
+
+    in_db = dbt_project_vars.get(in_db_var_name, None)
+    in_model = dbt_project_vars.get(in_model_var_name, None)
+    _validate_letter_case_var(in_db_var_name, in_db)
+    _validate_letter_case_var(in_model_var_name, in_model)
     return in_db, in_model
 
 
