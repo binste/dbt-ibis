@@ -638,9 +638,9 @@ def main() -> None:
     if dbt_subcommand != "precompile":
         # Execute the actual dbt command
         process = subprocess.run(
-            ["dbt"] + sys.argv[1:],
+            ["dbt"] + sys.argv[1:],  # noqa: S603
             stdout=sys.stdout,
-            stderr=sys.stderr,  # noqa: S603
+            stderr=sys.stderr,
         )
         sys.exit(process.returncode)
 
