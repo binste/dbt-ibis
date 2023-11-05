@@ -229,7 +229,8 @@ def _back_up_and_restore_target_files(func: Callable) -> Callable:
 @_back_up_and_restore_target_files
 @requires.manifest(write_perf_info=False)
 def _parse_customized(
-    ctx: click.Context, **kwargs: Any  # noqa: ARG001
+    ctx: click.Context,
+    **kwargs: Any,  # noqa: ARG001
 ) -> tuple[tuple[Manifest, RuntimeConfig], Literal[True]]:
     # This is a slightly modified version of the dbt parse command
     # which:
@@ -637,7 +638,9 @@ def main() -> None:
     if dbt_subcommand != "precompile":
         # Execute the actual dbt command
         process = subprocess.run(
-            ["dbt"] + sys.argv[1:], stdout=sys.stdout, stderr=sys.stderr  # noqa: S603
+            ["dbt"] + sys.argv[1:],  # noqa: S603
+            stdout=sys.stdout,
+            stderr=sys.stderr,
         )
         sys.exit(process.returncode)
 

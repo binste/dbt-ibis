@@ -28,8 +28,7 @@ Source = "https://github.com/binste/dbt-ibis"
 [project.optional-dependencies]
 dev = [
     "hatch",
-    "ruff",
-    "black",
+    "ruff>=0.1.4",
     "ipykernel",
     "ipython",
     "ipdb",
@@ -49,26 +48,12 @@ features = ["dev"]
 
 [tool.hatch.envs.default.scripts]
 linters = [
-    "black --diff --color --check .",
+    "ruff format --diff --check .",
     "ruff check .",
     "mypy dbt_ibis tests",
 ]
 tests = ["python -m pytest tests"]
 
-[tool.black]
-line-length = 88
-target-version = ["py39", "py310", "py311"]
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.mypy_cache
-  | build
-  | dist
-  | \.venv
-  | demo_project
-)/
-'''
 
 [tool.ruff]
 target-version = "py39"
@@ -119,6 +104,7 @@ ignore = [
     "ISC003",
     # Explicit conversion flags for strings
     "RUF010",
+    "ISC001",
 ]
 exclude = [".git", "build", "__pycache__", "demo_project"]
 
