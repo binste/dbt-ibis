@@ -155,14 +155,7 @@ vars:
   dbt_ibis_letter_case_in_db_jaffle_shop_prod: upper
   dbt_ibis_letter_case_in_model: lower
 ```
-This tells `dbt-ibis` that in the database, uppercase letters should be used and can be expected, and that in your dbt model you want to use lowercase letters. Both variables accept `upper` and `lower` as values. In addition, the first variable is specific to a profile (`jaffle_shop`) and target (`prod`) following the format `dbt_ibis_letter_case_in_db_{profile}_{target}`. This allows you to set different conventions for different databases. If your `prod` target points to a Snowflake database and `dev` to a local duckdb file, you could do:
-
-```yml
-vars:
-  dbt_ibis_letter_case_in_db_jaffle_shop_prod: upper
-  dbt_ibis_letter_case_in_db_jaffle_shop_dev: lower
-  dbt_ibis_letter_case_in_model: lower
-```
+This tells `dbt-ibis` that in the database, uppercase letters should be used and can be expected, and that in your dbt model you want to use lowercase letters. Both variables accept `upper` and `lower` as values. In addition, the first variable is specific to a profile (`jaffle_shop`) and target (`prod`) following the format `dbt_ibis_letter_case_in_db_{profile}_{target}`. This allows you to set different conventions for different databases. If in the above example, you would have a `dev` target which points to a local duckdb file, this `dev` target would still use the default letter case behavior of Ibis.
 
 If all of this sounds confusing, I'd recommend to play around with the different configurations and run `dbt-ibis precompile` to inspect the generated SQL. If you have any questions, feel free to open an Issue in this repository.
 
