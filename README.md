@@ -155,14 +155,7 @@ vars:
   dbt_ibis_letter_case_in_db_jaffle_shop_prod: upper
   dbt_ibis_letter_case_in_model: lower
 ```
-This tells `dbt-ibis` that in the database, uppercase letters should be used and can be expected, and that in your dbt model you want to use lowercase letters. Both variables accept `upper` and `lower` as values. In addition, the first variable is specific to a profile (`jaffle_shop`) and target (`prod`) following the format `dbt_ibis_letter_case_in_db_{profile}_{target}`. This allows you to set different conventions for different databases. If your `prod` target points to a Snowflake database and `dev` to a local duckdb file, you could do:
-
-```yml
-vars:
-  dbt_ibis_letter_case_in_db_jaffle_shop_prod: upper
-  dbt_ibis_letter_case_in_db_jaffle_shop_dev: lower
-  dbt_ibis_letter_case_in_model: lower
-```
+This tells `dbt-ibis` that in the database, uppercase letters should be used and can be expected, and that in your dbt model you want to use lowercase letters. Both variables accept `upper` and `lower` as values. In addition, the first variable is specific to a profile (`jaffle_shop`) and target (`prod`) following the format `dbt_ibis_letter_case_in_db_{profile}_{target}`. This allows you to set different conventions for different databases. If in the above example, you would have a `dev` target which points to a local duckdb file, this `dev` target would still use the default letter case behavior of Ibis.
 
 If all of this sounds confusing, I'd recommend to play around with the different configurations and run `dbt-ibis precompile` to inspect the generated SQL. If you have any questions, feel free to open an Issue in this repository.
 
@@ -172,13 +165,50 @@ See [this GitHub issue](https://github.com/ibis-project/ibis/issues/6772) for so
 * There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functionality which would require this.
 * For non-Ibis models, seeds, snapshots, and for sources, you need to specify the data types of the columns. See "Basic example" above.
 
-## Integration with DBT
+## Advanced
+### Use `dbt` command instead of `dbt-ibis`
+If you want to continue to use `dbt` instead of `dbt-ibis` on the command line, you can configure an alias in your shell. If you use bash, you can add the following to your `~/.bashrc` file:
+```
+alias dbt="dbt-ibis"
+```
+
+See [here for more detailed instructions if you use Bash](https://linuxize.com/post/how-to-create-bash-aliases/) and [here for Zsh](https://linuxhint.com/configure-use-aliases-zsh/).
+
+### CI/CD integration
+As `dbt-ibis` compiles your `.ibis` files into `.sql`, it can be useful to check in your CI/CD pipeline if these files are in sync, i.e. a run of `dbt-ibis precompile` should not change any `.sql` files anymore. You can achieve this with something like:
+
+```bash
+#!/bin/bash
+
+dbt-ibis precompile
+# This gets the paths of all files which were either deleted, modified
+# or are not yet tracked by Git
+files=`git ls-files --deleted --modified --others --exclude-standard`
+# Depending on the shell it can happen that 'files' contains empty
+# lines which are filtered out in the for loop below
+files_cleaned=()
+for i in "${files[@]}"; do
+# Skip empty items
+if [ -z "$i" ]; then
+    continue
+fi
+# Add the rest of the elements to a new array
+files_cleaned+=("${i}")
+done
+if [ ${#files_cleaned[@]} -gt 0 ]; then
+    echo "The dbt-ibis precompile command modified the following files:"
+    echo $files
+    exit 1
+fi
+```
+
+### Potential closer integration with DBT
 There are [discussions](https://github.com/dbt-labs/dbt-core/pull/5274#issuecomment-1132772028) on [adding a plugin system to dbt](https://github.com/dbt-labs/dbt-core/issues/6184) which could be used to provide first-class support for other modeling languages such as Ibis (see [this PoC](https://github.com/dbt-labs/dbt-core/pull/6296) by dbt and the [discussion on Ibis as a dataframe API](https://github.com/dbt-labs/dbt-core/discussions/5738)) or PRQL (see [dbt-prql](https://github.com/PRQL/dbt-prql)).
 
 As this feature didn't make it [onto the roadmap of dbt for 2023](https://github.com/dbt-labs/dbt-core/blob/main/docs/roadmap/2023-02-back-to-basics.md), I've decided to create `dbt-ibis` to bridge the time until then. Apart from the limitations mentioned above, I think this approach can scale reasonably well. However, the goal is to migrate to the official plugin system as soon as it's available.
 
 
-## Development
+### Development
 ```bash
 pip install -e '.[dev]'
 ```
