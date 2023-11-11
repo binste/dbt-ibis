@@ -7,6 +7,8 @@ from dbt.contracts.graph.manifest import Manifest
 from ibis.formats import TypeMapper
 
 
+# Custom BigQuery type until a corresponding one is implemented in Ibis itself.
+# See https://github.com/ibis-project/ibis/issues/7531
 class BigQueryType(sqlglot_dt.SqlglotType):
     dialect = "bigquery"
 
