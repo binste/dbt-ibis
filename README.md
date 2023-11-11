@@ -165,13 +165,22 @@ See [this GitHub issue](https://github.com/ibis-project/ibis/issues/6772) for so
 * There is no database connection available in the Ibis `model` functions. Hence, you cannot use Ibis functionality which would require this.
 * For non-Ibis models, seeds, snapshots, and for sources, you need to specify the data types of the columns. See "Basic example" above.
 
-## Integration with DBT
+## Advanced
+### Use `dbt` command instead of `dbt-ibis`
+If you want to continue to use `dbt` instead of `dbt-ibis` on the command line, you can configure an alias in your shell. If you use bash, you can add the following to your `~/.bashrc` file:
+```
+alias dbt="dbt-ibis"
+```
+
+See [here for more detailed instructions if you use Bash](https://linuxize.com/post/how-to-create-bash-aliases/) and [here for Zsh](https://linuxhint.com/configure-use-aliases-zsh/).
+
+### Potential closer integration with DBT
 There are [discussions](https://github.com/dbt-labs/dbt-core/pull/5274#issuecomment-1132772028) on [adding a plugin system to dbt](https://github.com/dbt-labs/dbt-core/issues/6184) which could be used to provide first-class support for other modeling languages such as Ibis (see [this PoC](https://github.com/dbt-labs/dbt-core/pull/6296) by dbt and the [discussion on Ibis as a dataframe API](https://github.com/dbt-labs/dbt-core/discussions/5738)) or PRQL (see [dbt-prql](https://github.com/PRQL/dbt-prql)).
 
 As this feature didn't make it [onto the roadmap of dbt for 2023](https://github.com/dbt-labs/dbt-core/blob/main/docs/roadmap/2023-02-back-to-basics.md), I've decided to create `dbt-ibis` to bridge the time until then. Apart from the limitations mentioned above, I think this approach can scale reasonably well. However, the goal is to migrate to the official plugin system as soon as it's available.
 
 
-## Development
+### Development
 ```bash
 pip install -e '.[dev]'
 ```
