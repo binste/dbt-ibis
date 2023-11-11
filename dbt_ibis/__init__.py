@@ -1,5 +1,5 @@
 __all__ = ["ref", "source", "depends_on", "compile_ibis_to_sql_models"]
-__version__ = "0.6.0"
+__version__ = "0.7.0dev"
 
 import graphlib
 import logging
