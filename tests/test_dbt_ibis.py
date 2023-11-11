@@ -23,6 +23,7 @@ from dbt.parser import manifest
 
 from dbt_ibis import (
     _IBIS_SQL_FOLDER_NAME,
+    _clean_up_unused_sql_files,
     _columns_to_ibis_schema,
     _disable_node_not_found_error,
     _extract_ref_and_source_infos,
@@ -435,6 +436,33 @@ def test_disable_node_not_found_error():
         manifest.invalid_target_fail_unless_test.__name__
         == "invalid_target_fail_unless_test"
     )
+
+
+def test_clean_up_unused_sql_files(tmp_path: Path):
+    project_root = tmp_path
+    model_path = project_root / "models"
+    model_path_2 = project_root / "models_2"
+    model_paths = ["models", "models_2"]
+
+    used_models = [model_path / _IBIS_SQL_FOLDER_NAME / "used_model.sql"]
+    unused_models = [
+        model_path / _IBIS_SQL_FOLDER_NAME / "unused_model.sql",
+        model_path_2 / "subdirectory" / _IBIS_SQL_FOLDER_NAME / "unused_model.sql",
+    ]
+    for p in used_models + unused_models:
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.touch(exist_ok=False)
+        assert p.exists()
+
+    _clean_up_unused_sql_files(
+        used_models, project_root=project_root, model_paths=model_paths
+    )
+
+    for p in used_models:
+        assert p.exists()
+
+    for p in unused_models:
+        assert not p.exists()
 
 
 def test_parse_cli_arguments(mocker):
