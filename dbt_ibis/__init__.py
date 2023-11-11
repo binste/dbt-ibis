@@ -273,9 +273,11 @@ def compile_ibis_to_sql_models(dbt_parse_arguments: Optional[list[str]] = None) 
 
     ibis_dialect = _dialects.get_ibis_dialect(manifest)
 
+    project_root = runtime_config.project_root
+    model_paths = runtime_config.model_paths
     all_ibis_models = _get_ibis_models(
-        project_root=runtime_config.project_root,
-        model_paths=runtime_config.model_paths,
+        project_root=project_root,
+        model_paths=model_paths,
     )
     if len(all_ibis_models) == 0:
         logger.info("No Ibis models found.")
@@ -336,6 +338,12 @@ def compile_ibis_to_sql_models(dbt_parse_arguments: Optional[list[str]] = None) 
             dbt_sql = _to_dbt_sql(ibis_expr, ibis_dialect=ibis_dialect)
             ibis_model.sql_path.parent.mkdir(parents=False, exist_ok=True)
             ibis_model.sql_path.write_text(dbt_sql)
+
+        _clean_up_unused_sql_files(
+            [ibis_model.sql_path for ibis_model in all_ibis_models],
+            project_root=project_root,
+            model_paths=model_paths,
+        )
         logger.info("Finished compiling Ibis models to SQL")
 
 
@@ -394,14 +402,11 @@ def _parse_cli_arguments() -> tuple[str, list[str]]:
 def _get_ibis_models(
     project_root: Union[str, Path], model_paths: list[str]
 ) -> list[_IbisModel]:
-    if isinstance(project_root, str):
-        project_root = Path(project_root)
-
-    ibis_model_files: list[Path] = []
-    for m_path in model_paths:
-        ibis_model_files.extend(
-            list((project_root / m_path).glob(f"**/*.{_IBIS_MODEL_FILE_EXTENSION}"))
-        )
+    ibis_model_files = _glob_in_model_paths(
+        project_root=project_root,
+        model_paths=model_paths,
+        pattern=f"**/*.{_IBIS_MODEL_FILE_EXTENSION}",
+    )
     ibis_models: list[_IbisModel] = []
     for model_file in ibis_model_files:
         model_func = _get_model_func(model_file)
@@ -412,6 +417,18 @@ def _get_ibis_models(
             )
         )
     return ibis_models
+
+
+def _glob_in_model_paths(
+    project_root: Union[str, Path], model_paths: list[str], pattern: str
+) -> list[Path]:
+    if isinstance(project_root, str):
+        project_root = Path(project_root)
+
+    matches: list[Path] = []
+    for m_path in model_paths:
+        matches.extend(list((project_root / m_path).glob(pattern)))
+    return matches
 
 
 def _get_model_func(model_file: Path) -> Callable[..., ibis.expr.types.Table]:
@@ -627,6 +644,33 @@ def _to_dbt_sql(
         sql,
     )
     return sql
+
+
+def _clean_up_unused_sql_files(
+    used_sql_files: list[Path],
+    project_root: Union[str, Path],
+    model_paths: list[str],
+) -> None:
+    """Deletes all .sql files in any of the _IBIS_SQL_FOLDER_NAME folders which
+    are not referenced by any Ibis model. This takes care of the case where
+    a user deletes an Ibis model but the .sql file remains.
+    """
+    all_sql_files = _glob_in_model_paths(
+        project_root=project_root,
+        model_paths=model_paths,
+        pattern=f"**/{_IBIS_SQL_FOLDER_NAME}/*.sql",
+    )
+    # Resolve to absolute paths so we can compare them
+    all_sql_files = [f.resolve() for f in all_sql_files]
+    used_sql_files = [f.resolve() for f in used_sql_files]
+    unused_sql_files = [f for f in all_sql_files if f not in used_sql_files]
+    if unused_sql_files:
+        for f in unused_sql_files:
+            f.unlink()
+        logger.info(
+            f"Cleaned up {len(unused_sql_files)} unused .sql files"
+            + f" in your {_IBIS_SQL_FOLDER_NAME} folders"
+        )
 
 
 def main() -> None:
