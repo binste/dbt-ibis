@@ -6,6 +6,14 @@ import ibis.expr.types
 from dbt.contracts.graph.manifest import Manifest
 from ibis.formats import TypeMapper
 
+
+class BigQueryType(sqlglot_dt.SqlglotType):
+    dialect = "bigquery"
+
+    default_decimal_precision = 38
+    default_decimal_scale = 9
+
+
 # Use NewType to make sure that we don't accidentally mix these up, i.e.
 # pass a DBTAdapterType to a function that expects an IbisDialect or vice versa.
 IbisDialect = NewType("IbisDialect", str)
@@ -20,6 +28,7 @@ DBTAdapterTypeToIbisDialect: dict[DBTAdapterType, IbisDialect] = {
     DBTAdapterType("sqlite"): IbisDialect("sqlite"),
     DBTAdapterType("oracle"): IbisDialect("oracle"),
     DBTAdapterType("duckdb"): IbisDialect("duckdb"),
+    DBTAdapterType("bigquery"): IbisDialect("bigquery"),
 }
 
 IbisDialectToTypeMapper: dict[IbisDialect, type[TypeMapper]] = {
@@ -30,6 +39,7 @@ IbisDialectToTypeMapper: dict[IbisDialect, type[TypeMapper]] = {
     IbisDialect("sqlite"): sqlglot_dt.SQLiteType,
     IbisDialect("oracle"): sqlglot_dt.OracleType,
     IbisDialect("duckdb"): sqlglot_dt.DuckDBType,
+    IbisDialect("bigquery"): BigQueryType,
 }
 
 

@@ -4,6 +4,7 @@ With dbt-ibis you can write your [dbt](https://www.getdbt.com/) models using [Ib
 Supported dbt adapters:
 * DuckDB
 * Snowflake
+* BigQuery
 * Postgres
 * Redshift
 * Trino
