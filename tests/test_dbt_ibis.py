@@ -198,7 +198,7 @@ def test_ibis_model():
     model = _IbisModel(
         ibis_path=Path("path/to/some_model.ibis"),
         depends_on=references,
-        model_func=lambda: None,  # type: ignore  # noqa: PGH003
+        model_func=lambda: None,
     )
 
     assert model.name == "some_model"
@@ -239,7 +239,7 @@ def test_sort_ibis_models_by_dependencies():
         _IbisModel(
             ibis_path=Path("path/to/another_model.ibis"),
             depends_on=[ref("some_model")],
-            model_func=lambda: None,  # type: ignore  # noqa: PGH003
+            model_func=lambda: None,
         ),
         _IbisModel(
             ibis_path=Path("path/to/some_model.ibis"),
@@ -248,7 +248,7 @@ def test_sort_ibis_models_by_dependencies():
             # when building a dependency graph and this function
             # does not suddenly treat source and ref the same.
             depends_on=[source("source1", "another_model")],
-            model_func=lambda: None,  # type: ignore  # noqa: PGH003
+            model_func=lambda: None,
         ),
     ]
 
