@@ -18,6 +18,8 @@ pip install dbt-ibis
 ```
 In addition, you'll need to install the relevant [`ibis` backend](https://ibis-project.org/install) for your database.
 
+You can read about the advantages of combining dbt and Ibis in [this blog post](https://ibis-project.org/posts/dbt-ibis/).
+
 ## Basic example
 You can write your Ibis model in files with the extension `.ibis`. Each `.ibis` file needs to correspond to one model which is defined as a `model` function returning an Ibis table expression:
 
