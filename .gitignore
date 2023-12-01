@@ -1,3 +1,4 @@
+doc/_build
 *.ipynb
 .DS_Store
 .user.yml

@@ -40,12 +40,19 @@ dev = [
     "pandas",
     "ibis-framework[duckdb]",
 ]
+doc = ["jupyter-book", "ghp-import"]
 
 [tool.hatch.version]
 path = "dbt_ibis/__init__.py"
 
+[tool.hatch.build]
+include = ["/dbt_ibis"]
+
 [tool.hatch.envs.default]
 features = ["dev"]
+
+[tool.hatch.envs.doc]
+features = ["dev", "doc"]
 
 [tool.hatch.envs.default.scripts]
 linters = [
@@ -55,6 +62,12 @@ linters = [
 ]
 tests = ["python -m pytest tests"]
 
+[tool.hatch.envs.doc.scripts]
+clean = "rm -rf doc/_build"
+build = ["jupyter-book build doc/"]
+serve = "(cd doc/_build/html && python -m http.server)"
+publish = "ghp-import -n -p -f -o doc/_build/html"
+build-and-publish = ["clean", "build", "publish"]
 
 [tool.ruff]
 target-version = "py39"

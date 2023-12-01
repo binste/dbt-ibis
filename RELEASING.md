@@ -30,16 +30,20 @@
         git tag -a v0.2.0 -m "Version 0.2.0 release"
         git push origin v0.2.0
 
-8. Add release in https://github.com/binste/dbt-ibis/releases and select the version tag
+8. Build and publish docs:
 
-9. Update version to e.g. 0.3.0dev in `dbt_ibis/__init__.py` in new branch
+        hatch run doc:build-and-publish
+
+9. Add release in https://github.com/binste/dbt-ibis/releases and select the version tag
+
+10. Update version to e.g. 0.3.0dev in `dbt_ibis/__init__.py` in new branch
 
         git switch -c maint_0.3.0dev
 
-10. Commit change and push:
+11. Commit change and push:
 
         git add . -u
         git commit -m "MAINT: Bump version to 0.3.0dev"
         git push
 
-11. Merge maintenance branch into main
+12. Merge maintenance branch into main

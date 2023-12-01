@@ -85,6 +85,8 @@ class _Reference(ABC):
 
 @dataclass
 class ref(_Reference):
+    """A reference to a dbt model."""
+
     name: str
 
     @property
@@ -94,6 +96,8 @@ class ref(_Reference):
 
 @dataclass
 class source(_Reference):
+    """A reference to a dbt source."""
+
     source_name: str
     table_name: str
 
@@ -113,6 +117,9 @@ class source(_Reference):
 # callable, accept a variadic number of _Reference arguments and needs to
 # return an ibis Table
 def depends_on(*references: _Reference) -> Callable:
+    """Decorator to specify the dependencies of an Ibis model. You can pass
+    either dbt_ibis.ref or dbt_ibis.source objects as arguments.
+    """
     if not all(isinstance(r, _Reference) for r in references):
         raise ValueError(
             "All arguments to depends_on need to be either an instance of"
@@ -267,6 +274,12 @@ def _disable_node_not_found_error() -> Iterator[None]:
 
 
 def compile_ibis_to_sql_models(dbt_parse_arguments: Optional[list[str]] = None) -> None:
+    """Compiles all Ibis models to SQL and writes them to the .sql files
+    in the dbt project. There is no need to call this function directly as
+    you'd usually use the dbt-ibis command line interface instead. This function
+    is equivalent to `dbt-ibis precompile`. However, it is
+    provided for convenience in case you want to call it from Python.
+    """
     logger.info("Parse dbt project")
     with _disable_node_not_found_error():
         manifest, runtime_config = _invoke_parse_customized(dbt_parse_arguments)
