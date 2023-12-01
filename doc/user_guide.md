@@ -46,6 +46,7 @@ You can use all the dbt commands you're used to, you simply need to replace `dbt
 ```bash
 dbt-ibis run --select stg_stores+
 ```
+If you want to continue to use `dbt`, go to [Advanced](./advanced.md).
 
 You'll notice that for every `.ibis` file, `dbt-ibis` will generate a corresponding `.sql` file in a `__ibis_sql` subfolder. This is because `dbt-ibis` simply compiles all Ibis expressions to SQL and then let's DBT do its thing. You should not edit those files as they are overwritten every time you execute a `dbt-ibis` command. However, it might be interesting to look at them if you want to debug an expression. `dbt-ibis` will take care of cleaning up unused `.sql` files in these subfolders which might happen if you rename or delete an `.ibis` file.
 
