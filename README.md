@@ -1,5 +1,5 @@
 # dbt-ibis
-With dbt-ibis you can write your [dbt](https://www.getdbt.com/) models using [Ibis](https://ibis-project.org/). For the documentation, head over to ...
+With dbt-ibis you can write your [dbt](https://www.getdbt.com/) models using [Ibis](https://ibis-project.org/). You can find the full documentation [here](https://binste.github.io/dbt-ibis/intro.html).
 
 A simple dbt-ibis model looks like this:
 ```python
