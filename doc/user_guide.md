@@ -24,12 +24,16 @@ def model(stores):
     return stores.filter(stores["country"] == "USA")
 ```
 
-Whenever your Ibis model references either a source, a seed, a snapshot, or a SQL model, you'll need to define the column data types as described in [Model Contracts - getdbt.com](https://docs.getdbt.com/docs/collaborate/govern/model-contracts) (`data_type` refers to the data types as they are called by your database system) (for sources, snapshots, and SQL models) or in [Seed configurations - getdbt.com](https://docs.getdbt.com/reference/seed-configs) (for seeds). If you reference another Ibis model, this is not necessary. In the examples above, you would need to provide it for the `stores` source table:
+See [this version of the dbt jaffle shop project](https://github.com/binste/dbt-ibis/tree/main/demo_project/jaffle_shop) for a full example.
+
+## Column data types
+Whenever your Ibis model references either a source, a seed, a snapshot, or a SQL model, you'll need to specify the column data types of the referred dbt object in the corresponding `yaml` config. If you reference another Ibis model, this is not necessary. This is simpler than it sounds, don't worry! In the `stg_stores` examples above, you are referencing the `stores` source and hence you'll need to specify the data types for the `stores` source table:
 
 ```yaml
 sources:
   - name: sources_db
-    ...
+    database: sources_db
+    schema: main
     tables:
       - name: stores
         columns:
@@ -39,14 +43,30 @@ sources:
             data_type: varchar
           - name: country
             data_type: varchar
-```
-For more examples, including column data type definitions, see the [demo project](https://github.com/binste/dbt-ibis/tree/main/demo_project/jaffle_shop).
 
+```
+The `usa_stores` model references `stg_stores` which is already an Ibis model and so you don't need to do anything.
+
+Instead of crafting this `yaml` code by hand, you can use the [dbt-codegen](https://hub.getdbt.com/dbt-labs/codegen/latest/) package to automatically generate it for you. After installing it (see the previous link), you can run the following in your terminal (adjust the database, schema, and table names accordingly):
+
+```bash
+dbt run-operation generate_source --args '{"database_name": "sources_db", "schema_name": "main", "generate_columns": true, "table_names": ["stores"]}'
+```
+
+For a model, you can generate the `yml` code with the following command:
+
+```bash
+dbt run-operation generate_model_yaml --args '{"model_names": ["stg_customers"]}'
+```
+
+For further optional reading on specifying data types, see [Model Contracts - getdbt.com](https://docs.getdbt.com/docs/collaborate/govern/model-contracts) (for sources, snapshots, and SQL models) and [Seed configurations - getdbt.com](https://docs.getdbt.com/reference/seed-configs) (for seeds).
+
+## CLI
 You can use all the dbt commands you're used to, you simply need to replace `dbt` with `dbt-ibis`. For example:
 ```bash
 dbt-ibis run --select stg_stores+
 ```
-If you want to continue to use `dbt`, go to [Advanced](./advanced.md).
+If you want to continue to use the `dbt` command, see the instructions on the [Advanced](./advanced.md) page on how to configure your shell accordingly.
 
 You'll notice that for every `.ibis` file, `dbt-ibis` will generate a corresponding `.sql` file in a `__ibis_sql` subfolder. This is because `dbt-ibis` simply compiles all Ibis expressions to SQL and then let's DBT do its thing. You should not edit those files as they are overwritten every time you execute a `dbt-ibis` command. However, it might be interesting to look at them if you want to debug an expression. `dbt-ibis` will take care of cleaning up unused `.sql` files in these subfolders which might happen if you rename or delete an `.ibis` file.
 
