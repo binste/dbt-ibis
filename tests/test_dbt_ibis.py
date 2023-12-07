@@ -27,13 +27,13 @@ from dbt_ibis import (
     _columns_to_ibis_schema,
     _disable_node_not_found_error,
     _extract_ref_and_source_infos,
-    _get_ibis_models,
-    _get_model_func,
+    _get_expr_func,
+    _get_ibis_expr_infos,
     _get_schema_for_ref,
     _get_schema_for_source,
-    _IbisModel,
+    _IbisExprInfo,
     _parse_cli_arguments,
-    _sort_ibis_models_by_dependencies,
+    _sort_ibis_exprs_by_dependencies,
     _to_dbt_sql,
     compile_ibis_to_sql,
     depends_on,
@@ -195,10 +195,10 @@ def test_depends_on():
 
 def test_ibis_model():
     references = [source("source1", "orders"), ref("stg_customers")]
-    model = _IbisModel(
+    model = _IbisExprInfo(
         ibis_path=Path("path/to/some_model.ibis"),
         depends_on=references,
-        model_func=lambda: None,
+        func=lambda: None,
     )
 
     assert model.name == "some_model"
@@ -206,13 +206,13 @@ def test_ibis_model():
 
 
 def test_get_ibis_models():
-    ibis_models = _get_ibis_models(
-        Path.cwd() / "tests", model_paths=["mock_model_folder_1", "mock_model_folder_2"]
+    ibis_models = _get_ibis_expr_infos(
+        Path.cwd() / "tests", paths=["mock_model_folder_1", "mock_model_folder_2"]
     )
 
     assert len(ibis_models) == 3
-    assert all(isinstance(model, _IbisModel) for model in ibis_models)
-    assert all(callable(model.model_func) for model in ibis_models)
+    assert all(isinstance(model, _IbisExprInfo) for model in ibis_models)
+    assert all(callable(model.func) for model in ibis_models)
     assert all(
         isinstance(model.depends_on, tuple) and len(model.depends_on) == 1
         for model in ibis_models
@@ -227,7 +227,7 @@ def test_get_ibis_models():
 
 
 def test_get_model_func():
-    model_func = _get_model_func(Path("tests/mock_model_folder_1/model_1.ibis"))
+    model_func = _get_expr_func(Path("tests/mock_model_folder_1/model_1.ibis"))
 
     assert callable(model_func)
     assert model_func.__name__ == "model"
@@ -236,23 +236,23 @@ def test_get_model_func():
 
 def test_sort_ibis_models_by_dependencies():
     ibis_models = [
-        _IbisModel(
+        _IbisExprInfo(
             ibis_path=Path("path/to/another_model.ibis"),
             depends_on=[ref("some_model")],
-            model_func=lambda: None,
+            func=lambda: None,
         ),
-        _IbisModel(
+        _IbisExprInfo(
             ibis_path=Path("path/to/some_model.ibis"),
             # Using same name for source table name as for the
             # other model above to make sure that sources are ignored
             # when building a dependency graph and this function
             # does not suddenly treat source and ref the same.
             depends_on=[source("source1", "another_model")],
-            model_func=lambda: None,
+            func=lambda: None,
         ),
     ]
 
-    sorted_ibis_models = _sort_ibis_models_by_dependencies(ibis_models)
+    sorted_ibis_models = _sort_ibis_exprs_by_dependencies(ibis_models)
 
     assert sorted_ibis_models == ibis_models[::-1]
 
@@ -311,7 +311,7 @@ def test_get_schema_for_ref(stg_orders_model_node, raw_payments_seed_node):
         _get_schema_for_ref(
             stg_orders,
             models_lookup,
-            ibis_model_schemas={},
+            ibis_expr_schemas={},
             ibis_dialect=TEST_IBIS_DIALECT,
         )
 
@@ -321,7 +321,7 @@ def test_get_schema_for_ref(stg_orders_model_node, raw_payments_seed_node):
         _get_schema_for_ref(
             stg_orders,
             models_lookup,
-            ibis_model_schemas=ibis_model_schemas,
+            ibis_expr_schemas=ibis_model_schemas,
             ibis_dialect=TEST_IBIS_DIALECT,
         )
         == schema_from_ibis_model
@@ -337,7 +337,7 @@ def test_get_schema_for_ref(stg_orders_model_node, raw_payments_seed_node):
     schema = _get_schema_for_ref(
         stg_orders,
         models_lookup,
-        ibis_model_schemas=ibis_model_schemas,
+        ibis_expr_schemas=ibis_model_schemas,
         ibis_dialect=TEST_IBIS_DIALECT,
     )
     assert schema == ibis.schema({"col1": dt.Int64(), "col2": dt.String()})
@@ -349,7 +349,7 @@ def test_get_schema_for_ref(stg_orders_model_node, raw_payments_seed_node):
         _get_schema_for_ref(
             ref("raw_payments"),
             ref_infos={"raw_payments": raw_payments_seed_node},
-            ibis_model_schemas={},
+            ibis_expr_schemas={},
             ibis_dialect=TEST_IBIS_DIALECT,
         )
 
@@ -362,7 +362,7 @@ def test_get_schema_for_ref(stg_orders_model_node, raw_payments_seed_node):
     schema = _get_schema_for_ref(
         ref("raw_payments"),
         ref_infos={"raw_payments": raw_payments_seed_node},
-        ibis_model_schemas={},
+        ibis_expr_schemas={},
         ibis_dialect=TEST_IBIS_DIALECT,
     )
     assert schema == ibis.schema(
@@ -455,7 +455,7 @@ def test_clean_up_unused_sql_files(tmp_path: Path):
         assert p.exists()
 
     _clean_up_unused_sql_files(
-        used_models, project_root=project_root, model_paths=model_paths
+        used_models, project_root=project_root, paths=model_paths
     )
 
     for p in used_models:

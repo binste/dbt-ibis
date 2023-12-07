@@ -40,7 +40,7 @@ _REF_IDENTIFIER_SUFFIX: Final = "__rid__"
 _SOURCE_IDENTIFIER_PREFIX: Final = "__ibd_source__"
 _SOURCE_IDENTIFIER_SUFFIX: Final = "__sid__"
 _SOURCE_IDENTIFIER_SEPARATOR: Final = "__ibd_sep__"
-_IBIS_MODEL_FILE_EXTENSION: Final = "ibis"
+_IBIS_FILE_EXTENSION: Final = "ibis"
 _IBIS_SQL_FOLDER_NAME: Final = "__ibis_sql"
 
 _RefLookup = dict[str, Union[ModelNode, SeedNode, SnapshotNode]]
@@ -140,10 +140,10 @@ def depends_on(*references: _Reference) -> Callable:
 
 
 @dataclass
-class _IbisModel:
+class _IbisExprInfo:
     ibis_path: Path
     depends_on: list[_Reference]
-    model_func: Callable[..., ibis.expr.types.Table]
+    func: Callable[..., ibis.expr.types.Table]
 
     @property
     def name(self) -> str:
@@ -287,36 +287,39 @@ def compile_ibis_to_sql(dbt_parse_arguments: Optional[list[str]] = None) -> None
     ibis_dialect = _dialects.get_ibis_dialect(manifest)
 
     project_root = runtime_config.project_root
-    model_paths = runtime_config.model_paths
-    all_ibis_models = _get_ibis_models(
+    # We can treat models and singular tests as equivalent for the purpose
+    # of compiling Ibis expressions to SQL.
+    paths = runtime_config.model_paths + runtime_config.test_paths
+
+    all_ibis_expr_infos = _get_ibis_expr_infos(
         project_root=project_root,
-        model_paths=model_paths,
+        paths=paths,
     )
-    if len(all_ibis_models) == 0:
-        logger.info("No Ibis models found.")
+    if len(all_ibis_expr_infos) == 0:
+        logger.info("No Ibis expressions found.")
         return
     else:
-        logger.info(f"Compiling {len(all_ibis_models)} Ibis models to SQL")
+        logger.info(f"Compiling {len(all_ibis_expr_infos)} Ibis expressions to SQL")
 
-        # Order Ibis models by their dependencies so that the once which depend on other
-        # Ibis model are compiled after the ones they depend on. For example, if
-        # model_a depends on model_b, then model_b will be compiled first and will
-        # appear in the list before model_a.
-        all_ibis_models = _sort_ibis_models_by_dependencies(all_ibis_models)
+        # Order Ibis expressions by their dependencies so that the once which
+        # depend on other Ibis expressions are compiled after the ones they depend on.
+        # For example, if model_a depends on model_b, then model_b will be compiled
+        # first and will appear in the list before model_a.
+        all_ibis_expr_infos = _sort_ibis_exprs_by_dependencies(all_ibis_expr_infos)
 
         ref_infos, source_infos = _extract_ref_and_source_infos(manifest)
 
-        letter_case_in_db, letter_case_in_model = _get_letter_case_conversion_rules(
+        letter_case_in_db, letter_case_in_expr = _get_letter_case_conversion_rules(
             runtime_config
         )
 
-        # Schemas of the Ibis models themselves in case they are referenced
-        # by other downstream Ibis models
-        ibis_model_schemas: dict[str, ibis.Schema] = {}
-        # Convert Ibis models to SQL and write to file
-        for ibis_model in all_ibis_models:
+        # Schemas of the Ibis expressions themselves in case they are referenced
+        # by other downstream Ibis expressions
+        ibis_expr_schemas: dict[str, ibis.Schema] = {}
+        # Convert Ibis expressions to SQL and write to file
+        for ibis_expr_info in all_ibis_expr_infos:
             references: list[ibis.expr.types.Table] = []
-            for r in ibis_model.depends_on:
+            for r in ibis_expr_info.depends_on:
                 if isinstance(r, source):
                     schema = _get_schema_for_source(
                         r,
@@ -328,7 +331,7 @@ def compile_ibis_to_sql(dbt_parse_arguments: Optional[list[str]] = None) -> None
                     schema = _get_schema_for_ref(
                         r,
                         ref_infos,
-                        ibis_model_schemas=ibis_model_schemas,
+                        ibis_expr_schemas=ibis_expr_schemas,
                         ibis_dialect=ibis_dialect,
                         letter_case_in_db=letter_case_in_db,
                     )
@@ -336,28 +339,28 @@ def compile_ibis_to_sql(dbt_parse_arguments: Optional[list[str]] = None) -> None
                     raise ValueError(f"Unknown reference type: {type(r)}")
                 ibis_table = r.to_ibis(schema)
                 ibis_table = _set_letter_case_on_ibis_expression(
-                    ibis_table, letter_case_in_model
+                    ibis_table, letter_case_in_expr
                 )
 
                 references.append(ibis_table)
-            ibis_expr = ibis_model.model_func(*references)
+            ibis_expr = ibis_expr_info.func(*references)
             ibis_expr = _set_letter_case_on_ibis_expression(
                 ibis_expr, letter_case_in_db
             )
 
-            ibis_model_schemas[ibis_model.name] = ibis_expr.schema()
+            ibis_expr_schemas[ibis_expr_info.name] = ibis_expr.schema()
 
             # Convert to SQL and write to file
             dbt_sql = _to_dbt_sql(ibis_expr, ibis_dialect=ibis_dialect)
-            ibis_model.sql_path.parent.mkdir(parents=False, exist_ok=True)
-            ibis_model.sql_path.write_text(dbt_sql)
+            ibis_expr_info.sql_path.parent.mkdir(parents=False, exist_ok=True)
+            ibis_expr_info.sql_path.write_text(dbt_sql)
 
         _clean_up_unused_sql_files(
-            [ibis_model.sql_path for ibis_model in all_ibis_models],
+            [ibis_expr_info.sql_path for ibis_expr_info in all_ibis_expr_infos],
             project_root=project_root,
-            model_paths=model_paths,
+            paths=paths,
         )
-        logger.info("Finished compiling Ibis models to SQL")
+        logger.info("Finished compiling Ibis expressions to SQL")
 
 
 def _set_letter_case_on_ibis_expression(
@@ -380,7 +383,7 @@ def _invoke_parse_customized(
     # Use --quiet to suppress non-error logs in stdout. These logs would be
     # confusing to a user as they don't expect two dbt commands to be executed.
     # Furthermore, the logs might contain warnings which the user can ignore
-    # as they come from the fact that Ibis models might not yet be present as .sql
+    # as they come from the fact that Ibis expressions might not yet be present as .sql
     # files when running the parse command.
     args = ["--quiet", parse_command, *dbt_parse_arguments]
 
@@ -412,78 +415,74 @@ def _parse_cli_arguments() -> tuple[str, list[str]]:
     return subcommand, args
 
 
-def _get_ibis_models(
-    project_root: Union[str, Path], model_paths: list[str]
-) -> list[_IbisModel]:
-    ibis_model_files = _glob_in_model_paths(
+def _get_ibis_expr_infos(
+    project_root: Union[str, Path], paths: list[str]
+) -> list[_IbisExprInfo]:
+    ibis_files = _glob_in_paths(
         project_root=project_root,
-        model_paths=model_paths,
-        pattern=f"**/*.{_IBIS_MODEL_FILE_EXTENSION}",
+        paths=paths,
+        pattern=f"**/*.{_IBIS_FILE_EXTENSION}",
     )
-    ibis_models: list[_IbisModel] = []
-    for model_file in ibis_model_files:
-        model_func = _get_model_func(model_file)
-        depends_on = getattr(model_func, "depends_on", [])
-        ibis_models.append(
-            _IbisModel(
-                ibis_path=model_file, depends_on=depends_on, model_func=model_func
-            )
+    ibis_expr_infos: list[_IbisExprInfo] = []
+    for file in ibis_files:
+        func = _get_expr_func(file)
+        depends_on = getattr(func, "depends_on", [])
+        ibis_expr_infos.append(
+            _IbisExprInfo(ibis_path=file, depends_on=depends_on, func=func)
         )
-    return ibis_models
+    return ibis_expr_infos
 
 
-def _glob_in_model_paths(
-    project_root: Union[str, Path], model_paths: list[str], pattern: str
+def _glob_in_paths(
+    project_root: Union[str, Path], paths: list[str], pattern: str
 ) -> list[Path]:
     if isinstance(project_root, str):
         project_root = Path(project_root)
 
     matches: list[Path] = []
-    for m_path in model_paths:
+    for m_path in paths:
         matches.extend(list((project_root / m_path).glob(pattern)))
     return matches
 
 
-def _get_model_func(model_file: Path) -> Callable[..., ibis.expr.types.Table]:
+def _get_expr_func(file: Path) -> Callable[..., ibis.expr.types.Table]:
     # Name arguments to spec_from_loader and SourceFileLoader probably don't matter
-    # but maybe a good idea to keep them unique across the models
-    spec = spec_from_loader(
-        model_file.stem, SourceFileLoader(model_file.stem, str(model_file))
-    )
+    # but maybe a good idea to keep them unique across the expressions
+    spec = spec_from_loader(file.stem, SourceFileLoader(file.stem, str(file)))
     if spec is None:
-        raise ValueError(f"Could not load model file: {model_file}")
-    model_module = module_from_spec(spec)
+        raise ValueError(f"Could not load file: {file}")
+    expr_module = module_from_spec(spec)
     if spec.loader is None:
-        raise ValueError(f"Could not load model file: {model_file}")
-    spec.loader.exec_module(model_module)
-    model_func = getattr(model_module, "model", None)
-    if model_func is None:
+        raise ValueError(f"Could not load file: {file}")
+    spec.loader.exec_module(expr_module)
+    func = getattr(expr_module, "model", None) or getattr(expr_module, "test", None)
+    if func is None:
         raise ValueError(
-            f"Could not find function called 'model' in {str(model_file)}."
+            f"Could not find function called 'model' or 'test' in {str(file)}."
         )
-    return model_func
+    return func
 
 
-def _sort_ibis_models_by_dependencies(
-    ibis_models: list[_IbisModel],
-) -> list[_IbisModel]:
-    ibis_model_lookup = {m.name: m for m in ibis_models}
+def _sort_ibis_exprs_by_dependencies(
+    ibis_exprs: list[_IbisExprInfo],
+) -> list[_IbisExprInfo]:
+    ibis_expr_lookup = {m.name: m for m in ibis_exprs}
 
     # Only look at ref. source references are not relevant for this sorting
     # as they already exist -> Don't need to compile them. Also no need to consider
-    # refs which are not Ibis models
+    # refs which are not Ibis expressions
     graph = {
-        ibis_model_name: [
+        ibis_expr_name: [
             d.name
-            for d in ibis_model.depends_on
-            if isinstance(d, ref) and d.name in ibis_model_lookup
+            for d in ibis_expr.depends_on
+            if isinstance(d, ref) and d.name in ibis_expr_lookup
         ]
-        for ibis_model_name, ibis_model in ibis_model_lookup.items()
+        for ibis_expr_name, ibis_expr in ibis_expr_lookup.items()
     }
     sorter = graphlib.TopologicalSorter(graph)
-    ibis_model_order = list(sorter.static_order())
+    ibis_expr_order = list(sorter.static_order())
 
-    return [ibis_model_lookup[m] for m in ibis_model_order]
+    return [ibis_expr_lookup[m] for m in ibis_expr_order]
 
 
 def _extract_ref_and_source_infos(
@@ -511,13 +510,13 @@ def _get_letter_case_conversion_rules(
     target_name = runtime_config.target_name
 
     in_db_var_name = f"dbt_ibis_letter_case_in_db_{project_name}_{target_name}"
-    in_model_var_name = "dbt_ibis_letter_case_in_model"
+    in_expr_var_name = "dbt_ibis_letter_case_in_expr"
 
     in_db_raw = dbt_project_vars.get(in_db_var_name, None)
-    in_model_raw = dbt_project_vars.get(in_model_var_name, None)
+    in_expr_raw = dbt_project_vars.get(in_expr_var_name, None)
     in_db = _validate_letter_case_var(in_db_var_name, in_db_raw)
-    in_model = _validate_letter_case_var(in_model_var_name, in_model_raw)
-    return in_db, in_model
+    in_expr = _validate_letter_case_var(in_expr_var_name, in_expr_raw)
+    return in_db, in_expr
 
 
 def _validate_letter_case_var(variable_name: str, value: Any) -> Optional[_LetterCase]:
@@ -547,7 +546,7 @@ def _get_schema_for_source(
 def _get_schema_for_ref(
     ref: ref,
     ref_infos: _RefLookup,
-    ibis_model_schemas: dict[str, ibis.Schema],
+    ibis_expr_schemas: dict[str, ibis.Schema],
     ibis_dialect: _dialects.IbisDialect,
     letter_case_in_db: Optional[_LetterCase] = None,
 ) -> ibis.Schema:
@@ -585,9 +584,9 @@ def _get_schema_for_ref(
             # be able to get the schema from the Ibis model itself
 
     # Else, see if it is an Ibis model in which case we would have the schema
-    # in ibis_model_schemas
-    if schema is None and ref.name in ibis_model_schemas:
-        schema = ibis_model_schemas[ref.name]
+    # in ibis_expr_schemas
+    if schema is None and ref.name in ibis_expr_schemas:
+        schema = ibis_expr_schemas[ref.name]
 
     if schema is None:
         if columns_with_missing_data_types:
@@ -662,15 +661,15 @@ def _to_dbt_sql(
 def _clean_up_unused_sql_files(
     used_sql_files: list[Path],
     project_root: Union[str, Path],
-    model_paths: list[str],
+    paths: list[str],
 ) -> None:
     """Deletes all .sql files in any of the _IBIS_SQL_FOLDER_NAME folders which
-    are not referenced by any Ibis model. This takes care of the case where
-    a user deletes an Ibis model but the .sql file remains.
+    are not referenced by any Ibis expression. This takes care of the case where
+    a user deletes an Ibis expression but the .sql file remains.
     """
-    all_sql_files = _glob_in_model_paths(
+    all_sql_files = _glob_in_paths(
         project_root=project_root,
-        model_paths=model_paths,
+        paths=paths,
         pattern=f"**/{_IBIS_SQL_FOLDER_NAME}/*.sql",
     )
     # Resolve to absolute paths so we can compare them
