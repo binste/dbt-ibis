@@ -82,7 +82,7 @@ dbt run
 ```
 
 ## Singular tests
-You can write [singular tests](https://docs.getdbt.com/docs/build/tests#singular-tests) the same way you would write a model. The only difference is that you need to name your function `test` instead of `model`:
+You can write [singular tests](https://docs.getdbt.com/docs/build/tests#singular-tests) the same way you would write a model. The only differences are that you need to name your function `test` instead of `model` and that you place the `.ibis` file in your [tests folder](https://docs.getdbt.com/docs/build/tests#singular-tests):
 
 ```python
 from dbt_ibis import depends_on, ref
