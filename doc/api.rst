@@ -7,4 +7,4 @@ API reference
 
 .. autofunction:: dbt_ibis.depends_on
 
-.. autofunction:: dbt_ibis.compile_ibis_to_sql_models
+.. autofunction:: dbt_ibis.compile_ibis_to_sql

@@ -1,4 +1,4 @@
-__all__ = ["ref", "source", "depends_on", "compile_ibis_to_sql_models"]
+__all__ = ["ref", "source", "depends_on", "compile_ibis_to_sql"]
 __version__ = "0.8.0dev"
 
 import graphlib
@@ -273,8 +273,8 @@ def _disable_node_not_found_error() -> Iterator[None]:
         manifest.invalid_target_fail_unless_test = original_func
 
 
-def compile_ibis_to_sql_models(dbt_parse_arguments: Optional[list[str]] = None) -> None:
-    """Compiles all Ibis models to SQL and writes them to the .sql files
+def compile_ibis_to_sql(dbt_parse_arguments: Optional[list[str]] = None) -> None:
+    """Compiles all Ibis code to SQL and writes them to the .sql files
     in the dbt project. There is no need to call this function directly as
     you'd usually use the dbt-ibis command line interface instead. This function
     is equivalent to `dbt-ibis precompile`. However, it is
@@ -691,7 +691,7 @@ def main() -> None:
     if dbt_subcommand != "deps":
         # If it's deps, we cannot yet parse the dbt project as it will raise
         # an error due to missing dependencies. We also don't need to so that's fine
-        compile_ibis_to_sql_models(dbt_parse_arguments)
+        compile_ibis_to_sql(dbt_parse_arguments)
     if dbt_subcommand != "precompile":
         # Execute the actual dbt command
         process = subprocess.run(
