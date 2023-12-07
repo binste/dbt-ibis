@@ -1,0 +1,9 @@
+# This test might not make that much sense but it's just to show how to use
+# Ibis to write tests.
+
+from dbt_ibis import depends_on, ref
+import ibis.expr.types as ir
+
+@depends_on(ref("stg_customers"))
+def test(customers: ir.Table) -> ir.Table:
+    return customers.filter(customers["first_name"] == customers["last_name"])

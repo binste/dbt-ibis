@@ -81,6 +81,18 @@ dbt-ibis precompile
 dbt run
 ```
 
+## Singular tests
+You can write [singular tests](https://docs.getdbt.com/docs/build/tests#singular-tests) the same way you would write a model. The only difference is that you need to name your function `test` instead of `model`:
+
+```python
+from dbt_ibis import depends_on, ref
+
+@depends_on(ref("stg_customers"))
+def test(customers):
+    return customers.filter(customers["first_name"] == customers["last_name"])
+```
+
+
 ## Editor configuration
 You might want to configure your editor to treat `.ibis` files as normal Python files. In VS Code, you can do this by putting the following into your `settings.json` file:
 ```json
@@ -157,7 +169,7 @@ This is rather cumbersome to do for every model and many of us are used to work 
 ```yaml
 vars:
   dbt_ibis_letter_case_in_db_jaffle_shop_prod: upper
-  dbt_ibis_letter_case_in_model: lower
+  dbt_ibis_letter_case_in_expr: lower
 ```
 This tells `dbt-ibis` that in the database, uppercase letters should be used and can be expected, and that in your dbt model you want to use lowercase letters. Both variables accept `upper` and `lower` as values. In addition, the first variable is specific to a profile (`jaffle_shop`) and target (`prod`) following the format `dbt_ibis_letter_case_in_db_{profile}_{target}`. This allows you to set different conventions for different databases. If in the above example, you would have a `dev` target which points to a local duckdb file, this `dev` target would still use the default letter case behavior of Ibis.
 
