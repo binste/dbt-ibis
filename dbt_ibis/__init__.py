@@ -127,7 +127,7 @@ def depends_on(*references: _Reference) -> Callable:
         )
 
     def decorator(
-        func: Callable[..., ibis.expr.types.Table]
+        func: Callable[..., ibis.expr.types.Table],
     ) -> Callable[..., ibis.expr.types.Table]:
         @wraps(func)
         def wrapper(*args: _Reference, **kwargs: _Reference) -> ibis.expr.types.Table:
