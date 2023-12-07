@@ -1,0 +1,1090 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dbt_ibis &#8212; dbt-ibis</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=5b4479735964841361fd" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=5b4479735964841361fd" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=5b4479735964841361fd" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd" />
+  <script src="../_static/vendor/fontawesome/6.1.2/js/all.min.js?digest=5b4479735964841361fd"></script>
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/dbt_ibis';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">dbt-ibis</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../intro.html">
+                    Introduction
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced.html">Advanced</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API reference</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/binste/dbt-ibis" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/binste/dbt-ibis/issues/new?title=Issue%20on%20page%20%2F_modules/dbt_ibis.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for dbt_ibis</h1><div class="highlight"><pre>
+<span></span><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;ref&quot;</span><span class="p">,</span> <span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;depends_on&quot;</span><span class="p">,</span> <span class="s2">&quot;compile_ibis_to_sql&quot;</span><span class="p">]</span>
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.8.0&quot;</span>
+
+<span class="kn">import</span> <span class="nn">graphlib</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractproperty</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterator</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">from</span> <span class="nn">importlib.machinery</span> <span class="kn">import</span> <span class="n">SourceFileLoader</span>
+<span class="kn">from</span> <span class="nn">importlib.util</span> <span class="kn">import</span> <span class="n">module_from_spec</span><span class="p">,</span> <span class="n">spec_from_loader</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">click</span>
+<span class="kn">import</span> <span class="nn">ibis</span>
+<span class="kn">import</span> <span class="nn">ibis.expr.datatypes</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">import</span> <span class="nn">ibis.expr.types</span>
+<span class="kn">from</span> <span class="nn">dbt.cli.main</span> <span class="kn">import</span> <span class="n">cli</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">requires</span>
+<span class="kn">from</span> <span class="nn">dbt.config</span> <span class="kn">import</span> <span class="n">RuntimeConfig</span>
+<span class="kn">from</span> <span class="nn">dbt.contracts.graph.manifest</span> <span class="kn">import</span> <span class="n">Manifest</span>
+<span class="kn">from</span> <span class="nn">dbt.contracts.graph.nodes</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ColumnInfo</span><span class="p">,</span>
+    <span class="n">ModelNode</span><span class="p">,</span>
+    <span class="n">SeedNode</span><span class="p">,</span>
+    <span class="n">SnapshotNode</span><span class="p">,</span>
+    <span class="n">SourceDefinition</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">dbt.parser</span> <span class="kn">import</span> <span class="n">manifest</span>
+
+<span class="kn">from</span> <span class="nn">dbt_ibis</span> <span class="kn">import</span> <span class="n">_dialects</span>
+
+<span class="n">_REF_IDENTIFIER_PREFIX</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;__ibd_ref__&quot;</span>
+<span class="n">_REF_IDENTIFIER_SUFFIX</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;__rid__&quot;</span>
+<span class="n">_SOURCE_IDENTIFIER_PREFIX</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;__ibd_source__&quot;</span>
+<span class="n">_SOURCE_IDENTIFIER_SUFFIX</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;__sid__&quot;</span>
+<span class="n">_SOURCE_IDENTIFIER_SEPARATOR</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;__ibd_sep__&quot;</span>
+<span class="n">_IBIS_FILE_EXTENSION</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;ibis&quot;</span>
+<span class="n">_IBIS_SQL_FOLDER_NAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;__ibis_sql&quot;</span>
+
+<span class="n">_RefLookup</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Union</span><span class="p">[</span><span class="n">ModelNode</span><span class="p">,</span> <span class="n">SeedNode</span><span class="p">,</span> <span class="n">SnapshotNode</span><span class="p">]]</span>
+<span class="n">_SourcesLookup</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SourceDefinition</span><span class="p">]]</span>
+<span class="n">_LetterCase</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_configure_logging</span><span class="p">(</span><span class="n">logger</span><span class="p">:</span> <span class="n">logging</span><span class="o">.</span><span class="n">Logger</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">log_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
+
+    <span class="n">ch</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
+    <span class="n">ch</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
+
+    <span class="c1"># Imitate dbt&#39;s log format but add dbt-ibis before the log message</span>
+    <span class="n">formatter</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">  dbt-ibis: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">datefmt</span><span class="o">=</span><span class="s2">&quot;%H:%M:%S&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ch</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">_configure_logging</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">_Reference</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="nd">@abstractproperty</span>
+    <span class="k">def</span> <span class="nf">_ibis_table_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">to_ibis</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">schema</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">ibis</span><span class="o">.</span><span class="n">Schema</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">dt</span><span class="o">.</span><span class="n">DataType</span><span class="p">]]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ibis</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+        <span class="k">return</span> <span class="n">ibis</span><span class="o">.</span><span class="n">table</span><span class="p">(</span>
+            <span class="n">schema</span><span class="p">,</span>
+            <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_ibis_table_name</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<div class="viewcode-block" id="ref"><a class="viewcode-back" href="../api.html#dbt_ibis.ref">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">ref</span><span class="p">(</span><span class="n">_Reference</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A reference to a dbt model.&quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_ibis_table_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_REF_IDENTIFIER_PREFIX</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="n">_REF_IDENTIFIER_SUFFIX</span></div>
+
+
+<div class="viewcode-block" id="source"><a class="viewcode-back" href="../api.html#dbt_ibis.source">[docs]</a><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">source</span><span class="p">(</span><span class="n">_Reference</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A reference to a dbt source.&quot;&quot;&quot;</span>
+
+    <span class="n">source_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">table_name</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_ibis_table_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">_SOURCE_IDENTIFIER_PREFIX</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_name</span>
+            <span class="o">+</span> <span class="n">_SOURCE_IDENTIFIER_SEPARATOR</span>
+            <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">table_name</span>
+            <span class="o">+</span> <span class="n">_SOURCE_IDENTIFIER_SUFFIX</span>
+        <span class="p">)</span></div>
+
+
+<span class="c1"># Type hints could be improved here. Could use a typing.Protocol with a typed __call__</span>
+<span class="c1"># method to indicate that the function that is wrapped by depends_on needs to be</span>
+<span class="c1"># callable, accept a variadic number of _Reference arguments and needs to</span>
+<span class="c1"># return an ibis Table</span>
+<div class="viewcode-block" id="depends_on"><a class="viewcode-back" href="../api.html#dbt_ibis.depends_on">[docs]</a><span class="k">def</span> <span class="nf">depends_on</span><span class="p">(</span><span class="o">*</span><span class="n">references</span><span class="p">:</span> <span class="n">_Reference</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator to specify the dependencies of an Ibis model. You can pass</span>
+<span class="sd">    either dbt_ibis.ref or dbt_ibis.source objects as arguments.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">_Reference</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">references</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;All arguments to depends_on need to be either an instance of&quot;</span>
+            <span class="o">+</span> <span class="s2">&quot; dbt_ibis.ref or dbt_ibis.source&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span>
+        <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ibis</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Table</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ibis</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Table</span><span class="p">]:</span>
+        <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">_Reference</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">_Reference</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ibis</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">wrapper</span><span class="o">.</span><span class="n">depends_on</span> <span class="o">=</span> <span class="n">references</span>  <span class="c1"># type: ignore[attr-defined]</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">decorator</span></div>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">_IbisExprInfo</span><span class="p">:</span>
+    <span class="n">ibis_path</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">depends_on</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_Reference</span><span class="p">]</span>
+    <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ibis</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Table</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ibis_path</span><span class="o">.</span><span class="n">stem</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sql_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ibis_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">_IBIS_SQL_FOLDER_NAME</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.sql&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_back_up_and_restore_target_files</span><span class="p">(</span><span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Backs up and then restores again all files which are in the target</span>
+<span class="sd">    folder. Ignores the folders &quot;compiled&quot; and &quot;run&quot;.</span>
+
+<span class="sd">    Reason is that we want to prevent dbt from reusing the generated artifacts from</span>
+<span class="sd">    an incomplete dbt parse command for subsequent commands as those</span>
+<span class="sd">    artifacts are based on an incomplete dbt project (i.e. the missing compiled</span>
+<span class="sd">    Ibis models). If, for example, an Ibis model is referenced in a .yml file but</span>
+<span class="sd">    does not yet exist, dbt will disable the model in the manifest. Any subsequent</span>
+<span class="sd">    dbt command might not recreate the manifest due to partial parsing.</span>
+
+<span class="sd">    This can&#39;t be replaced by the global --no-write-json flag as dbt will then</span>
+<span class="sd">    still write partial_parse.msgpack.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>  <span class="c1"># type: ignore[no-untyped-def]</span>
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;First argument needs to be a click context. Please report&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot; this error in the GitHub repository.&quot;</span>
+            <span class="p">)</span>
+        <span class="n">runtime_config</span><span class="p">:</span> <span class="n">RuntimeConfig</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;runtime_config&quot;</span><span class="p">]</span>
+        <span class="n">target_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">runtime_config</span><span class="o">.</span><span class="n">project_root</span><span class="p">)</span> <span class="o">/</span> <span class="n">runtime_config</span><span class="o">.</span><span class="n">target_path</span>
+
+        <span class="k">def</span> <span class="nf">get_files_to_backup</span><span class="p">(</span><span class="n">target_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+            <span class="n">all_files</span> <span class="o">=</span> <span class="n">target_path</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*&quot;</span><span class="p">)</span>
+            <span class="c1"># Don&#39;t backup the compiled and run folders as they are not modified</span>
+            <span class="c1"># by the dbt parse command and this speeds up the whole process.</span>
+            <span class="c1"># Some other files in the top-level target folder are also not modified</span>
+            <span class="c1"># by dbt parse but it&#39;s more future-proof if we just back up all other files</span>
+            <span class="c1"># in case this is changed in the future.</span>
+            <span class="n">folders_to_exclude</span> <span class="o">=</span> <span class="p">[</span><span class="n">target_path</span> <span class="o">/</span> <span class="s2">&quot;compiled&quot;</span><span class="p">,</span> <span class="n">target_path</span> <span class="o">/</span> <span class="s2">&quot;run&quot;</span><span class="p">]</span>
+            <span class="n">files_to_backup</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">f</span>
+                <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">all_files</span>
+                <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">folder</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">parents</span> <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">folders_to_exclude</span><span class="p">)</span>
+            <span class="p">]</span>
+            <span class="k">return</span> <span class="n">files_to_backup</span>
+
+        <span class="n">files_to_backup</span> <span class="o">=</span> <span class="n">get_files_to_backup</span><span class="p">(</span><span class="n">target_path</span><span class="p">)</span>
+        <span class="n">backups</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="n">f</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files_to_backup</span><span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">backups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+            <span class="c1"># Remove any files which would have been backed up but didn&#39;t exist before</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">get_files_to_backup</span><span class="p">(</span><span class="n">target_path</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">f</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">backups</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+
+<span class="nd">@cli</span><span class="o">.</span><span class="n">command</span><span class="p">(</span>
+    <span class="s2">&quot;parse_customized&quot;</span><span class="p">,</span>
+    <span class="n">context_settings</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;ignore_unknown_options&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;allow_extra_args&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">pass_context</span>
+<span class="nd">@p</span><span class="o">.</span><span class="n">profile</span>
+<span class="nd">@p</span><span class="o">.</span><span class="n">profiles_dir</span>
+<span class="nd">@p</span><span class="o">.</span><span class="n">project_dir</span>
+<span class="nd">@p</span><span class="o">.</span><span class="n">target</span>
+<span class="nd">@p</span><span class="o">.</span><span class="n">target_path</span>
+<span class="nd">@p</span><span class="o">.</span><span class="n">threads</span>
+<span class="nd">@p</span><span class="o">.</span><span class="n">vars</span>
+<span class="nd">@p</span><span class="o">.</span><span class="n">version_check</span>
+<span class="nd">@requires</span><span class="o">.</span><span class="n">postflight</span>
+<span class="nd">@requires</span><span class="o">.</span><span class="n">preflight</span>
+<span class="nd">@requires</span><span class="o">.</span><span class="n">profile</span>
+<span class="nd">@requires</span><span class="o">.</span><span class="n">project</span>
+<span class="nd">@requires</span><span class="o">.</span><span class="n">runtime_config</span>
+<span class="nd">@_back_up_and_restore_target_files</span>
+<span class="nd">@requires</span><span class="o">.</span><span class="n">manifest</span><span class="p">(</span><span class="n">write_perf_info</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_parse_customized</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>  <span class="c1"># noqa: ARG001</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">Manifest</span><span class="p">,</span> <span class="n">RuntimeConfig</span><span class="p">],</span> <span class="n">Literal</span><span class="p">[</span><span class="kc">True</span><span class="p">]]:</span>
+    <span class="c1"># This is a slightly modified version of the dbt parse command</span>
+    <span class="c1"># which:</span>
+    <span class="c1"># * in addition to the manifest, also returns the runtime_config</span>
+    <span class="c1">#     Would be nice if we can instead directly use the dbt parse command</span>
+    <span class="c1">#     as it might be difficult to keep this command in sync with the dbt parse</span>
+    <span class="c1">#     command.</span>
+    <span class="c1"># * ignores unknown options and allow extra arguments so that we can just</span>
+    <span class="c1">#     pass all arguments which are for the actual dbt command to dbt parse</span>
+    <span class="c1">#     without having to filter out the relevant ones.</span>
+    <span class="c1"># * Backs up and then restores again all files which are in the target folder</span>
+    <span class="c1">#     so that this command doesnot have any side effects. See the docstring</span>
+    <span class="c1">#     of _back_up_and_restore_target_files for more details.</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;manifest&quot;</span><span class="p">],</span> <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span><span class="p">[</span><span class="s2">&quot;runtime_config&quot;</span><span class="p">]),</span> <span class="kc">True</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">_disable_node_not_found_error</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A dbt parse command will raise an error if it cannot find all referenced nodes.</span>
+<span class="sd">    This context manager disables the error as dbt cannot yet see the Ibis models</span>
+<span class="sd">    as they are not yet compiled at this point and hence will raise an error.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">original_func</span> <span class="o">=</span> <span class="n">manifest</span><span class="o">.</span><span class="n">invalid_target_fail_unless_test</span>
+
+    <span class="k">def</span> <span class="nf">_do_nothing</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: ARG001</span>
+        <span class="k">pass</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">manifest</span><span class="o">.</span><span class="n">invalid_target_fail_unless_test</span> <span class="o">=</span> <span class="n">_do_nothing</span>
+        <span class="k">yield</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">manifest</span><span class="o">.</span><span class="n">invalid_target_fail_unless_test</span> <span class="o">=</span> <span class="n">original_func</span>
+
+
+<div class="viewcode-block" id="compile_ibis_to_sql"><a class="viewcode-back" href="../api.html#dbt_ibis.compile_ibis_to_sql">[docs]</a><span class="k">def</span> <span class="nf">compile_ibis_to_sql</span><span class="p">(</span><span class="n">dbt_parse_arguments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compiles all Ibis code to SQL and writes them to the .sql files</span>
+<span class="sd">    in the dbt project. There is no need to call this function directly as</span>
+<span class="sd">    you&#39;d usually use the dbt-ibis command line interface instead. This function</span>
+<span class="sd">    is equivalent to `dbt-ibis precompile`. However, it is</span>
+<span class="sd">    provided for convenience in case you want to call it from Python.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Parse dbt project&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">_disable_node_not_found_error</span><span class="p">():</span>
+        <span class="n">manifest</span><span class="p">,</span> <span class="n">runtime_config</span> <span class="o">=</span> <span class="n">_invoke_parse_customized</span><span class="p">(</span><span class="n">dbt_parse_arguments</span><span class="p">)</span>
+
+    <span class="n">ibis_dialect</span> <span class="o">=</span> <span class="n">_dialects</span><span class="o">.</span><span class="n">get_ibis_dialect</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>
+
+    <span class="n">project_root</span> <span class="o">=</span> <span class="n">runtime_config</span><span class="o">.</span><span class="n">project_root</span>
+    <span class="c1"># We can treat models and singular tests as equivalent for the purpose</span>
+    <span class="c1"># of compiling Ibis expressions to SQL.</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="n">runtime_config</span><span class="o">.</span><span class="n">model_paths</span> <span class="o">+</span> <span class="n">runtime_config</span><span class="o">.</span><span class="n">test_paths</span>
+
+    <span class="n">all_ibis_expr_infos</span> <span class="o">=</span> <span class="n">_get_ibis_expr_infos</span><span class="p">(</span>
+        <span class="n">project_root</span><span class="o">=</span><span class="n">project_root</span><span class="p">,</span>
+        <span class="n">paths</span><span class="o">=</span><span class="n">paths</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_ibis_expr_infos</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No Ibis expressions found.&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Compiling </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">all_ibis_expr_infos</span><span class="p">)</span><span class="si">}</span><span class="s2"> Ibis expressions to SQL&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Order Ibis expressions by their dependencies so that the once which</span>
+        <span class="c1"># depend on other Ibis expressions are compiled after the ones they depend on.</span>
+        <span class="c1"># For example, if model_a depends on model_b, then model_b will be compiled</span>
+        <span class="c1"># first and will appear in the list before model_a.</span>
+        <span class="n">all_ibis_expr_infos</span> <span class="o">=</span> <span class="n">_sort_ibis_exprs_by_dependencies</span><span class="p">(</span><span class="n">all_ibis_expr_infos</span><span class="p">)</span>
+
+        <span class="n">ref_infos</span><span class="p">,</span> <span class="n">source_infos</span> <span class="o">=</span> <span class="n">_extract_ref_and_source_infos</span><span class="p">(</span><span class="n">manifest</span><span class="p">)</span>
+
+        <span class="n">letter_case_in_db</span><span class="p">,</span> <span class="n">letter_case_in_expr</span> <span class="o">=</span> <span class="n">_get_letter_case_conversion_rules</span><span class="p">(</span>
+            <span class="n">runtime_config</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Schemas of the Ibis expressions themselves in case they are referenced</span>
+        <span class="c1"># by other downstream Ibis expressions</span>
+        <span class="n">ibis_expr_schemas</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ibis</span><span class="o">.</span><span class="n">Schema</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Convert Ibis expressions to SQL and write to file</span>
+        <span class="k">for</span> <span class="n">ibis_expr_info</span> <span class="ow">in</span> <span class="n">all_ibis_expr_infos</span><span class="p">:</span>
+            <span class="n">references</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ibis</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Table</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">ibis_expr_info</span><span class="o">.</span><span class="n">depends_on</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">source</span><span class="p">):</span>
+                    <span class="n">schema</span> <span class="o">=</span> <span class="n">_get_schema_for_source</span><span class="p">(</span>
+                        <span class="n">r</span><span class="p">,</span>
+                        <span class="n">source_infos</span><span class="p">,</span>
+                        <span class="n">ibis_dialect</span><span class="o">=</span><span class="n">ibis_dialect</span><span class="p">,</span>
+                        <span class="n">letter_case_in_db</span><span class="o">=</span><span class="n">letter_case_in_db</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">ref</span><span class="p">):</span>
+                    <span class="n">schema</span> <span class="o">=</span> <span class="n">_get_schema_for_ref</span><span class="p">(</span>
+                        <span class="n">r</span><span class="p">,</span>
+                        <span class="n">ref_infos</span><span class="p">,</span>
+                        <span class="n">ibis_expr_schemas</span><span class="o">=</span><span class="n">ibis_expr_schemas</span><span class="p">,</span>
+                        <span class="n">ibis_dialect</span><span class="o">=</span><span class="n">ibis_dialect</span><span class="p">,</span>
+                        <span class="n">letter_case_in_db</span><span class="o">=</span><span class="n">letter_case_in_db</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown reference type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">r</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">ibis_table</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">to_ibis</span><span class="p">(</span><span class="n">schema</span><span class="p">)</span>
+                <span class="n">ibis_table</span> <span class="o">=</span> <span class="n">_set_letter_case_on_ibis_expression</span><span class="p">(</span>
+                    <span class="n">ibis_table</span><span class="p">,</span> <span class="n">letter_case_in_expr</span>
+                <span class="p">)</span>
+
+                <span class="n">references</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ibis_table</span><span class="p">)</span>
+            <span class="n">ibis_expr</span> <span class="o">=</span> <span class="n">ibis_expr_info</span><span class="o">.</span><span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">references</span><span class="p">)</span>
+            <span class="n">ibis_expr</span> <span class="o">=</span> <span class="n">_set_letter_case_on_ibis_expression</span><span class="p">(</span>
+                <span class="n">ibis_expr</span><span class="p">,</span> <span class="n">letter_case_in_db</span>
+            <span class="p">)</span>
+
+            <span class="n">ibis_expr_schemas</span><span class="p">[</span><span class="n">ibis_expr_info</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ibis_expr</span><span class="o">.</span><span class="n">schema</span><span class="p">()</span>
+
+            <span class="c1"># Convert to SQL and write to file</span>
+            <span class="n">dbt_sql</span> <span class="o">=</span> <span class="n">_to_dbt_sql</span><span class="p">(</span><span class="n">ibis_expr</span><span class="p">,</span> <span class="n">ibis_dialect</span><span class="o">=</span><span class="n">ibis_dialect</span><span class="p">)</span>
+            <span class="n">ibis_expr_info</span><span class="o">.</span><span class="n">sql_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">ibis_expr_info</span><span class="o">.</span><span class="n">sql_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">dbt_sql</span><span class="p">)</span>
+
+        <span class="n">_clean_up_unused_sql_files</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">ibis_expr_info</span><span class="o">.</span><span class="n">sql_path</span> <span class="k">for</span> <span class="n">ibis_expr_info</span> <span class="ow">in</span> <span class="n">all_ibis_expr_infos</span><span class="p">],</span>
+            <span class="n">project_root</span><span class="o">=</span><span class="n">project_root</span><span class="p">,</span>
+            <span class="n">paths</span><span class="o">=</span><span class="n">paths</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished compiling Ibis expressions to SQL&quot;</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_set_letter_case_on_ibis_expression</span><span class="p">(</span>
+    <span class="n">ibis_expr</span><span class="p">:</span> <span class="n">ibis</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Table</span><span class="p">,</span> <span class="n">letter_case</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_LetterCase</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ibis</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Table</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">letter_case</span> <span class="o">==</span> <span class="s2">&quot;upper&quot;</span><span class="p">:</span>
+        <span class="n">ibis_expr</span> <span class="o">=</span> <span class="n">ibis_expr</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;ALL_CAPS&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">letter_case</span> <span class="o">==</span> <span class="s2">&quot;lower&quot;</span><span class="p">:</span>
+        <span class="n">ibis_expr</span> <span class="o">=</span> <span class="n">ibis_expr</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;snake_case&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ibis_expr</span>
+
+
+<span class="k">def</span> <span class="nf">_invoke_parse_customized</span><span class="p">(</span>
+    <span class="n">dbt_parse_arguments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Manifest</span><span class="p">,</span> <span class="n">RuntimeConfig</span><span class="p">]:</span>
+    <span class="n">dbt_parse_arguments</span> <span class="o">=</span> <span class="n">dbt_parse_arguments</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">parse_command</span> <span class="o">=</span> <span class="n">_parse_customized</span><span class="o">.</span><span class="n">name</span>
+    <span class="c1"># For the benefit of mypy</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parse_command</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>  <span class="c1"># noqa: S101</span>
+    <span class="c1"># Use --quiet to suppress non-error logs in stdout. These logs would be</span>
+    <span class="c1"># confusing to a user as they don&#39;t expect two dbt commands to be executed.</span>
+    <span class="c1"># Furthermore, the logs might contain warnings which the user can ignore</span>
+    <span class="c1"># as they come from the fact that Ibis expressions might not yet be present as .sql</span>
+    <span class="c1"># files when running the parse command.</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;--quiet&quot;</span><span class="p">,</span> <span class="n">parse_command</span><span class="p">,</span> <span class="o">*</span><span class="n">dbt_parse_arguments</span><span class="p">]</span>
+
+    <span class="n">dbt_ctx</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">make_context</span><span class="p">(</span><span class="n">cli</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">,</span> <span class="n">success</span> <span class="o">=</span> <span class="n">cli</span><span class="o">.</span><span class="n">invoke</span><span class="p">(</span><span class="n">dbt_ctx</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Could not parse dbt project&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_cli_arguments</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+    <span class="c1"># First argument of sys.argv is path to this file. We then look for</span>
+    <span class="c1"># the name of the actual dbt subcommand that the user wants to run and ignore</span>
+    <span class="c1"># any global flags that come before it.</span>
+    <span class="c1"># We return the subcommand as well as separately in a list, all subsequent</span>
+    <span class="c1"># arguments which can then be passed to</span>
+    <span class="c1"># _parse_customized so that a user can e.g. set --project-dir etc.</span>
+    <span class="c1"># For example, &quot;dbt-ibis --warn-error run --select stg_orders --project-dir folder&quot;</span>
+    <span class="c1"># becomes &quot;--select stg_orders --project-dir folder&quot;</span>
+    <span class="c1"># in variable args. parse_customized will then ignore &quot;--select stg_orders&quot;</span>
+    <span class="n">all_args</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">subcommand_idx</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+        <span class="n">i</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_args</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="nb">list</span><span class="p">(</span><span class="n">cli</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">keys</span><span class="p">()),</span> <span class="s2">&quot;precompile&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">all_args</span><span class="p">[</span><span class="n">subcommand_idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+    <span class="n">subcommand</span> <span class="o">=</span> <span class="n">all_args</span><span class="p">[</span><span class="n">subcommand_idx</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">subcommand</span><span class="p">,</span> <span class="n">args</span>
+
+
+<span class="k">def</span> <span class="nf">_get_ibis_expr_infos</span><span class="p">(</span>
+    <span class="n">project_root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_IbisExprInfo</span><span class="p">]:</span>
+    <span class="n">ibis_files</span> <span class="o">=</span> <span class="n">_glob_in_paths</span><span class="p">(</span>
+        <span class="n">project_root</span><span class="o">=</span><span class="n">project_root</span><span class="p">,</span>
+        <span class="n">paths</span><span class="o">=</span><span class="n">paths</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;**/*.</span><span class="si">{</span><span class="n">_IBIS_FILE_EXTENSION</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ibis_expr_infos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_IbisExprInfo</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">ibis_files</span><span class="p">:</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">_get_expr_func</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="n">depends_on</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="s2">&quot;depends_on&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">ibis_expr_infos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">_IbisExprInfo</span><span class="p">(</span><span class="n">ibis_path</span><span class="o">=</span><span class="n">file</span><span class="p">,</span> <span class="n">depends_on</span><span class="o">=</span><span class="n">depends_on</span><span class="p">,</span> <span class="n">func</span><span class="o">=</span><span class="n">func</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ibis_expr_infos</span>
+
+
+<span class="k">def</span> <span class="nf">_glob_in_paths</span><span class="p">(</span>
+    <span class="n">project_root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">project_root</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">project_root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_root</span><span class="p">)</span>
+
+    <span class="n">matches</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">m_path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">:</span>
+        <span class="n">matches</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">project_root</span> <span class="o">/</span> <span class="n">m_path</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">)))</span>
+    <span class="k">return</span> <span class="n">matches</span>
+
+
+<span class="k">def</span> <span class="nf">_get_expr_func</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">ibis</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Table</span><span class="p">]:</span>
+    <span class="c1"># Name arguments to spec_from_loader and SourceFileLoader probably don&#39;t matter</span>
+    <span class="c1"># but maybe a good idea to keep them unique across the expressions</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">spec_from_loader</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="n">SourceFileLoader</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">spec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not load file: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">expr_module</span> <span class="o">=</span> <span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">loader</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not load file: </span><span class="si">{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">expr_module</span><span class="p">)</span>
+    <span class="n">func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">expr_module</span><span class="p">,</span> <span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">expr_module</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">func</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Could not find function called &#39;model&#39; or &#39;test&#39; in </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">func</span>
+
+
+<span class="k">def</span> <span class="nf">_sort_ibis_exprs_by_dependencies</span><span class="p">(</span>
+    <span class="n">ibis_exprs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_IbisExprInfo</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">_IbisExprInfo</span><span class="p">]:</span>
+    <span class="n">ibis_expr_lookup</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ibis_exprs</span><span class="p">}</span>
+
+    <span class="c1"># Only look at ref. source references are not relevant for this sorting</span>
+    <span class="c1"># as they already exist -&gt; Don&#39;t need to compile them. Also no need to consider</span>
+    <span class="c1"># refs which are not Ibis expressions</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">ibis_expr_name</span><span class="p">:</span> <span class="p">[</span>
+            <span class="n">d</span><span class="o">.</span><span class="n">name</span>
+            <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">ibis_expr</span><span class="o">.</span><span class="n">depends_on</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">ref</span><span class="p">)</span> <span class="ow">and</span> <span class="n">d</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ibis_expr_lookup</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">ibis_expr_name</span><span class="p">,</span> <span class="n">ibis_expr</span> <span class="ow">in</span> <span class="n">ibis_expr_lookup</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="n">sorter</span> <span class="o">=</span> <span class="n">graphlib</span><span class="o">.</span><span class="n">TopologicalSorter</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+    <span class="n">ibis_expr_order</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">sorter</span><span class="o">.</span><span class="n">static_order</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">ibis_expr_lookup</span><span class="p">[</span><span class="n">m</span><span class="p">]</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">ibis_expr_order</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_extract_ref_and_source_infos</span><span class="p">(</span>
+    <span class="n">dbt_manifest</span><span class="p">:</span> <span class="n">Manifest</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">_RefLookup</span><span class="p">,</span> <span class="n">_SourcesLookup</span><span class="p">]:</span>
+    <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dbt_manifest</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">models_and_seeds</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">nodes</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="p">(</span><span class="n">ModelNode</span><span class="p">,</span> <span class="n">SeedNode</span><span class="p">,</span> <span class="n">SnapshotNode</span><span class="p">))</span>
+    <span class="p">]</span>
+    <span class="n">ref_lookup</span> <span class="o">=</span> <span class="p">{</span><span class="n">m</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">models_and_seeds</span><span class="p">}</span>
+
+    <span class="n">sources</span> <span class="o">=</span> <span class="n">dbt_manifest</span><span class="o">.</span><span class="n">sources</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="n">sources_lookup</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SourceDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sources</span><span class="p">:</span>
+        <span class="n">sources_lookup</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">source_name</span><span class="p">][</span><span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span>
+    <span class="k">return</span> <span class="n">ref_lookup</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sources_lookup</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_letter_case_conversion_rules</span><span class="p">(</span>
+    <span class="n">runtime_config</span><span class="p">:</span> <span class="n">RuntimeConfig</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">_LetterCase</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_LetterCase</span><span class="p">]]:</span>
+    <span class="c1"># Variables as defined in e.g. dbt_project.yml</span>
+    <span class="n">dbt_project_vars</span> <span class="o">=</span> <span class="n">runtime_config</span><span class="o">.</span><span class="n">vars</span><span class="o">.</span><span class="n">vars</span>
+    <span class="n">project_name</span> <span class="o">=</span> <span class="n">runtime_config</span><span class="o">.</span><span class="n">project_name</span>
+    <span class="n">target_name</span> <span class="o">=</span> <span class="n">runtime_config</span><span class="o">.</span><span class="n">target_name</span>
+
+    <span class="n">in_db_var_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;dbt_ibis_letter_case_in_db_</span><span class="si">{</span><span class="n">project_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">target_name</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">in_expr_var_name</span> <span class="o">=</span> <span class="s2">&quot;dbt_ibis_letter_case_in_expr&quot;</span>
+
+    <span class="n">in_db_raw</span> <span class="o">=</span> <span class="n">dbt_project_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">in_db_var_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">in_expr_raw</span> <span class="o">=</span> <span class="n">dbt_project_vars</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">in_expr_var_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">in_db</span> <span class="o">=</span> <span class="n">_validate_letter_case_var</span><span class="p">(</span><span class="n">in_db_var_name</span><span class="p">,</span> <span class="n">in_db_raw</span><span class="p">)</span>
+    <span class="n">in_expr</span> <span class="o">=</span> <span class="n">_validate_letter_case_var</span><span class="p">(</span><span class="n">in_expr_var_name</span><span class="p">,</span> <span class="n">in_expr_raw</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">in_db</span><span class="p">,</span> <span class="n">in_expr</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_letter_case_var</span><span class="p">(</span><span class="n">variable_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_LetterCase</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">value</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;lower&quot;</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">variable_name</span><span class="si">}</span><span class="s2"> variable needs to be set to&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; either &#39;lower&#39; or &#39;upper&#39; but currently has a value of &#39;</span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+            <span class="o">+</span> <span class="s2">&quot; If you want the default behaviour of Ibis, you can omit this variable.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span> <span class="nf">_get_schema_for_source</span><span class="p">(</span>
+    <span class="n">source</span><span class="p">:</span> <span class="n">source</span><span class="p">,</span>
+    <span class="n">source_infos</span><span class="p">:</span> <span class="n">_SourcesLookup</span><span class="p">,</span>
+    <span class="n">ibis_dialect</span><span class="p">:</span> <span class="n">_dialects</span><span class="o">.</span><span class="n">IbisDialect</span><span class="p">,</span>
+    <span class="n">letter_case_in_db</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_LetterCase</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ibis</span><span class="o">.</span><span class="n">Schema</span><span class="p">:</span>
+    <span class="n">columns</span> <span class="o">=</span> <span class="n">source_infos</span><span class="p">[</span><span class="n">source</span><span class="o">.</span><span class="n">source_name</span><span class="p">][</span><span class="n">source</span><span class="o">.</span><span class="n">table_name</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span>
+    <span class="k">return</span> <span class="n">_columns_to_ibis_schema</span><span class="p">(</span>
+        <span class="n">columns</span><span class="p">,</span>
+        <span class="n">ibis_dialect</span><span class="o">=</span><span class="n">ibis_dialect</span><span class="p">,</span>
+        <span class="n">letter_case_in_db</span><span class="o">=</span><span class="n">letter_case_in_db</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_schema_for_ref</span><span class="p">(</span>
+    <span class="n">ref</span><span class="p">:</span> <span class="n">ref</span><span class="p">,</span>
+    <span class="n">ref_infos</span><span class="p">:</span> <span class="n">_RefLookup</span><span class="p">,</span>
+    <span class="n">ibis_expr_schemas</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ibis</span><span class="o">.</span><span class="n">Schema</span><span class="p">],</span>
+    <span class="n">ibis_dialect</span><span class="p">:</span> <span class="n">_dialects</span><span class="o">.</span><span class="n">IbisDialect</span><span class="p">,</span>
+    <span class="n">letter_case_in_db</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_LetterCase</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ibis</span><span class="o">.</span><span class="n">Schema</span><span class="p">:</span>
+    <span class="n">schema</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ibis</span><span class="o">.</span><span class="n">Schema</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">columns_with_missing_data_types</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ColumnInfo</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Take column data types and hence schema from parsed model infos if available</span>
+    <span class="c1"># as this is the best source for the schema as it will appear in</span>
+    <span class="c1"># the database if the user enforces the data type contracts.</span>
+    <span class="c1"># However, this means that also all columns need to be defined in the yml files</span>
+    <span class="c1"># which are used in the Ibis expression.</span>
+    <span class="k">if</span> <span class="n">ref</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ref_infos</span><span class="p">:</span>
+        <span class="n">columns</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnInfo</span><span class="p">]</span>
+        <span class="n">info</span> <span class="o">=</span> <span class="n">ref_infos</span><span class="p">[</span><span class="n">ref</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="n">SeedNode</span><span class="p">):</span>
+            <span class="c1"># For seeds, the information is not stored in the</span>
+            <span class="c1"># columns attribute but in the config.column_types attribute</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">name</span><span class="p">:</span> <span class="n">ColumnInfo</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="n">data_type</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">data_type</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">column_types</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">columns</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">columns_with_missing_data_types</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">data_type</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">columns_with_missing_data_types</span><span class="p">:</span>
+                <span class="n">schema</span> <span class="o">=</span> <span class="n">_columns_to_ibis_schema</span><span class="p">(</span>
+                    <span class="n">columns</span><span class="p">,</span>
+                    <span class="n">ibis_dialect</span><span class="o">=</span><span class="n">ibis_dialect</span><span class="p">,</span>
+                    <span class="n">letter_case_in_db</span><span class="o">=</span><span class="n">letter_case_in_db</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="c1"># Do not yet raise an error if there are missing data types as we might</span>
+            <span class="c1"># be able to get the schema from the Ibis model itself</span>
+
+    <span class="c1"># Else, see if it is an Ibis model in which case we would have the schema</span>
+    <span class="c1"># in ibis_expr_schemas</span>
+    <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">ref</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">ibis_expr_schemas</span><span class="p">:</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="n">ibis_expr_schemas</span><span class="p">[</span><span class="n">ref</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">schema</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">columns_with_missing_data_types</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The following columns of &#39;</span><span class="si">{</span><span class="n">ref</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; do not have&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot; a data type configured: &quot;</span>
+                <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns_with_missing_data_types</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Could not determine schema for model &#39;</span><span class="si">{</span><span class="n">ref</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot; You either need to define it as a model contract or&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot; the model needs to be an Ibis model as well.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">schema</span>
+
+
+<span class="k">def</span> <span class="nf">_columns_to_ibis_schema</span><span class="p">(</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ColumnInfo</span><span class="p">],</span>
+    <span class="n">ibis_dialect</span><span class="p">:</span> <span class="n">_dialects</span><span class="o">.</span><span class="n">IbisDialect</span><span class="p">,</span>
+    <span class="n">letter_case_in_db</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">_LetterCase</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ibis</span><span class="o">.</span><span class="n">Schema</span><span class="p">:</span>
+    <span class="n">schema_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">dt</span><span class="o">.</span><span class="n">DataType</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">data_type</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not determine data type for column &#39;</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="n">column_name</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">letter_case_in_db</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">column_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">column_name</span><span class="p">,</span> <span class="n">letter_case_in_db</span><span class="p">)()</span>
+        <span class="n">schema_dict</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">_dialects</span><span class="o">.</span><span class="n">parse_db_dtype_to_ibis_dtype</span><span class="p">(</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">data_type</span><span class="p">,</span> <span class="n">ibis_dialect</span><span class="o">=</span><span class="n">ibis_dialect</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">ibis</span><span class="o">.</span><span class="n">schema</span><span class="p">(</span><span class="n">schema_dict</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_to_dbt_sql</span><span class="p">(</span>
+    <span class="n">ibis_expr</span><span class="p">:</span> <span class="n">ibis</span><span class="o">.</span><span class="n">expr</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">Table</span><span class="p">,</span> <span class="n">ibis_dialect</span><span class="p">:</span> <span class="n">_dialects</span><span class="o">.</span><span class="n">IbisDialect</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">sql</span> <span class="o">=</span> <span class="n">_dialects</span><span class="o">.</span><span class="n">ibis_expr_to_sql</span><span class="p">(</span><span class="n">ibis_expr</span><span class="p">,</span> <span class="n">ibis_dialect</span><span class="o">=</span><span class="n">ibis_dialect</span><span class="p">)</span>
+    <span class="n">capture_pattern</span> <span class="o">=</span> <span class="s2">&quot;(.+?)&quot;</span>
+
+    <span class="c1"># Remove quotation marks around the source name and table name as</span>
+    <span class="c1"># quoting identifiers should be handled by DBT in case it is needed.</span>
+    <span class="n">quotation_marks_pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;&quot;?&#39;</span>
+
+    <span class="c1"># Insert ref jinja function</span>
+    <span class="n">sql</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+        <span class="n">quotation_marks_pattern</span>
+        <span class="o">+</span> <span class="n">_REF_IDENTIFIER_PREFIX</span>
+        <span class="o">+</span> <span class="n">capture_pattern</span>
+        <span class="o">+</span> <span class="n">_REF_IDENTIFIER_SUFFIX</span>
+        <span class="o">+</span> <span class="n">quotation_marks_pattern</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;{{ ref(&#39;\1&#39;) }}&quot;</span><span class="p">,</span>
+        <span class="n">sql</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Insert source jinja function</span>
+    <span class="n">sql</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+        <span class="n">quotation_marks_pattern</span>
+        <span class="o">+</span> <span class="n">_SOURCE_IDENTIFIER_PREFIX</span>
+        <span class="o">+</span> <span class="n">capture_pattern</span>
+        <span class="o">+</span> <span class="n">_SOURCE_IDENTIFIER_SEPARATOR</span>
+        <span class="o">+</span> <span class="n">capture_pattern</span>
+        <span class="o">+</span> <span class="n">_SOURCE_IDENTIFIER_SUFFIX</span>
+        <span class="o">+</span> <span class="n">quotation_marks_pattern</span><span class="p">,</span>
+        <span class="sa">r</span><span class="s2">&quot;{{ source(&#39;\1&#39;, &#39;\2&#39;) }}&quot;</span><span class="p">,</span>
+        <span class="n">sql</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">sql</span>
+
+
+<span class="k">def</span> <span class="nf">_clean_up_unused_sql_files</span><span class="p">(</span>
+    <span class="n">used_sql_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span>
+    <span class="n">project_root</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deletes all .sql files in any of the _IBIS_SQL_FOLDER_NAME folders which</span>
+<span class="sd">    are not referenced by any Ibis expression. This takes care of the case where</span>
+<span class="sd">    a user deletes an Ibis expression but the .sql file remains.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">all_sql_files</span> <span class="o">=</span> <span class="n">_glob_in_paths</span><span class="p">(</span>
+        <span class="n">project_root</span><span class="o">=</span><span class="n">project_root</span><span class="p">,</span>
+        <span class="n">paths</span><span class="o">=</span><span class="n">paths</span><span class="p">,</span>
+        <span class="n">pattern</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;**/</span><span class="si">{</span><span class="n">_IBIS_SQL_FOLDER_NAME</span><span class="si">}</span><span class="s2">/*.sql&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Resolve to absolute paths so we can compare them</span>
+    <span class="n">all_sql_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">all_sql_files</span><span class="p">]</span>
+    <span class="n">used_sql_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">used_sql_files</span><span class="p">]</span>
+    <span class="n">unused_sql_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">all_sql_files</span> <span class="k">if</span> <span class="n">f</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">used_sql_files</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">unused_sql_files</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">unused_sql_files</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cleaned up </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unused_sql_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> unused .sql files&quot;</span>
+            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; in your </span><span class="si">{</span><span class="n">_IBIS_SQL_FOLDER_NAME</span><span class="si">}</span><span class="s2"> folders&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">dbt_subcommand</span><span class="p">,</span> <span class="n">dbt_parse_arguments</span> <span class="o">=</span> <span class="n">_parse_cli_arguments</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">dbt_subcommand</span> <span class="o">!=</span> <span class="s2">&quot;deps&quot;</span><span class="p">:</span>
+        <span class="c1"># If it&#39;s deps, we cannot yet parse the dbt project as it will raise</span>
+        <span class="c1"># an error due to missing dependencies. We also don&#39;t need to so that&#39;s fine</span>
+        <span class="n">compile_ibis_to_sql</span><span class="p">(</span><span class="n">dbt_parse_arguments</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dbt_subcommand</span> <span class="o">!=</span> <span class="s2">&quot;precompile&quot;</span><span class="p">:</span>
+        <span class="c1"># Execute the actual dbt command</span>
+        <span class="n">process</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;dbt&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span>  <span class="c1"># noqa: S603</span>
+            <span class="n">stdout</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span>
+            <span class="n">stderr</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">process</span><span class="o">.</span><span class="n">returncode</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Stefan Binder
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=5b4479735964841361fd"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=5b4479735964841361fd"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
