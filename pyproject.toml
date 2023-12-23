@@ -139,5 +139,5 @@ module = ["ibis.*", "dbt.*", "pandas.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "tests.*"
+module = ["tests.*", "demo_project.*"]
 disallow_untyped_defs = false
