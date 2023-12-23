@@ -24,21 +24,23 @@ from dbt.parser import manifest
 from dbt_ibis import (
     _IBIS_SQL_FOLDER_NAME,
     _clean_up_unused_sql_files,
-    _columns_to_ibis_schema,
     _disable_node_not_found_error,
-    _extract_ref_and_source_infos,
     _get_expr_func,
     _get_ibis_expr_infos,
-    _get_schema_for_ref,
-    _get_schema_for_source,
     _IbisExprInfo,
     _parse_cli_arguments,
-    _sort_ibis_exprs_by_dependencies,
-    _to_dbt_sql,
     compile_ibis_to_sql,
     depends_on,
     ref,
     source,
+)
+from dbt_ibis._compile import (
+    _columns_to_ibis_schema,
+    _extract_ref_and_source_infos,
+    _get_schema_for_ref,
+    _get_schema_for_source,
+    _sort_ibis_exprs_by_dependencies,
+    _to_dbt_sql,
 )
 from dbt_ibis._dialects import IbisDialect
 
@@ -198,7 +200,7 @@ def test_ibis_model():
     model = _IbisExprInfo(
         ibis_path=Path("path/to/some_model.ibis"),
         depends_on=references,
-        func=lambda: None,
+        func=lambda: None,  # type: ignore[arg-type,return-value]
     )
 
     assert model.name == "some_model"
@@ -239,7 +241,7 @@ def test_sort_ibis_models_by_dependencies():
         _IbisExprInfo(
             ibis_path=Path("path/to/another_model.ibis"),
             depends_on=[ref("some_model")],
-            func=lambda: None,
+            func=lambda: None,  # type: ignore[arg-type,return-value]
         ),
         _IbisExprInfo(
             ibis_path=Path("path/to/some_model.ibis"),
@@ -248,7 +250,7 @@ def test_sort_ibis_models_by_dependencies():
             # when building a dependency graph and this function
             # does not suddenly treat source and ref the same.
             depends_on=[source("source1", "another_model")],
-            func=lambda: None,
+            func=lambda: None,  # type: ignore[arg-type,return-value]
         ),
     ]
 
