@@ -7,7 +7,7 @@ from typing import Final
 import duckdb
 import ibis
 import ibis.expr.datatypes as dt
-import ibis.expr.types.relations as ir
+import ibis.expr.types as ir
 import pandas as pd
 import pytest
 from dbt.contracts.graph.manifest import Manifest
@@ -24,21 +24,23 @@ from dbt.parser import manifest
 from dbt_ibis import (
     _IBIS_SQL_FOLDER_NAME,
     _clean_up_unused_sql_files,
-    _columns_to_ibis_schema,
     _disable_node_not_found_error,
-    _extract_ref_and_source_infos,
     _get_expr_func,
     _get_ibis_expr_infos,
-    _get_schema_for_ref,
-    _get_schema_for_source,
     _IbisExprInfo,
     _parse_cli_arguments,
-    _sort_ibis_exprs_by_dependencies,
-    _to_dbt_sql,
     compile_ibis_to_sql,
     depends_on,
     ref,
     source,
+)
+from dbt_ibis._compile import (
+    _columns_to_ibis_schema,
+    _extract_ref_and_source_infos,
+    _get_schema_for_ref,
+    _get_schema_for_source,
+    _sort_ibis_exprs_by_dependencies,
+    _to_dbt_sql,
 )
 from dbt_ibis._dialects import IbisDialect
 
