@@ -7,7 +7,7 @@ from typing import Final
 import duckdb
 import ibis
 import ibis.expr.datatypes as dt
-import ibis.expr.types.relations as ir
+import ibis.expr.types as ir
 import pandas as pd
 import pytest
 from dbt.contracts.graph.manifest import Manifest

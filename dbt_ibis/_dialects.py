@@ -1,8 +1,9 @@
 from typing import NewType
 
+import ibis
 import ibis.backends.base.sqlglot.datatypes as sqlglot_dt
 import ibis.expr.datatypes as dt
-import ibis.expr.types
+import ibis.expr.types as ir
 from dbt.contracts.graph.manifest import Manifest
 from ibis.formats import TypeMapper
 
@@ -63,9 +64,7 @@ def parse_db_dtype_to_ibis_dtype(
     return type_mapper.from_string(db_dtype)
 
 
-def ibis_expr_to_sql(
-    ibis_expr: ibis.expr.types.Table, ibis_dialect: IbisDialect
-) -> str:
+def ibis_expr_to_sql(ibis_expr: ir.Table, ibis_dialect: IbisDialect) -> str:
     # Return type of .to_sql is SqlString which is a normal string with some
     # custom repr methods -> Convert it to a normal string here to make it easier
     # for mypy.

@@ -6,7 +6,6 @@ import logging
 import re
 import subprocess
 import sys
-from abc import ABC, abstractproperty
 from collections import defaultdict
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -20,7 +19,7 @@ from typing import Any, Callable, Final, Literal, Optional, Union
 import click
 import ibis
 import ibis.expr.datatypes as dt
-import ibis.expr.types
+import ibis.expr.types as ir
 from dbt.cli.main import cli, p, requires
 from dbt.config import RuntimeConfig
 from dbt.contracts.graph.manifest import Manifest
@@ -34,12 +33,18 @@ from dbt.contracts.graph.nodes import (
 from dbt.parser import manifest
 
 from dbt_ibis import _dialects
+from dbt_ibis._references import (
+    _REF_IDENTIFIER_PREFIX,
+    _REF_IDENTIFIER_SUFFIX,
+    _SOURCE_IDENTIFIER_PREFIX,
+    _SOURCE_IDENTIFIER_SEPARATOR,
+    _SOURCE_IDENTIFIER_SUFFIX,
+    _Reference,
+    depends_on,
+    ref,
+    source,
+)
 
-_REF_IDENTIFIER_PREFIX: Final = "__ibd_ref__"
-_REF_IDENTIFIER_SUFFIX: Final = "__rid__"
-_SOURCE_IDENTIFIER_PREFIX: Final = "__ibd_source__"
-_SOURCE_IDENTIFIER_SUFFIX: Final = "__sid__"
-_SOURCE_IDENTIFIER_SEPARATOR: Final = "__ibd_sep__"
 _IBIS_FILE_EXTENSION: Final = "ibis"
 _IBIS_SQL_FOLDER_NAME: Final = "__ibis_sql"
 
@@ -67,83 +72,11 @@ logger = logging.getLogger(__name__)
 _configure_logging(logger)
 
 
-class _Reference(ABC):
-    @abstractproperty
-    def _ibis_table_name(self) -> str:
-        pass
-
-    def to_ibis(
-        self, schema: Union[ibis.Schema, dict[str, dt.DataType]]
-    ) -> ibis.expr.types.Table:
-        if schema is None:
-            raise NotImplementedError
-        return ibis.table(
-            schema,
-            name=self._ibis_table_name,
-        )
-
-
-@dataclass
-class ref(_Reference):
-    """A reference to a dbt model."""
-
-    name: str
-
-    @property
-    def _ibis_table_name(self) -> str:
-        return _REF_IDENTIFIER_PREFIX + self.name + _REF_IDENTIFIER_SUFFIX
-
-
-@dataclass
-class source(_Reference):
-    """A reference to a dbt source."""
-
-    source_name: str
-    table_name: str
-
-    @property
-    def _ibis_table_name(self) -> str:
-        return (
-            _SOURCE_IDENTIFIER_PREFIX
-            + self.source_name
-            + _SOURCE_IDENTIFIER_SEPARATOR
-            + self.table_name
-            + _SOURCE_IDENTIFIER_SUFFIX
-        )
-
-
-# Type hints could be improved here. Could use a typing.Protocol with a typed __call__
-# method to indicate that the function that is wrapped by depends_on needs to be
-# callable, accept a variadic number of _Reference arguments and needs to
-# return an ibis Table
-def depends_on(*references: _Reference) -> Callable:
-    """Decorator to specify the dependencies of an Ibis model. You can pass
-    either dbt_ibis.ref or dbt_ibis.source objects as arguments.
-    """
-    if not all(isinstance(r, _Reference) for r in references):
-        raise ValueError(
-            "All arguments to depends_on need to be either an instance of"
-            + " dbt_ibis.ref or dbt_ibis.source"
-        )
-
-    def decorator(
-        func: Callable[..., ibis.expr.types.Table],
-    ) -> Callable[..., ibis.expr.types.Table]:
-        @wraps(func)
-        def wrapper(*args: _Reference, **kwargs: _Reference) -> ibis.expr.types.Table:
-            return func(*args, **kwargs)
-
-        wrapper.depends_on = references  # type: ignore[attr-defined]
-        return wrapper
-
-    return decorator
-
-
 @dataclass
 class _IbisExprInfo:
     ibis_path: Path
     depends_on: list[_Reference]
-    func: Callable[..., ibis.expr.types.Table]
+    func: Callable[..., ir.Table]
 
     @property
     def name(self) -> str:
@@ -318,7 +251,7 @@ def compile_ibis_to_sql(dbt_parse_arguments: Optional[list[str]] = None) -> None
         ibis_expr_schemas: dict[str, ibis.Schema] = {}
         # Convert Ibis expressions to SQL and write to file
         for ibis_expr_info in all_ibis_expr_infos:
-            references: list[ibis.expr.types.Table] = []
+            references: list[ir.Table] = []
             for r in ibis_expr_info.depends_on:
                 if isinstance(r, source):
                     schema = _get_schema_for_source(
@@ -364,8 +297,8 @@ def compile_ibis_to_sql(dbt_parse_arguments: Optional[list[str]] = None) -> None
 
 
 def _set_letter_case_on_ibis_expression(
-    ibis_expr: ibis.expr.types.Table, letter_case: Optional[_LetterCase]
-) -> ibis.expr.types.Table:
+    ibis_expr: ir.Table, letter_case: Optional[_LetterCase]
+) -> ir.Table:
     if letter_case == "upper":
         ibis_expr = ibis_expr.rename("ALL_CAPS")
     elif letter_case == "lower":
@@ -445,7 +378,7 @@ def _glob_in_paths(
     return matches
 
 
-def _get_expr_func(file: Path) -> Callable[..., ibis.expr.types.Table]:
+def _get_expr_func(file: Path) -> Callable[..., ir.Table]:
     # Name arguments to spec_from_loader and SourceFileLoader probably don't matter
     # but maybe a good idea to keep them unique across the expressions
     spec = spec_from_loader(file.stem, SourceFileLoader(file.stem, str(file)))
@@ -622,9 +555,7 @@ def _columns_to_ibis_schema(
     return ibis.schema(schema_dict)
 
 
-def _to_dbt_sql(
-    ibis_expr: ibis.expr.types.Table, ibis_dialect: _dialects.IbisDialect
-) -> str:
+def _to_dbt_sql(ibis_expr: ir.Table, ibis_dialect: _dialects.IbisDialect) -> str:
     sql = _dialects.ibis_expr_to_sql(ibis_expr, ibis_dialect=ibis_dialect)
     capture_pattern = "(.+?)"
 
