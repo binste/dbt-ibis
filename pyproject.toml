@@ -40,6 +40,7 @@ dev = [
     "ibis-framework[duckdb]",
 ]
 doc = ["jupyter-book", "ghp-import"]
+jupyter = ["nbformat"]
 
 [tool.hatch.version]
 path = "dbt_ibis/__init__.py"
