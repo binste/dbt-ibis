@@ -19,13 +19,38 @@ class _Reference(ABC):
     def _ibis_table_name(self) -> str:
         pass
 
-    def to_ibis(self, schema: Union[ibis.Schema, dict[str, dt.DataType]]) -> ir.Table:
-        if schema is None:
-            raise NotImplementedError
-        return ibis.table(
-            schema,
-            name=self._ibis_table_name,
-        )
+    @abstractproperty
+    def table_name(self) -> str:
+        pass
+
+    def to_ibis_table(
+        self,
+        schema_definition: Union[ibis.Schema, dict[str, dt.DataType]] | None = None,
+        con: ibis.BaseBackend | None = None,
+        schema_name: str | None = None,
+        database_name: str | None = None,
+    ) -> ir.Table:
+        if schema_definition is None and con is None:
+            raise ValueError(
+                "Either schema_definition or an Ibis backend need to be provided"
+            )
+        if schema_definition is not None and con is not None:
+            raise ValueError(
+                "Either schema_definition or an Ibis backend need to be provided"
+                + " but not both"
+            )
+
+        if schema_definition is not None:
+            return ibis.table(
+                schema_definition,
+                name=self._ibis_table_name,
+            )
+        else:
+            return con.table(
+                self.table_name,
+                schema=schema_name,
+                database=database_name,
+            )
 
 
 @dataclass
@@ -37,6 +62,10 @@ class ref(_Reference):
     @property
     def _ibis_table_name(self) -> str:
         return _REF_IDENTIFIER_PREFIX + self.name + _REF_IDENTIFIER_SUFFIX
+
+    @property
+    def table_name(self) -> str:
+        return self.name
 
 
 @dataclass
