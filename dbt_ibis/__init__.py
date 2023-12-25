@@ -150,13 +150,13 @@ def main() -> None:
         file_extension = file_path.suffix
         from dbt_ibis._jupyter import (
             convert_ibis_file_to_notebook,
+            convert_notebook_to_ibis_file,
         )
 
         if file_extension == f".{_IBIS_FILE_EXTENSION}":
             convert_ibis_file_to_notebook(file_path)
         elif file_extension == ".ipynb":
-            raise NotImplementedError
-            # convert_notebook_to_ibis_file(file_path)
+            convert_notebook_to_ibis_file(file_path)
         else:
             raise ValueError(
                 f"Cannot convert file with extension {file_extension}."
