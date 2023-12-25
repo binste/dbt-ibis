@@ -145,10 +145,23 @@ def _clean_up_unused_sql_files(
 
 
 def main() -> None:
-    if sys.argv[1] == "develop":
-        from dbt_ibis._jupyter import convert_ibis_file_to_notebook
+    if sys.argv[1] == "convert":
+        file_path = Path(sys.argv[2])
+        file_extension = file_path.suffix
+        from dbt_ibis._jupyter import (
+            convert_ibis_file_to_notebook,
+        )
 
-        convert_ibis_file_to_notebook(sys.argv[2])
+        if file_extension == f".{_IBIS_FILE_EXTENSION}":
+            convert_ibis_file_to_notebook(file_path)
+        elif file_extension == ".ipynb":
+            raise NotImplementedError
+            # convert_notebook_to_ibis_file(file_path)
+        else:
+            raise ValueError(
+                f"Cannot convert file with extension {file_extension}."
+                + f" Only .{_IBIS_FILE_EXTENSION} and .ipynb are supported."
+            )
         return
 
     # Normal dbt commands + precompile from here on
