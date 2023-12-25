@@ -145,6 +145,13 @@ def _clean_up_unused_sql_files(
 
 
 def main() -> None:
+    if sys.argv[1] == "develop":
+        from dbt_ibis._jupyter import convert_ibis_file_to_notebook
+
+        convert_ibis_file_to_notebook(sys.argv[2])
+        return
+
+    # Normal dbt commands + precompile from here on
     dbt_subcommand, dbt_parse_arguments = _parse_cli_arguments()
     if dbt_subcommand != "deps":
         # If it's deps, we cannot yet parse the dbt project as it will raise
