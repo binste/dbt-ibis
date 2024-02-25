@@ -71,6 +71,9 @@ build-and-publish = ["clean", "build", "publish"]
 [tool.ruff]
 target-version = "py39"
 line-length = 88
+exclude = [".git", "build", "__pycache__", "demo_project"]
+
+[tool.ruff.lint]
 select = [
     # flake8-bugbear
     "B",
@@ -119,9 +122,8 @@ ignore = [
     "RUF010",
     "ISC001",
 ]
-exclude = [".git", "build", "__pycache__", "demo_project"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 # Allow assert statements in test files
 "tests/**/*.py" = ["S101"]
 
