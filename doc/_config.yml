@@ -3,6 +3,8 @@
 
 title: dbt-ibis
 author: Stefan Binder
+# This should be the year of the first publishing of the docs:
+copyright: "2023"
 
 # Force re-execution of notebooks on each build.
 # See https://jupyterbook.org/content/execute.html
