@@ -36,14 +36,18 @@
 
 9. Add release in https://github.com/binste/dbt-ibis/releases and select the version tag
 
-10. Update version to e.g. 0.3.0dev in `dbt_ibis/__init__.py` in new branch
+10. Double-check that a conda-forge pull request is generated from the updated
+    pip package by the conda-forge bot (may take up to ~an hour):
+    https://github.com/conda-forge/dbt-ibis-feedstock/pulls
+
+11. Update version to e.g. 0.3.0dev in `dbt_ibis/__init__.py` in new branch
 
         git switch -c maint_0.3.0dev
 
-11. Commit change and push:
+12. Commit change and push:
 
         git add . -u
         git commit -m "MAINT: Bump version to 0.3.0dev"
         git push
 
-12. Merge maintenance branch into main
+13. Merge maintenance branch into main
