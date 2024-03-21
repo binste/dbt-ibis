@@ -11,10 +11,13 @@ def model(stores):
     return stores.filter(stores["country"] == "USA")
 ```
 
-You can install `dbt-ibis` via pip:
+You can install `dbt-ibis` via pip or conda:
 ```bash
 pip install dbt-ibis
+# or
+conda install -c conda-forge dbt-ibis
 ```
+
 In addition, you'll need to install the relevant [`Ibis` backend](https://ibis-project.org/install) for your database.
 
 You can read about the advantages of combining dbt and Ibis in [this blog post](https://ibis-project.org/posts/dbt-ibis/).

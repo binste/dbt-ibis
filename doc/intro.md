@@ -13,10 +13,13 @@ Supported dbt adapters:
 * Oracle
 
 ## Installation
-You can install `dbt-ibis` via pip:
+You can install `dbt-ibis` via pip or conda:
 ```bash
 pip install dbt-ibis
+# or
+conda install -c conda-forge dbt-ibis
 ```
+
 In addition, you'll need to install the relevant [`ibis` backend](https://ibis-project.org/install) for your database.
 
 ## Why dbt and Ibis go great together
