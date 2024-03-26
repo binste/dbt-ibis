@@ -6,15 +6,17 @@ import ibis.expr.datatypes as dt
 import ibis.expr.types as ir
 from dbt.contracts.graph.manifest import Manifest
 from ibis.formats import TypeMapper
+from packaging.version import Version
 
+if Version(ibis.__version__) >= Version("7.2"):
+    from ibis.backends.bigquery.datatypes import BigQueryType
+else:
 
-# Custom BigQuery type until a corresponding one is implemented in Ibis itself.
-# See https://github.com/ibis-project/ibis/issues/7531
-class BigQueryType(sqlglot_dt.SqlglotType):
-    dialect = "bigquery"
+    class BigQueryType(sqlglot_dt.SqlglotType):  # type: ignore[no-redef]
+        dialect = "bigquery"
 
-    default_decimal_precision = 38
-    default_decimal_scale = 9
+        default_decimal_precision = 38
+        default_decimal_scale = 9
 
 
 # Use NewType to make sure that we don't accidentally mix these up, i.e.
