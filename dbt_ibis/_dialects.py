@@ -1,21 +1,11 @@
 from typing import NewType
 
 import ibis
-import ibis.backends.base.sqlglot.datatypes as sqlglot_dt
+import ibis.backends.sql.datatypes as sql_dt
 import ibis.expr.datatypes as dt
 import ibis.expr.types as ir
 from dbt.contracts.graph.manifest import Manifest
 from ibis.formats import TypeMapper
-
-
-# Custom BigQuery type until a corresponding one is implemented in Ibis itself.
-# See https://github.com/ibis-project/ibis/issues/7531
-class BigQueryType(sqlglot_dt.SqlglotType):
-    dialect = "bigquery"
-
-    default_decimal_precision = 38
-    default_decimal_scale = 9
-
 
 # Use NewType to make sure that we don't accidentally mix these up, i.e.
 # pass a DBTAdapterType to a function that expects an IbisDialect or vice versa.
@@ -35,14 +25,14 @@ DBTAdapterTypeToIbisDialect: dict[DBTAdapterType, IbisDialect] = {
 }
 
 IbisDialectToTypeMapper: dict[IbisDialect, type[TypeMapper]] = {
-    IbisDialect("postgres"): sqlglot_dt.PostgresType,
-    IbisDialect("snowflake"): sqlglot_dt.SnowflakeType,
-    IbisDialect("trino"): sqlglot_dt.TrinoType,
-    IbisDialect("mysql"): sqlglot_dt.MySQLType,
-    IbisDialect("sqlite"): sqlglot_dt.SQLiteType,
-    IbisDialect("oracle"): sqlglot_dt.OracleType,
-    IbisDialect("duckdb"): sqlglot_dt.DuckDBType,
-    IbisDialect("bigquery"): BigQueryType,
+    IbisDialect("postgres"): sql_dt.PostgresType,
+    IbisDialect("snowflake"): sql_dt.SnowflakeType,
+    IbisDialect("trino"): sql_dt.TrinoType,
+    IbisDialect("mysql"): sql_dt.MySQLType,
+    IbisDialect("sqlite"): sql_dt.SQLiteType,
+    IbisDialect("oracle"): sql_dt.OracleType,
+    IbisDialect("duckdb"): sql_dt.DuckDBType,
+    IbisDialect("bigquery"): sql_dt.BigQueryType,
 }
 
 

@@ -9,7 +9,7 @@
 3. Commit change and push:
 
         git add . -u
-        git commit -m "MAINT: Bump version to 0.2.0"
+        git commit -m "maint: Bump version to 0.2.0"
         git push
 
 4. Merge release branch into main, make sure that all required checks pass
@@ -47,7 +47,7 @@
 12. Commit change and push:
 
         git add . -u
-        git commit -m "MAINT: Bump version to 0.3.0dev"
+        git commit -m "maint: Bump version to 0.3.0dev"
         git push
 
 13. Merge maintenance branch into main

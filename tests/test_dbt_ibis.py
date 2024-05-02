@@ -413,14 +413,14 @@ def test_to_dbt_sql():
 
     assert (
         dbt_sql
-        == """\
+        == '''\
 SELECT
-  t0.order_id,
-  t0.customer_id,
-  t1.customer_id AS customer_id_right
-FROM {{ source('source1', 'orders') }} AS t0
-LEFT OUTER JOIN {{ ref('stg_customers') }} AS t1
-  ON t0.customer_id = t1.customer_id"""
+  "t2"."order_id",
+  "t2"."customer_id",
+  "t3"."customer_id" AS "customer_id_right"
+FROM {{ source('source1', 'orders') }} AS "t2"
+LEFT OUTER JOIN {{ ref('stg_customers') }} AS "t3"
+  ON "t2"."customer_id" = "t3"."customer_id"'''
     )
 
 
@@ -540,12 +540,12 @@ def validate_compiled_sql_files(project_dir: Path) -> list[Path]:
     stg_stores = next(p for p in compiled_sql_files if p.stem == "stg_stores")
     assert (
         stg_stores.read_text()
-        == """\
+        == '''\
 SELECT
-  CAST(t0.store_id AS BIGINT) AS store_id,
-  t0.store_name,
-  t0.country
-FROM {{ source('sources_db', 'stores') }} AS t0"""
+  CAST("t0"."store_id" AS BIGINT) AS "store_id",
+  "t0"."store_name",
+  "t0"."country"
+FROM {{ source('sources_db', 'stores') }} AS "t0"'''
     )
 
     usa_stores = stg_stores = next(
@@ -555,12 +555,10 @@ FROM {{ source('sources_db', 'stores') }} AS t0"""
         usa_stores.read_text()
         == """\
 SELECT
-  t0.store_id,
-  t0.store_name,
-  t0.country
-FROM {{ ref('stg_stores') }} AS t0
+  *
+FROM {{ ref('stg_stores') }} AS "t0"
 WHERE
-  t0.country = 'USA'"""
+  "t0"."country" = 'USA'"""
     )
     return compiled_sql_files
 
