@@ -1,5 +1,5 @@
 __all__ = ["ref", "source", "depends_on", "compile_ibis_to_sql"]
-__version__ = "0.9.0"
+__version__ = "0.10.0dev"
 
 import logging
 import subprocess
