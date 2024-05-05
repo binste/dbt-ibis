@@ -147,7 +147,7 @@ def test_ref():
     assert stg_orders.name == model_name
 
     schema = ibis.schema({"col1": "int"})
-    ibis_table = stg_orders.to_ibis(schema=schema)
+    ibis_table = stg_orders.to_ibis_table(schema_definition=schema)
 
     assert isinstance(ibis_table, ir.Table)
     assert ibis_table.schema() == schema
@@ -163,7 +163,7 @@ def test_source():
     assert orders.table_name == table_name
 
     schema = ibis.schema({"col1": "int"})
-    ibis_table = orders.to_ibis(schema=schema)
+    ibis_table = orders.to_ibis_table(schema_definition=schema)
 
     assert isinstance(ibis_table, ir.Table)
     assert ibis_table.schema() == schema
@@ -395,13 +395,13 @@ def test_columns_to_ibis_schema():
 
 def test_to_dbt_sql():
     orders = source("source1", "orders")
-    orders_table = orders.to_ibis(
-        schema=ibis.schema({"order_id": "int", "customer_id": "int"})
+    orders_table = orders.to_ibis_table(
+        schema_definition=ibis.schema({"order_id": "int", "customer_id": "int"})
     )
 
     stg_customers = ref("stg_customers")
-    stg_customers_table = stg_customers.to_ibis(
-        schema=ibis.schema({"customer_id": "int"})
+    stg_customers_table = stg_customers.to_ibis_table(
+        schema_definition=ibis.schema({"customer_id": "int"})
     )
 
     model_expr = orders_table.join(
