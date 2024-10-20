@@ -141,7 +141,7 @@ def disable_node_not_found_error() -> Iterator[None]:
     """
     original_func = manifest.invalid_target_fail_unless_test
 
-    def _do_nothing(*args: Any, **kwargs: Any) -> None:  # noqa: ARG001
+    def _do_nothing(*args: Any, **kwargs: Any) -> None:
         pass
 
     try:

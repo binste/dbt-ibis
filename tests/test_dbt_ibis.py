@@ -47,7 +47,7 @@ from dbt_ibis._dialects import IbisDialect
 TEST_IBIS_DIALECT: Final = IbisDialect("duckdb")
 
 
-@pytest.fixture()
+@pytest.fixture
 def stg_orders_model_node():
     return ModelNode(
         name="stg_orders",
@@ -65,7 +65,7 @@ def stg_orders_model_node():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def raw_payments_seed_node():
     return SeedNode(
         name="raw_payments",
@@ -83,7 +83,7 @@ def raw_payments_seed_node():
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def orders_source_definition():
     return SourceDefinition(
         name="orders",
@@ -111,7 +111,7 @@ def get_compiled_sql_files(project_dir: Path) -> list[Path]:
     return list(project_dir.glob(f"models/**/{_IBIS_SQL_FOLDER_NAME}/*.sql"))
 
 
-@pytest.fixture()
+@pytest.fixture
 def project_dir_and_database_file(monkeypatch) -> tuple[Path, Path]:
     # Remove files which might exist from
     # a previous test run which can happen if the tests are run locally, i.e.
@@ -524,8 +524,8 @@ def test_parse_cli_arguments(mocker):
 
 
 def execute_command(cmd: list[str]) -> None:
-    process = subprocess.run(
-        cmd,  # noqa: S603
+    process = subprocess.run(  # noqa: S603
+        cmd,
         stdout=sys.stdout,
         stderr=sys.stderr,
     )
