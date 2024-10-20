@@ -183,8 +183,8 @@ def main() -> None:
         compile_ibis_to_sql(dbt_parse_arguments)
     if dbt_subcommand != "precompile":
         # Execute the actual dbt command
-        process = subprocess.run(
-            ["dbt"] + sys.argv[1:],  # noqa: S603
+        process = subprocess.run(  # noqa: S603
+            ["dbt"] + sys.argv[1:],
             stdout=sys.stdout,
             stderr=sys.stderr,
         )
