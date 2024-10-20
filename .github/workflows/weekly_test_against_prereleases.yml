@@ -1,0 +1,24 @@
+name: weekly_test_against_prereleases
+
+on:
+  schedule:
+    - cron: "0 10 * * 0"
+
+jobs:
+  test-and-lint:
+    name: Run linters and tests ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install latest prebuilds of packages
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .[dev]
+          python -m pip install --pre --upgrade dbt-core ibis-framework[duckdb]
+      - name: Run tests
+        run: |
+          python -m pytest tests
