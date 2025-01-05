@@ -9,7 +9,7 @@ dependencies = ["dbt-core>=1.5", "ibis-framework>=9", "click"]
 readme = "README.md"
 requires-python = ">=3.9"
 dynamic = ["version"]
-license-files = { paths = ["LICENSE"] }
+license-files = ["LICENSE"]
 classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
