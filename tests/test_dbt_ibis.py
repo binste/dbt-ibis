@@ -567,9 +567,9 @@ def test_precompile_command(project_dir_and_database_file: tuple[Path, Path]):
     project_dir, database_file = project_dir_and_database_file
     execute_command(["dbt-ibis", "precompile"])
 
-    assert (
-        not database_file.exists()
-    ), "Database was created although precompile command should not create it."
+    assert not database_file.exists(), (
+        "Database was created although precompile command should not create it."
+    )
     validate_compiled_sql_files(project_dir)
 
 
@@ -577,9 +577,9 @@ def test_compile_ibis_to_sql(project_dir_and_database_file: tuple[Path, Path]):
     project_dir, database_file = project_dir_and_database_file
     compile_ibis_to_sql()
 
-    assert (
-        not database_file.exists()
-    ), "Database was created although precompile command should not create it."
+    assert not database_file.exists(), (
+        "Database was created although precompile command should not create it."
+    )
     validate_compiled_sql_files(project_dir)
 
 
@@ -652,9 +652,9 @@ def test_end_to_end(project_dir_and_database_file: tuple[Path, Path]):
     )
 
     # Check for one Ibis model that the data is what we expect
-    assert any(
-        p.stem == "usa_stores" for p in compiled_sql_files
-    ), "usa_stores is no longer an Ibis model. Adapt test below to use one."
+    assert any(p.stem == "usa_stores" for p in compiled_sql_files), (
+        "usa_stores is no longer an Ibis model. Adapt test below to use one."
+    )
     db_con = get_db_con()
     usa_stores_df = db_con.execute(
         "select * from usa_stores order by store_id"
