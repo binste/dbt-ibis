@@ -96,7 +96,7 @@ def compile_ibis_expressions_to_sql(
                 )
             else:
                 raise ValueError(f"Unknown reference type: {type(r)}")
-            ibis_table = r.to_ibis(schema)
+            ibis_table = r.to_ibis_table(schema)
             ibis_table = _set_letter_case_on_ibis_expression(
                 ibis_table, letter_case_in_expr
             )

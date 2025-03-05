@@ -4,12 +4,9 @@ __version__ = "0.11.0dev"
 import logging
 import subprocess
 import sys
-from importlib.machinery import SourceFileLoader
-from importlib.util import module_from_spec, spec_from_loader
 from pathlib import Path
-from typing import Callable, Optional, Union
+from typing import Optional, Union
 
-import ibis.expr.types as ir
 from dbt.cli.main import cli
 
 from dbt_ibis import _dialects
@@ -19,6 +16,8 @@ from dbt_ibis._compile import IbisExprInfo as _IbisExprInfo
 from dbt_ibis._compile import (
     compile_ibis_expressions_to_sql as _compile_ibis_expressions_to_sql,
 )
+from dbt_ibis._extract import get_expr_func as _get_expr_func
+from dbt_ibis._extract import glob_in_paths as _glob_in_paths
 from dbt_ibis._logging import configure_logging as _configure_logging
 from dbt_ibis._parse_dbt_project import (
     disable_node_not_found_error as _disable_node_not_found_error,
@@ -79,6 +78,24 @@ def compile_ibis_to_sql(dbt_parse_arguments: Optional[list[str]] = None) -> None
         logger.info("Finished compiling Ibis expressions to SQL")
 
 
+def _get_ibis_expr_infos(
+    project_root: Union[str, Path], paths: list[str]
+) -> list[_IbisExprInfo]:
+    ibis_files = _glob_in_paths(
+        project_root=project_root,
+        paths=paths,
+        pattern=f"**/*.{_IBIS_FILE_EXTENSION}",
+    )
+    ibis_expr_infos: list[_IbisExprInfo] = []
+    for file in ibis_files:
+        func = _get_expr_func(file)
+        depends_on = getattr(func, "depends_on", [])
+        ibis_expr_infos.append(
+            _IbisExprInfo(ibis_path=file, depends_on=depends_on, func=func)
+        )
+    return ibis_expr_infos
+
+
 def _parse_cli_arguments() -> tuple[str, list[str]]:
     # First argument of sys.argv is path to this file. We then look for
     # the name of the actual dbt subcommand that the user wants to run and ignore
@@ -98,54 +115,6 @@ def _parse_cli_arguments() -> tuple[str, list[str]]:
     args = all_args[subcommand_idx + 1 :]
     subcommand = all_args[subcommand_idx]
     return subcommand, args
-
-
-def _get_ibis_expr_infos(
-    project_root: Union[str, Path], paths: list[str]
-) -> list[_IbisExprInfo]:
-    ibis_files = _glob_in_paths(
-        project_root=project_root,
-        paths=paths,
-        pattern=f"**/*.{_IBIS_FILE_EXTENSION}",
-    )
-    ibis_expr_infos: list[_IbisExprInfo] = []
-    for file in ibis_files:
-        func = _get_expr_func(file)
-        depends_on = getattr(func, "depends_on", [])
-        ibis_expr_infos.append(
-            _IbisExprInfo(ibis_path=file, depends_on=depends_on, func=func)
-        )
-    return ibis_expr_infos
-
-
-def _glob_in_paths(
-    project_root: Union[str, Path], paths: list[str], pattern: str
-) -> list[Path]:
-    if isinstance(project_root, str):
-        project_root = Path(project_root)
-
-    matches: list[Path] = []
-    for m_path in paths:
-        matches.extend(list((project_root / m_path).glob(pattern)))
-    return matches
-
-
-def _get_expr_func(file: Path) -> Callable[..., ir.Table]:
-    # Name arguments to spec_from_loader and SourceFileLoader probably don't matter
-    # but maybe a good idea to keep them unique across the expressions
-    spec = spec_from_loader(file.stem, SourceFileLoader(file.stem, str(file)))
-    if spec is None:
-        raise ValueError(f"Could not load file: {file}")
-    expr_module = module_from_spec(spec)
-    if spec.loader is None:
-        raise ValueError(f"Could not load file: {file}")
-    spec.loader.exec_module(expr_module)
-    func = getattr(expr_module, "model", None) or getattr(expr_module, "test", None)
-    if func is None:
-        raise ValueError(
-            f"Could not find function called 'model' or 'test' in {str(file)}."
-        )
-    return func
 
 
 def _clean_up_unused_sql_files(
@@ -176,6 +145,26 @@ def _clean_up_unused_sql_files(
 
 
 def main() -> None:
+    if sys.argv[1] == "convert":
+        file_path = Path(sys.argv[2])
+        file_extension = file_path.suffix
+        from dbt_ibis._jupyter import (
+            convert_ibis_file_to_notebook,
+            convert_notebook_to_ibis_file,
+        )
+
+        if file_extension == f".{_IBIS_FILE_EXTENSION}":
+            convert_ibis_file_to_notebook(file_path)
+        elif file_extension == ".ipynb":
+            convert_notebook_to_ibis_file(file_path)
+        else:
+            raise ValueError(
+                f"Cannot convert file with extension {file_extension}."
+                + f" Only .{_IBIS_FILE_EXTENSION} and .ipynb are supported."
+            )
+        return
+
+    # Normal dbt commands + precompile from here on
     dbt_subcommand, dbt_parse_arguments = _parse_cli_arguments()
     if dbt_subcommand != "deps":
         # If it's deps, we cannot yet parse the dbt project as it will raise
