@@ -1,0 +1,683 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>User guide &#8212; dbt-ibis</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=5570dae3" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced" href="advanced.html" />
+    <link rel="prev" title="Introduction" href="intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">dbt-ibis</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Introduction
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">User guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API reference</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/binste/dbt-ibis" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/binste/dbt-ibis/issues/new?title=Issue%20on%20page%20%2Fuser_guide.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/user_guide.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>User guide</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-example">Basic example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#column-data-types">Column data types</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli">CLI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#singular-tests">Singular tests</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#editor-configuration">Editor configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#column-name-casing">Column name casing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations">Limitations</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="user-guide">
+<h1>User guide<a class="headerlink" href="#user-guide" title="Link to this heading">#</a></h1>
+<section id="basic-example">
+<h2>Basic example<a class="headerlink" href="#basic-example" title="Link to this heading">#</a></h2>
+<p>You can write your Ibis model in files with the extension <code class="docutils literal notranslate"><span class="pre">.ibis</span></code>. Each <code class="docutils literal notranslate"><span class="pre">.ibis</span></code> file needs to correspond to one model which is defined as a <code class="docutils literal notranslate"><span class="pre">model</span></code> function returning an Ibis table expression:</p>
+<p><code class="docutils literal notranslate"><span class="pre">stg_stores.ibis</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dbt_ibis</span><span class="w"> </span><span class="kn">import</span> <span class="n">depends_on</span><span class="p">,</span> <span class="n">source</span>
+
+
+<span class="nd">@depends_on</span><span class="p">(</span><span class="n">source</span><span class="p">(</span><span class="s2">&quot;sources_db&quot;</span><span class="p">,</span> <span class="s2">&quot;stores&quot;</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="n">stores</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">stores</span><span class="o">.</span><span class="n">mutate</span><span class="p">(</span><span class="n">store_id</span><span class="o">=</span><span class="n">stores</span><span class="p">[</span><span class="s2">&quot;store_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>You can now reference the <code class="docutils literal notranslate"><span class="pre">stg_stores</span></code> model in either a normal SQL model using <code class="docutils literal notranslate"><span class="pre">{{ ref('stg_stores')</span> <span class="pre">}}</span></code> or in another Ibis model:</p>
+<p><code class="docutils literal notranslate"><span class="pre">usa_stores.ibis</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dbt_ibis</span><span class="w"> </span><span class="kn">import</span> <span class="n">depends_on</span><span class="p">,</span> <span class="n">ref</span>
+
+
+<span class="nd">@depends_on</span><span class="p">(</span><span class="n">ref</span><span class="p">(</span><span class="s2">&quot;stg_stores&quot;</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="n">stores</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">stores</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">stores</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;USA&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>See <a class="reference external" href="https://github.com/binste/dbt-ibis/tree/main/demo_project/jaffle_shop">this version of the dbt jaffle shop project</a> for a full example.</p>
+</section>
+<section id="column-data-types">
+<h2>Column data types<a class="headerlink" href="#column-data-types" title="Link to this heading">#</a></h2>
+<p>Whenever your Ibis model references either a source, a seed, a snapshot, or a SQL model, you’ll need to specify the column data types of the referred dbt object in the corresponding <code class="docutils literal notranslate"><span class="pre">yaml</span></code> config. If you reference another Ibis model, this is not necessary. This is simpler than it sounds, don’t worry! In the <code class="docutils literal notranslate"><span class="pre">stg_stores</span></code> examples above, you are referencing the <code class="docutils literal notranslate"><span class="pre">stores</span></code> source and hence you’ll need to specify the data types for the <code class="docutils literal notranslate"><span class="pre">stores</span></code> source table:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">sources</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sources_db</span>
+<span class="w">    </span><span class="nt">database</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sources_db</span>
+<span class="w">    </span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">main</span>
+<span class="w">    </span><span class="nt">tables</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stores</span>
+<span class="w">        </span><span class="nt">columns</span><span class="p">:</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">store_id</span>
+<span class="w">            </span><span class="nt">data_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">varchar</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">store_name</span>
+<span class="w">            </span><span class="nt">data_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">varchar</span>
+<span class="w">          </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">country</span>
+<span class="w">            </span><span class="nt">data_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">varchar</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">usa_stores</span></code> model references <code class="docutils literal notranslate"><span class="pre">stg_stores</span></code> which is already an Ibis model and so you don’t need to do anything.</p>
+<p>Instead of crafting this <code class="docutils literal notranslate"><span class="pre">yaml</span></code> code by hand, you can use the <a class="reference external" href="https://hub.getdbt.com/dbt-labs/codegen/latest/">dbt-codegen</a> package to automatically generate it for you. After installing it (see the previous link), you can run the following in your terminal (adjust the database, schema, and table names accordingly):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dbt<span class="w"> </span>run-operation<span class="w"> </span>generate_source<span class="w"> </span>--args<span class="w"> </span><span class="s1">&#39;{&quot;database_name&quot;: &quot;sources_db&quot;, &quot;schema_name&quot;: &quot;main&quot;, &quot;generate_columns&quot;: true, &quot;table_names&quot;: [&quot;stores&quot;]}&#39;</span>
+</pre></div>
+</div>
+<p>For a model, you can generate the <code class="docutils literal notranslate"><span class="pre">yml</span></code> code with the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dbt<span class="w"> </span>run-operation<span class="w"> </span>generate_model_yaml<span class="w"> </span>--args<span class="w"> </span><span class="s1">&#39;{&quot;model_names&quot;: [&quot;stg_customers&quot;]}&#39;</span>
+</pre></div>
+</div>
+<p>For further optional reading on specifying data types, see <a class="reference external" href="https://docs.getdbt.com/docs/collaborate/govern/model-contracts">Model Contracts - getdbt.com</a> (for sources, snapshots, and SQL models) and <a class="reference external" href="https://docs.getdbt.com/reference/seed-configs">Seed configurations - getdbt.com</a> (for seeds).</p>
+</section>
+<section id="cli">
+<h2>CLI<a class="headerlink" href="#cli" title="Link to this heading">#</a></h2>
+<p>You can use all the dbt commands you’re used to, you simply need to replace <code class="docutils literal notranslate"><span class="pre">dbt</span></code> with <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span></code>. For example:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dbt-ibis<span class="w"> </span>run<span class="w"> </span>--select<span class="w"> </span>stg_stores+
+</pre></div>
+</div>
+<p>If you want to continue to use the <code class="docutils literal notranslate"><span class="pre">dbt</span></code> command, see the instructions on the <a class="reference internal" href="advanced.html"><span class="std std-doc">Advanced</span></a> page on how to configure your shell accordingly.</p>
+<p>You’ll notice that for every <code class="docutils literal notranslate"><span class="pre">.ibis</span></code> file, <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span></code> will generate a corresponding <code class="docutils literal notranslate"><span class="pre">.sql</span></code> file in a <code class="docutils literal notranslate"><span class="pre">__ibis_sql</span></code> subfolder. This is because <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span></code> simply compiles all Ibis expressions to SQL and then let’s DBT do its thing. You should not edit those files as they are overwritten every time you execute a <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span></code> command. However, it might be interesting to look at them if you want to debug an expression. <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span></code> will take care of cleaning up unused <code class="docutils literal notranslate"><span class="pre">.sql</span></code> files in these subfolders which might happen if you rename or delete an <code class="docutils literal notranslate"><span class="pre">.ibis</span></code> file.</p>
+<p>You can also execute <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span> <span class="pre">precompile</span></code> if you only want to compile the <code class="docutils literal notranslate"><span class="pre">.ibis</span></code> to <code class="docutils literal notranslate"><span class="pre">.sql</span></code> files:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># This</span>
+dbt-ibis<span class="w"> </span>run
+
+<span class="c1"># Is the samee as</span>
+dbt-ibis<span class="w"> </span>precompile
+dbt<span class="w"> </span>run
+</pre></div>
+</div>
+</section>
+<section id="singular-tests">
+<h2>Singular tests<a class="headerlink" href="#singular-tests" title="Link to this heading">#</a></h2>
+<p>You can write <a class="reference external" href="https://docs.getdbt.com/docs/build/tests#singular-tests">singular tests</a> the same way you would write a model. The only differences are that you need to name your function <code class="docutils literal notranslate"><span class="pre">test</span></code> instead of <code class="docutils literal notranslate"><span class="pre">model</span></code> and that you place the <code class="docutils literal notranslate"><span class="pre">.ibis</span></code> file in your <a class="reference external" href="https://docs.getdbt.com/docs/build/tests#singular-tests">tests folder</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dbt_ibis</span><span class="w"> </span><span class="kn">import</span> <span class="n">depends_on</span><span class="p">,</span> <span class="n">ref</span>
+
+<span class="nd">@depends_on</span><span class="p">(</span><span class="n">ref</span><span class="p">(</span><span class="s2">&quot;stg_customers&quot;</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test</span><span class="p">(</span><span class="n">customers</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">customers</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">customers</span><span class="p">[</span><span class="s2">&quot;first_name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">customers</span><span class="p">[</span><span class="s2">&quot;last_name&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="editor-configuration">
+<h2>Editor configuration<a class="headerlink" href="#editor-configuration" title="Link to this heading">#</a></h2>
+<p>You might want to configure your editor to treat <code class="docutils literal notranslate"><span class="pre">.ibis</span></code> files as normal Python files. In VS Code, you can do this by putting the following into your <code class="docutils literal notranslate"><span class="pre">settings.json</span></code> file:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="nt">&quot;files.associations&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;*.ibis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;python&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+</pre></div>
+</div>
+</section>
+<section id="column-name-casing">
+<h2>Column name casing<a class="headerlink" href="#column-name-casing" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">dbt-ibis</span></code> relies on the default Ibis behavior when it comes to quoting column names and writing them as upper or lowercase which can depend on your database. However, for databases such as Snowflake which store case-insensitive identifiers in all uppercase letters, this might not always be the most convenient for you to write dbt models. This section shows with an example what different case conventions can mean and how you can configure <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span></code> to deal with it. For databases where identifiers are always case-insensitive, e.g. DuckDB, you can skip this part.</p>
+<p>For the columns, for which <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span></code> loads the data types from the <code class="docutils literal notranslate"><span class="pre">.yml</span></code> files (see above), it assumes that the column name appears exactly in the database as they are specified in the <code class="docutils literal notranslate"><span class="pre">.yml</span></code> file. Taking the following example:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">models</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">customers</span>
+<span class="w">    </span><span class="nt">columns</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">customer_id</span>
+<span class="w">        </span><span class="nt">data_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">integer</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">customer_name</span>
+<span class="w">        </span><span class="nt">data_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">varchar</span>
+</pre></div>
+</div>
+<p>and a dbt model which references this table:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dbt_ibis</span><span class="w"> </span><span class="kn">import</span> <span class="n">ref</span><span class="p">,</span> <span class="n">depends_on</span>
+
+<span class="nd">@depends_on</span><span class="p">(</span><span class="n">ref</span><span class="p">(</span><span class="s2">&quot;customers&quot;</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="n">customers</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">customers</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;customer_id&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will be rendered as the following query if you’re using Snowflake:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">SELECT</span>
+  <span class="n">t0</span><span class="o">.</span><span class="s2">&quot;customer_id&quot;</span>
+<span class="n">FROM</span> <span class="p">{{</span> <span class="n">ref</span><span class="p">(</span><span class="s1">&#39;customers&#39;</span><span class="p">)</span> <span class="p">}}</span> <span class="k">as</span> <span class="n">t0</span>
+</pre></div>
+</div>
+<p>If the column identifier is stored as case-insensitive, this query will fail as the lowercase column <code class="docutils literal notranslate"><span class="pre">&quot;customer_id&quot;</span></code> does not exist. To fix this, you’ll have to write the column names in the <code class="docutils literal notranslate"><span class="pre">.yml</span></code> file in uppercase:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">models</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">customers</span>
+<span class="w">    </span><span class="nt">columns</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CUSTOMER_ID</span>
+<span class="w">        </span><span class="nt">data_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">integer</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CUSTOMER_NAME</span>
+<span class="w">        </span><span class="nt">data_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">varchar</span>
+</pre></div>
+</div>
+<p>and also change it in the model</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@depends_on</span><span class="p">(</span><span class="n">ref</span><span class="p">(</span><span class="s2">&quot;customers&quot;</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="n">customers</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">customers</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;CUSTOMER_ID&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you want to keep using lowercase column names in your model but case-insensitive (i.e. uppercase) identifiers in the database, it would look something like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@depends_on</span><span class="p">(</span><span class="n">ref</span><span class="p">(</span><span class="s2">&quot;customers&quot;</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">model</span><span class="p">(</span><span class="n">customers</span><span class="p">):</span>
+    <span class="n">customers</span> <span class="o">=</span> <span class="n">customers</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;snake_case&quot;</span><span class="p">)</span>
+    <span class="n">customers</span> <span class="o">=</span> <span class="n">customers</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;customer_id&quot;</span><span class="p">)</span>
+    <span class="n">customers</span> <span class="o">=</span> <span class="n">customers</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;ALL_CAPS&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">customers</span>
+</pre></div>
+</div>
+<p>This is rather cumbersome to do for every model and many of us are used to work with lowercase column names as a convention. To simplify the process, you can tell <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span></code> to do these conversions for you. Going back to our original example of using all lowercase names in the <code class="docutils literal notranslate"><span class="pre">.yml</span></code> file as well as in the model, you can make that work by setting the following variables in your <code class="docutils literal notranslate"><span class="pre">dbt_project.yml</span></code> file:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">vars</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dbt_ibis_letter_case_in_db_jaffle_shop_prod</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">upper</span>
+<span class="w">  </span><span class="nt">dbt_ibis_letter_case_in_expr</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lower</span>
+</pre></div>
+</div>
+<p>This tells <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span></code> that in the database, uppercase letters should be used and can be expected, and that in your dbt model you want to use lowercase letters. Both variables accept <code class="docutils literal notranslate"><span class="pre">upper</span></code> and <code class="docutils literal notranslate"><span class="pre">lower</span></code> as values. In addition, the first variable is specific to a profile (<code class="docutils literal notranslate"><span class="pre">jaffle_shop</span></code>) and target (<code class="docutils literal notranslate"><span class="pre">prod</span></code>) following the format <code class="docutils literal notranslate"><span class="pre">dbt_ibis_letter_case_in_db_{profile}_{target}</span></code>. This allows you to set different conventions for different databases. If in the above example, you would have a <code class="docutils literal notranslate"><span class="pre">dev</span></code> target which points to a local duckdb file, this <code class="docutils literal notranslate"><span class="pre">dev</span></code> target would still use the default letter case behavior of Ibis.</p>
+<p>If all of this sounds confusing, I’d recommend to play around with the different configurations and run <code class="docutils literal notranslate"><span class="pre">dbt-ibis</span> <span class="pre">precompile</span></code> to inspect the generated SQL. If you have any questions, feel free to open an Issue in this repository.</p>
+<p>See <a class="reference external" href="https://github.com/ibis-project/ibis/issues/6772">this GitHub issue</a> for some further explanations and examples on case handling in Ibis and Snowflake.</p>
+</section>
+<section id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>There is no database connection available in the Ibis <code class="docutils literal notranslate"><span class="pre">model</span></code> functions. Hence, you cannot use Ibis functionality which would require this.</p></li>
+<li><p>For non-Ibis models, seeds, snapshots, and for sources, you need to specify the data types of the columns. See “Basic example” above.</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="intro.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Introduction</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="advanced.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Advanced</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-example">Basic example</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#column-data-types">Column data types</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cli">CLI</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#singular-tests">Singular tests</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#editor-configuration">Editor configuration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#column-name-casing">Column name casing</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limitations">Limitations</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Stefan Binder
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
