@@ -8,6 +8,7 @@ Supported dbt adapters:
 * Postgres
 * Redshift
 * RisingWave
+* Databricks
 * Trino
 * MySQL
 * SQLite
