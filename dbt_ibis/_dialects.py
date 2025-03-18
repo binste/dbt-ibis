@@ -23,6 +23,7 @@ DBTAdapterTypeToIbisDialect: dict[DBTAdapterType, IbisDialect] = {
     DBTAdapterType("duckdb"): IbisDialect("duckdb"),
     DBTAdapterType("bigquery"): IbisDialect("bigquery"),
     DBTAdapterType("risingwave"): IbisDialect("risingwave"),
+    DBTAdapterType("databricks"): IbisDialect("databricks"),
 }
 
 IbisDialectToTypeMapper: dict[IbisDialect, type[TypeMapper]] = {
@@ -35,6 +36,7 @@ IbisDialectToTypeMapper: dict[IbisDialect, type[TypeMapper]] = {
     IbisDialect("duckdb"): sql_dt.DuckDBType,
     IbisDialect("bigquery"): sql_dt.BigQueryType,
     IbisDialect("risingwave"): sql_dt.RisingWaveType,
+    IbisDialect("databricks"): sql_dt.DatabricksType,
 }
 
 
